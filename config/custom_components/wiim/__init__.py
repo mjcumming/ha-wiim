@@ -10,13 +10,14 @@ from .api import WiiMClient
 from .const import DOMAIN
 from .coordinator import WiiMCoordinator
 
-PLATFORMS = [Platform.MEDIA_PLAYER]
+PLATFORMS = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON, Platform.NUMBER]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up WiiM from a config entry."""
     client = WiiMClient(entry.data["host"])
     coordinator = WiiMCoordinator(hass, client)
+    coordinator.entry_id = entry.entry_id  # type: ignore[attr-defined]
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator

@@ -29,3 +29,27 @@ toggle_power:
         entity:
           domain: media_player
           integration: wiim
+
+reboot_device:
+  name: Reboot Device
+  description: Soft-reboot the WiiM speaker.
+  fields:
+    entity_id:
+      name: Entity
+      description: Name of the WiiM entity to reboot.
+      selector:
+        entity:
+          domain: media_player
+          integration: wiim
+
+sync_time:
+  name: Sync Time
+  description: Push Home Assistant's current Unix timestamp to the speaker.
+  fields:
+    entity_id:
+      name: Entity
+      description: Name of the WiiM entity to update.
+      selector:
+        entity:
+          domain: media_player
+          integration: wiim

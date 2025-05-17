@@ -2,16 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
+from datetime import timedelta
 from typing import Any
+import asyncio
 
-from homeassistant.components.media_player import (
-    MediaPlayerEntity,
-    MediaPlayerState,
-)
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import WiiMClient, WiiMError
@@ -39,29 +35,42 @@ class WiiMCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{client._host}",
-            update_interval=poll_interval,
+            update_interval=timedelta(seconds=poll_interval),
         )
         self.client = client
         self._group_members: set[str] = set()
         self._is_ha_group_leader = False
         self._ha_group_members: set[str] = set()
-        self._base_poll_interval = poll_interval
+        self._base_poll_interval = poll_interval  # seconds
         self._consecutive_failures = 0
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data from WiiM device."""
         try:
-            # Get device status
-            status = await self.client.get_status()
+            # Parallel fetch player status + slave list
+            status, multiroom = await asyncio.gather(
+                self.client.get_player_status(),
+                self.client.get_multiroom_info(),
+            )
+
+            # Derive role
+            if status.get("type") == "1" or status.get("master_uuid"):
+                role = "guest"
+            elif multiroom.get("slave_count", 0) > 0:
+                role = "master"
+            else:
+                role = "solo"
 
             # If we reach here the poll succeeded – reset failure counter and interval
             if self._consecutive_failures:
                 self._consecutive_failures = 0
-                if self.update_interval != self._base_poll_interval:
-                    self.update_interval = self._base_poll_interval
+                if (
+                    self.update_interval is not None
+                    and self.update_interval.total_seconds() != self._base_poll_interval
+                ):
+                    self.update_interval = timedelta(seconds=self._base_poll_interval)
 
             # Update multiroom status
-            multiroom = await self.client.get_multiroom_status()
             self._group_members = set(multiroom.get("slaves", []))
 
             # Update HA group status
@@ -70,6 +79,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
             return {
                 "status": status,
                 "multiroom": multiroom,
+                "role": role,
                 "ha_group": {
                     "is_leader": self._is_ha_group_leader,
                     "members": list(self._ha_group_members),
@@ -84,13 +94,11 @@ class WiiMCoordinator(DataUpdateCoordinator):
                     self._base_poll_interval * (2 ** (self._consecutive_failures - 2)),
                     60,
                 )
-                if new_interval != self.update_interval:
-                    _LOGGER.warning(
-                        "WiiM update failed %s times; increasing poll interval to %s s",
-                        self._consecutive_failures,
-                        new_interval,
-                    )
-                    self.update_interval = new_interval
+                if (
+                    self.update_interval is None
+                    or new_interval != self.update_interval.total_seconds()
+                ):
+                    self.update_interval = timedelta(seconds=new_interval)
             raise UpdateFailed(f"Error updating WiiM device: {err}")
 
     def _update_ha_group_status(self) -> None:

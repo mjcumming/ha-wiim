@@ -1,0 +1,74 @@
+2025-05-17 19:28:44.095 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration wiim which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+2025-05-17 19:28:44.337 WARNING (MainThread) [aiohttp_fast_zlib] zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
+2025-05-17 19:28:44.729 ERROR (MainThread) [custom_components.wiim.coordinator] Unexpected error fetching wiim_192.168.1.68 data
+Traceback (most recent call last):
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 576, in get_multiroom_info
+    raw = await self._request(API_ENDPOINT_MULTIROOM_SLAVES)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 228, in _request
+    raise WiiMConnectionError(f"Error communicating with WiiM device: {last_err}")
+custom_components.wiim.api.WiiMConnectionError: Error communicating with WiiM device: Cannot connect to host 192.168.1.68:80 ssl:False [Connect call failed ('192.168.1.68', 80)]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/helpers/update_coordinator.py", line 380, in _async_refresh
+    self.data = await self._async_update_data()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/coordinator.py", line 51, in _async_update_data
+    status, multiroom = await asyncio.gather(
+                        ^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 579, in get_multiroom_info
+    from .const import API_ENDPOINT_MULTIROOM_STATUS
+ImportError: cannot import name 'API_ENDPOINT_MULTIROOM_STATUS' from 'custom_components.wiim.const' (/workspaces/ha-wiim/config/custom_components/wiim/const.py)
+2025-05-17 19:28:45.161 ERROR (MainThread) [custom_components.wiim.coordinator] Unexpected error fetching wiim_192.168.1.68 data
+Traceback (most recent call last):
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 576, in get_multiroom_info
+    raw = await self._request(API_ENDPOINT_MULTIROOM_SLAVES)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 228, in _request
+    raise WiiMConnectionError(f"Error communicating with WiiM device: {last_err}")
+custom_components.wiim.api.WiiMConnectionError: Error communicating with WiiM device: Cannot connect to host 192.168.1.68:80 ssl:False [Connect call failed ('192.168.1.68', 80)]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/helpers/update_coordinator.py", line 380, in _async_refresh
+    self.data = await self._async_update_data()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/coordinator.py", line 51, in _async_update_data
+    status, multiroom = await asyncio.gather(
+                        ^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 579, in get_multiroom_info
+    from .const import API_ENDPOINT_MULTIROOM_STATUS
+ImportError: cannot import name 'API_ENDPOINT_MULTIROOM_STATUS' from 'custom_components.wiim.const' (/workspaces/ha-wiim/config/custom_components/wiim/const.py)
+2025-05-17 19:28:54.487 ERROR (MainThread) [custom_components.wiim.coordinator] Unexpected error fetching wiim_192.168.1.68 data
+Traceback (most recent call last):
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 576, in get_multiroom_info
+    raw = await self._request(API_ENDPOINT_MULTIROOM_SLAVES)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 228, in _request
+    raise WiiMConnectionError(f"Error communicating with WiiM device: {last_err}")
+custom_components.wiim.api.WiiMConnectionError: Error communicating with WiiM device: Cannot connect to host 192.168.1.68:80 ssl:False [Connect call failed ('192.168.1.68', 80)]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/helpers/update_coordinator.py", line 380, in _async_refresh
+    self.data = await self._async_update_data()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/coordinator.py", line 51, in _async_update_data
+    status, multiroom = await asyncio.gather(
+                        ^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 579, in get_multiroom_info
+    from .const import API_ENDPOINT_MULTIROOM_STATUS
+ImportError: cannot import name 'API_ENDPOINT_MULTIROOM_STATUS' from 'custom_components.wiim.const' (/workspaces/ha-wiim/config/custom_components/wiim/const.py)

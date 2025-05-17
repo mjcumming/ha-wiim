@@ -18,6 +18,12 @@ from .const import (
     DOMAIN,
 )
 
+# --- UPnP/SSDP discovery imports ---
+try:
+    from async_upnp_client.search import async_search
+except ImportError:
+    async_search = None
+
 
 async def _async_validate_host(host: str) -> None:
     """Validate we can talk to the WiiM device."""
@@ -34,6 +40,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Set up instance."""
         self._host: str | None = None
+        self._discovered_hosts: list[str] = []
 
     @staticmethod
     @callback
@@ -46,7 +53,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step (manual)."""
+        """Handle the initial step (manual or UPnP discovery)."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -62,8 +69,50 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=f"WiiM {host}", data={CONF_HOST: host}
                 )
 
+        # Offer UPnP discovery as a fallback
+        if async_search is not None:
+            return await self.async_step_upnp()
+
         schema = vol.Schema({vol.Required(CONF_HOST): str})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    async def async_step_upnp(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Discover WiiM/LinkPlay devices via UPnP/SSDP."""
+        errors: dict[str, str] = {}
+        if not self._discovered_hosts:
+            # Perform UPnP discovery
+            self._discovered_hosts = await self._discover_upnp_hosts()
+        if user_input is not None:
+            host = user_input[CONF_HOST]
+            await self.async_set_unique_id(host)
+            self._abort_if_unique_id_configured()
+            try:
+                await _async_validate_host(host)
+            except WiiMError:
+                errors["base"] = "cannot_connect"
+            else:
+                return self.async_create_entry(
+                    title=f"WiiM {host}", data={CONF_HOST: host}
+                )
+        if self._discovered_hosts:
+            schema = vol.Schema({vol.Required(CONF_HOST): vol.In(self._discovered_hosts)})
+            return self.async_show_form(step_id="upnp", data_schema=schema, errors=errors, description_placeholders={"count": str(len(self._discovered_hosts))})
+        # If no devices found, fall back to manual
+        schema = vol.Schema({vol.Required(CONF_HOST): str})
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    async def _discover_upnp_hosts(self) -> list[str]:
+        """Use async_upnp_client to discover WiiM/LinkPlay devices on the network."""
+        found_hosts = set()
+        if async_search is None:
+            return []
+        async def _callback(device):
+            host = device.get("_host")
+            if host:
+                found_hosts.add(host)
+        # Use a short timeout for discovery
+        await async_search(async_callback=_callback, timeout=5)
+        return list(found_hosts)
 
     async def async_step_zeroconf(self, discovery_info: dict[str, Any]) -> FlowResult:  # noqa: D401
         """Handle Zeroconf discovery."""

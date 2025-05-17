@@ -35,6 +35,9 @@ ATTR_REPEAT_MODE = "repeat_mode"
 ATTR_SHUFFLE_MODE = "shuffle_mode"
 ATTR_SOURCE = "source"
 ATTR_MUTE = "mute"
+ATTR_WIFI_RSSI = "wifi_rssi"
+ATTR_WIFI_CHANNEL = "wifi_channel"
+ATTR_GROUP_ROLE = "group_role"
 
 # Supported features
 SUPPORT_WIIM = (
@@ -134,3 +137,18 @@ SOURCE_USB = "usb"
 SOURCE_OPTICAL = "optical"
 SOURCE_COAXIAL = "coaxial"
 SOURCE_NETWORK = "network"
+
+# Services – extended diagnostic helpers
+SERVICE_REBOOT = "reboot_device"
+SERVICE_SYNC_TIME = "sync_time"
+
+# New endpoints
+API_ENDPOINT_PLAYER_STATUS = "/httpapi.asp?command=getPlayerStatusEx"
+API_ENDPOINT_MULTIROOM_SLAVES = "/httpapi.asp?command=multiroom:getSlaveList"
+
+# Multiroom commands
+API_CMD_CREATE_GROUP = "/httpapi.asp?command=setMultiroom:Master"
+API_CMD_JOIN_GROUP = "/httpapi.asp?command=setMultiroom:Slave:"
+API_CMD_LEAVE_GROUP = "/httpapi.asp?command=setMultiroom:Exit"
+API_CMD_DISBAND_GROUP = "/httpapi.asp?command=multiroom:Ungroup"
+API_CMD_KICK_GUEST = "/httpapi.asp?command=multiroom:SlaveKickout:"  # future use

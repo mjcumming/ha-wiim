@@ -1,4 +1,59 @@
-2025-05-17 12:16:30.734 WARNING (MainThread) [aiohttp_fast_zlib] zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
-2025-05-17 12:16:42.143 WARNING (MainThread) [asyncio] Executing <Task finished name='setup component conversation' coro=<async_setup_component() done, defined at /home/vscode/.local/ha-venv/lib/python3.13/site-packages/homeassistant/setup.py:151> result=True created at /home/vscode/.local/ha-venv/lib/python3.13/site-packages/homeassistant/util/async_.py:45> took 0.101 seconds
-2025-05-17 12:16:46.411 WARNING (MainThread) [asyncio] Executing <Task finished name='setup sun as dependency of default_config' coro=<async_setup_component() done, defined at /home/vscode/.local/ha-venv/lib/python3.13/site-packages/homeassistant/setup.py:151> result=True created at /home/vscode/.local/ha-venv/lib/python3.13/site-packages/homeassistant/util/async_.py:45> took 0.106 seconds
-2025-05-17 12:16:51.394 WARNING (MainThread) [asyncio] Executing <Task finished name='Task-77' coro=<gather_with_limited_concurrency.<locals>.sem_task() done, defined at /home/vscode/.local/ha-venv/lib/python3.13/site-packages/homeassistant/util/async_.py:110> result={'context': {'source': 'system'}, 'data': {}, 'description': None, 'description_placeholders': None, ...} created at /home/vscode/.local/ha-venv/lib/python3.13/site-packages/homeassistant/util/async_.py:45> took 0.294 seconds
+2025-05-17 19:38:36.070 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration wiim which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+2025-05-17 19:38:36.752 WARNING (MainThread) [aiohttp_fast_zlib] zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
+2025-05-17 19:38:59.960 ERROR (SyncWorker_2) [homeassistant] Error doing job: Unclosed client session (None):   File "/ha-venv/bin/hass", line 8, in <module>
+    sys.exit(main())
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/__main__.py", line 213, in main
+    exit_code = runner.run(runtime_conf)
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/runner.py", line 154, in run
+    return loop.run_until_complete(setup_and_run_hass(runtime_config))
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 2026, in _run_once
+    handle._run()
+  File "/usr/local/lib/python3.13/asyncio/events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 517, in get_player_status
+    raw: dict[str, Any] = await self._request(API_ENDPOINT_PLAYER_STATUS)
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 192, in _request
+    self._session = aiohttp.ClientSession(timeout=self._timeout)
+
+2025-05-17 19:38:59.961 ERROR (SyncWorker_2) [homeassistant] Error doing job: Unclosed client session (None):   File "/ha-venv/bin/hass", line 8, in <module>
+    sys.exit(main())
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/__main__.py", line 213, in main
+    exit_code = runner.run(runtime_conf)
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/runner.py", line 154, in run
+    return loop.run_until_complete(setup_and_run_hass(runtime_config))
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 2026, in _run_once
+    handle._run()
+  File "/usr/local/lib/python3.13/asyncio/events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 517, in get_player_status
+    raw: dict[str, Any] = await self._request(API_ENDPOINT_PLAYER_STATUS)
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 192, in _request
+    self._session = aiohttp.ClientSession(timeout=self._timeout)
+
+2025-05-17 19:39:42.839 ERROR (MainThread) [homeassistant] Error doing job: Unclosed client session (None):   File "/ha-venv/bin/hass", line 8, in <module>
+    sys.exit(main())
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/__main__.py", line 213, in main
+    exit_code = runner.run(runtime_conf)
+  File "/ha-venv/lib/python3.13/site-packages/homeassistant/runner.py", line 154, in run
+    return loop.run_until_complete(setup_and_run_hass(runtime_config))
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+  File "/usr/local/lib/python3.13/asyncio/base_events.py", line 2026, in _run_once
+    handle._run()
+  File "/usr/local/lib/python3.13/asyncio/events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 517, in get_player_status
+    raw: dict[str, Any] = await self._request(API_ENDPOINT_PLAYER_STATUS)
+  File "/workspaces/ha-wiim/config/custom_components/wiim/api.py", line 192, in _request
+    self._session = aiohttp.ClientSession(timeout=self._timeout)
+

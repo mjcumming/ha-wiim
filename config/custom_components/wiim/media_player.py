@@ -18,7 +18,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers import entity_platform
 import voluptuous as vol
 
-from .api import WiiMClient, WiiMError
+from .api import WiiMError
 from .const import (
     ATTR_DEVICE_ID,
     ATTR_DEVICE_MODEL,
@@ -40,6 +40,8 @@ from .const import (
     PLAY_MODE_REPEAT_ONE,
     PLAY_MODE_SHUFFLE,
     PLAY_MODE_SHUFFLE_REPEAT_ALL,
+    CONF_VOLUME_STEP,
+    DEFAULT_VOLUME_STEP,
 )
 from .coordinator import WiiMCoordinator
 
@@ -70,6 +72,18 @@ async def async_setup_entry(
         "async_toggle_power",
     )
 
+    # Diagnostic helpers
+    platform.async_register_entity_service(
+        "reboot_device",
+        {},
+        "async_reboot_device",
+    )
+    platform.async_register_entity_service(
+        "sync_time",
+        {},
+        "async_sync_time",
+    )
+
 
 class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     """Representation of a WiiM media player."""
@@ -86,6 +100,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             model=coordinator.data.get("status", {}).get("device_model", "WiiM"),
             sw_version=coordinator.data.get("status", {}).get("firmware", ""),
         )
+        # Compose the bitmask of capabilities supported by the WiiM device.
         self._attr_supported_features = MediaPlayerEntityFeature(
             MediaPlayerEntityFeature.PLAY
             | MediaPlayerEntityFeature.PAUSE
@@ -97,17 +112,9 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             | MediaPlayerEntityFeature.VOLUME_MUTE
             | MediaPlayerEntityFeature.SELECT_SOURCE
             | MediaPlayerEntityFeature.CLEAR_PLAYLIST
-            | MediaPlayerEntityFeature.PLAY_MEDIA
-            | MediaPlayerEntityFeature.MEDIA_POSITION
-            | MediaPlayerEntityFeature.MEDIA_POSITION_UPDATE_AT
-            | MediaPlayerEntityFeature.MEDIA_DURATION
-            | MediaPlayerEntityFeature.MEDIA_TITLE
-            | MediaPlayerEntityFeature.MEDIA_ARTIST
-            | MediaPlayerEntityFeature.MEDIA_ALBUM_NAME
-            | MediaPlayerEntityFeature.MEDIA_PLAYLIST
             | MediaPlayerEntityFeature.SHUFFLE_SET
             | MediaPlayerEntityFeature.REPEAT_SET
-            | MediaPlayerEntityFeature.GROUP_MEMBERS
+            | MediaPlayerEntityFeature.GROUPING
         )
 
     @property
@@ -206,7 +213,6 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return entity specific state attributes."""
         status = self.coordinator.data.get("status", {})
-        multiroom = self.coordinator.data.get("multiroom", {})
         return {
             ATTR_DEVICE_MODEL: status.get("device_model"),
             ATTR_DEVICE_NAME: status.get("device_name"),
@@ -287,11 +293,20 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             _LOGGER.error("Failed to play previous track on WiiM device: %s", err)
             raise
 
+    def _volume_step(self) -> float:
+        entry_id = getattr(self.coordinator, 'entry_id', None)
+        if entry_id:
+            entry = self.hass.config_entries.async_get_entry(entry_id)
+            if entry is not None:
+                return entry.options.get(CONF_VOLUME_STEP, DEFAULT_VOLUME_STEP)
+        return 0.05
+
     async def async_volume_up(self) -> None:
         """Volume up the media player."""
         if volume := self.volume_level:
+            step = self._volume_step()
             try:
-                await self.coordinator.client.set_volume(min(1.0, volume + 0.05))
+                await self.coordinator.client.set_volume(min(1.0, volume + step))
                 await self.coordinator.async_refresh()
             except WiiMError as err:
                 _LOGGER.error("Failed to increase volume on WiiM device: %s", err)
@@ -300,8 +315,9 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_volume_down(self) -> None:
         """Volume down the media player."""
         if volume := self.volume_level:
+            step = self._volume_step()
             try:
-                await self.coordinator.client.set_volume(max(0.0, volume - 0.05))
+                await self.coordinator.client.set_volume(max(0.0, volume - step))
                 await self.coordinator.async_refresh()
             except WiiMError as err:
                 _LOGGER.error("Failed to decrease volume on WiiM device: %s", err)
@@ -426,6 +442,26 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             await self.coordinator.delete_wiim_group()
         else:
             await self.coordinator.leave_wiim_group()
+
+    # ------------------------------------------------------------------
+    # Diagnostic helpers exposed as entity services
+    # ------------------------------------------------------------------
+
+    async def async_reboot_device(self) -> None:
+        """Reboot the speaker via entity service."""
+        try:
+            await self.coordinator.client.reboot()
+        except WiiMError as err:
+            _LOGGER.error("Failed to reboot WiiM device: %s", err)
+            raise
+
+    async def async_sync_time(self) -> None:
+        """Synchronise the speaker clock to Home Assistant time."""
+        try:
+            await self.coordinator.client.sync_time()
+        except WiiMError as err:
+            _LOGGER.error("Failed to sync time on WiiM device: %s", err)
+            raise
 
 
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:
