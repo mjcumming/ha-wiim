@@ -14,3 +14,5 @@ logger:
     custom_components.wiim: debug
     homeassistant.components.ssdp: debug
     custom_components.wiim.api: debug
+
+default_config:
