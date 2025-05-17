@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.dashboard_test",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "path": "default_view",
+          "title": "Home",
+          "cards": [
+            {
+              "type": "entities",
+              "entities": [
+                "person.dev"
+              ]
+            },
+            {
+              "type": "weather-forecast",
+              "entity": "weather.forecast_home",
+              "show_forecast": false
+            },
+            {
+              "type": "grid",
+              "square": false,
+              "columns": 1,
+              "cards": [
+                {
+                  "type": "entities",
+                  "entities": [
+                    {
+                      "entity": "number.wiim_192_168_1_68_polling_interval",
+                      "name": "Polling Interval"
+                    },
+                    {
+                      "entity": "button.wiim_192_168_1_68_reboot",
+                      "name": "Reboot"
+                    },
+                    {
+                      "entity": "button.wiim_192_168_1_68_sync_time",
+                      "name": "Sync Time"
+                    },
+                    {
+                      "entity": "number.wiim_192_168_1_68_volume_step",
+                      "name": "Volume Step"
+                    },
+                    {
+                      "entity": "sensor.wiim_192_168_1_68_group_role",
+                      "name": "Group Role"
+                    },
+                    {
+                      "entity": "sensor.wiim_192_168_1_68_wifi_channel",
+                      "name": "WiFi Channel"
+                    },
+                    {
+                      "entity": "sensor.wiim_192_168_1_68_wifi_rssi",
+                      "name": "WiFi RSSI"
+                    }
+                  ],
+                  "title": "WiiM 192.168.1.68"
+                },
+                {
+                  "type": "media-control",
+                  "entity": "media_player.wiim_192_168_1_68"
+                }
+              ]
+            },
+            {
+              "type": "media-control",
+              "entity": "media_player.wiim_192_168_1_68"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

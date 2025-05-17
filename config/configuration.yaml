@@ -1,4 +1,3 @@
-
 # Loads default set of integrations. Do not remove.
 
 # Load frontend themes from the themes folder
@@ -8,3 +7,10 @@ frontend:
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+
+logger:
+  default: info
+  logs:
+    custom_components.wiim: debug
+    homeassistant.components.ssdp: debug
+    custom_components.wiim.api: debug

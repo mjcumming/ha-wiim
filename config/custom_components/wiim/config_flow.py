@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlparse
+import logging
 
 import voluptuous as vol
 
@@ -24,12 +26,16 @@ try:
 except ImportError:
     async_search = None
 
+_LOGGER = logging.getLogger(__name__)
 
 async def _async_validate_host(host: str) -> None:
-    """Validate we can talk to the WiiM device."""
+    """Validate we can talk to the WiiM device and always close the session."""
     client = WiiMClient(host)
-    await client.get_status()
-    await client.close()
+    try:
+        await client.get_status()
+    finally:
+        # Ensure the underlying aiohttp session is closed even on failure
+        await client.close()
 
 
 class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -103,15 +109,28 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _discover_upnp_hosts(self) -> list[str]:
         """Use async_upnp_client to discover WiiM/LinkPlay devices on the network."""
-        found_hosts = set()
         if async_search is None:
             return []
-        async def _callback(device):
-            host = device.get("_host")
+
+        found_hosts: set[str] = set()
+
+        async def _callback(device):  # type: ignore[missing-param-doc]
+            """Collect hosts from SSDP discovery callback."""
+            # `SsdpDevice` objects provide a `host` attribute with the IP address.
+            host = getattr(device, "host", None)
+
+            # Fallback to parsing LOCATION header if attribute missing (older versions)
+            if host is None:
+                location = getattr(device, "location", None)
+                if location:
+                    host = urlparse(location).hostname
+
             if host:
                 found_hosts.add(host)
+
         # Use a short timeout for discovery
         await async_search(async_callback=_callback, timeout=5)
+
         return list(found_hosts)
 
     async def async_step_zeroconf(self, discovery_info: dict[str, Any]) -> FlowResult:  # noqa: D401
@@ -139,6 +158,38 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
         return self.async_show_form(step_id="confirm")
+
+    # -----------------------------------------------------
+    # SSDP discovery (native HA flow) ---------------------
+    # -----------------------------------------------------
+
+    async def async_step_ssdp(self, discovery_info: dict[str, Any]) -> FlowResult:  # noqa: D401
+        """Handle SSDP discovery from Home Assistant core."""
+
+        _LOGGER.debug("SSDP discovery: %s", discovery_info)
+
+        # Get device host – depending on HA version field may be 'host' or 'ssdp_location'.
+        host = discovery_info.get("host")
+        if not host and (loc := discovery_info.get("ssdp_location")):
+            from urllib.parse import urlparse
+
+            host = urlparse(loc).hostname
+
+        _LOGGER.debug("SSDP candidate host: %s", host)
+
+        if not host:
+            return self.async_abort(reason="no_host")
+
+        await self.async_set_unique_id(host)
+        self._abort_if_unique_id_configured()
+
+        try:
+            await _async_validate_host(host)
+        except WiiMError:
+            return self.async_abort(reason="cannot_connect")
+
+        self._host = host
+        return await self.async_step_confirm()
 
 
 class WiiMOptionsFlow(config_entries.OptionsFlow):

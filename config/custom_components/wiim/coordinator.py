@@ -14,6 +14,7 @@ from .api import WiiMClient, WiiMError
 from .const import (
     ATTR_GROUP_MEMBERS,
     ATTR_GROUP_LEADER,
+    CONF_HOST,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
 )
@@ -43,15 +44,27 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self._ha_group_members: set[str] = set()
         self._base_poll_interval = poll_interval  # seconds
         self._consecutive_failures = 0
+        self._imported_hosts: set[str] = set()
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data from WiiM device."""
         try:
-            # Parallel fetch player status + slave list
-            status, multiroom = await asyncio.gather(
+            # Parallel fetch detailed status, basic status, and slave list
+            player_status, basic_status, multiroom = await asyncio.gather(
                 self.client.get_player_status(),
+                self.client.get_status(),
                 self.client.get_multiroom_info(),
             )
+
+            # Merge – player_status has dynamic fields, basic_status adds static info
+            status = {**basic_status, **player_status}
+
+            # Ensure source list exists so Lovelace shows picker
+            if not status.get("sources"):
+                try:
+                    status["sources"] = await self.client.get_sources()
+                except WiiMError as err:
+                    _LOGGER.debug("Failed to fetch source list: %s", err)
 
             # Derive role
             if status.get("type") == "1" or status.get("master_uuid"):
@@ -70,8 +83,12 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 ):
                     self.update_interval = timedelta(seconds=self._base_poll_interval)
 
-            # Update multiroom status
-            self._group_members = set(multiroom.get("slaves", []))
+            # Update multiroom status & trigger discovery of new slave IPs
+            self._group_members = {
+                entry.get("ip") for entry in multiroom.get("slaves", []) if entry.get("ip")
+            }
+
+            await self._async_trigger_slave_discovery()
 
             # Update HA group status
             self._update_ha_group_status()
@@ -117,6 +134,28 @@ class WiiMCoordinator(DataUpdateCoordinator):
         # Update internal state
         self._ha_group_members = set(group_members)
         self._is_ha_group_leader = group_leader == entity_id
+
+    async def _async_trigger_slave_discovery(self) -> None:
+        """Start config flows for new slave IPs that HA doesn't know yet."""
+        for ip in self._group_members:
+            if ip in self._imported_hosts:
+                continue
+
+            # Skip if already present
+            if any(coord.client.host == ip for coord in self.hass.data.get(DOMAIN, {}).values()):
+                self._imported_hosts.add(ip)
+                continue
+
+            self._imported_hosts.add(ip)
+
+            self.hass.async_create_task(
+                self.hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": "import"},
+                    data={CONF_HOST: ip},
+                )
+            )
+            _LOGGER.debug("Started import flow for slave %s", ip)
 
     async def create_wiim_group(self) -> None:
         """Create a WiiM multiroom group."""

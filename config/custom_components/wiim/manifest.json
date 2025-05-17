@@ -6,11 +6,22 @@
   "codeowners": ["@mjcumming"],
   "requirements": [],
   "version": "0.1.1",
+  "logo": "WIIM.png",
   "config_flow": true,
   "zeroconf": [
     {
       "type": "_linkplay._tcp",
       "name": "WiiM*"
+    }
+  ],
+  "ssdp": [
+    {
+      "manufacturer": "Linkplay",
+      "device_type": "urn:schemas-upnp-org:device:MediaRenderer:1"
+    },
+    {
+      "manufacturer": "WiiM",
+      "device_type": "urn:schemas-upnp-org:device:MediaRenderer:1"
     }
   ],
   "iot_class": "local_push"

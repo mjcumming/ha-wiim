@@ -214,6 +214,8 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         """Return entity specific state attributes."""
         status = self.coordinator.data.get("status", {})
         return {
+            # Artwork path consumed by frontend via entity_picture
+            "entity_picture": status.get("entity_picture"),
             ATTR_DEVICE_MODEL: status.get("device_model"),
             ATTR_DEVICE_NAME: status.get("device_name"),
             ATTR_DEVICE_ID: status.get("device_id"),
@@ -229,6 +231,11 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             ATTR_GROUP_MEMBERS: list(self.coordinator.ha_group_members),
             ATTR_GROUP_LEADER: self.group_leader,
         }
+
+    @property
+    def entity_picture(self) -> str | None:
+        """Return URL to current artwork."""
+        return self.coordinator.data.get("status", {}).get("entity_picture")
 
     async def async_turn_on(self) -> None:
         """Turn the media player on."""

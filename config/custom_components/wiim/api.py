@@ -142,6 +142,11 @@ class WiiMClient:
         self._group_master: str | None = None
         self._group_slaves: list[str] = []
         self._ssl_context: ssl.SSLContext | None = None
+        # Some firmwares ship a *device-unique* self-signed certificate.  We
+        # start optimistic (verify on) and permanently fall back to
+        # *insecure* mode after the first verification failure to avoid the
+        # noisy SSL errors on every poll.
+        self._verify_ssl_default: bool = True
 
     @property
     def host(self) -> str:
@@ -196,36 +201,67 @@ class WiiMClient:
         async def _try_request(url: str, verify_ssl: bool) -> dict[str, Any] | None:
             """Inner helper to attempt a single request and return parsed JSON or raw text."""
             kwargs["ssl"] = self._get_ssl_context() if verify_ssl else False  # type: ignore
+
+            _LOGGER.debug("WiiM HTTP %s %s (verify_ssl=%s)", method, url, verify_ssl)
+
             async with async_timeout.timeout(self._timeout.total):
                 async with self._session.request(method, url, **kwargs) as response:
                     response.raise_for_status()
                     text = await response.text()
 
                     if not text:
+                        _LOGGER.debug("%s -> empty response", url)
                         return {}
-                    if not text.lstrip().startswith(('{', '[')):
-                        # Non-JSON payload like 'OK' – return raw for caller who may ignore it.
+                    if not text.lstrip().startswith(("{", "[")):
+                        _LOGGER.debug("%s -> non-JSON: %s", url, text.strip())
                         return {"raw": text.strip()}
+
+                    _LOGGER.debug("%s -> %d bytes JSON", url, len(text))
                     return json.loads(text)
 
-        # Try the three common LinkPlay ports in order of preference
-        ports_to_try = [(443, True), (4443, True), (80, False)]
+        # Build port/verify matrix based on previous results.
+        if self._verify_ssl_default:
+            ports_to_try = [
+                (443, True),
+                (443, False),
+                (4443, True),
+                (4443, False),
+            ]
+        else:
+            ports_to_try = [
+                (443, False),
+                (4443, False),
+            ]
         last_err: Exception | None = None
+        tried: list[str] = []
         for port, verify_ssl in ports_to_try:
-            url = f"{'https' if verify_ssl else 'http'}://{self._host}:{port}{endpoint}"
+            url = f"https://{self._host}:{port}{endpoint}"
+            tried.append(f"{url} (verify={verify_ssl})")
             try:
                 result = await _try_request(url, verify_ssl)
                 if result is not None:
+                    _LOGGER.debug("Successful request on %s", url)
                     return result
             except (asyncio.TimeoutError, ClientError, json.JSONDecodeError) as err:
+                # If verification failed once – remember and skip verified
+                # attempts in the future.
+                if verify_ssl and isinstance(err, ssl.SSLCertVerificationError):
+                    self._verify_ssl_default = False
+                _LOGGER.debug("Request to %s failed: %s", url, err)
                 last_err = err
                 continue  # try next port
 
         # All attempts failed → raise
         if last_err:
             if isinstance(last_err, asyncio.TimeoutError):
-                raise WiiMTimeoutError(f"Timeout communicating with WiiM device: {last_err}")
-            raise WiiMConnectionError(f"Error communicating with WiiM device: {last_err}")
+                raise WiiMTimeoutError(
+                    "Timeout communicating with WiiM device after trying %s: %s"
+                    % (", ".join(tried), last_err)
+                )
+            raise WiiMConnectionError(
+                "Error communicating with WiiM device after trying %s: %s"
+                % (", ".join(tried), last_err)
+            )
 
     # Basic Player Controls
     async def get_status(self) -> dict[str, Any]:
@@ -540,6 +576,8 @@ class WiiMClient:
     def _parse_player_status(self, raw: dict[str, Any]) -> dict[str, Any]:
         """Translate raw player status JSON into canonical schema."""
 
+        _LOGGER.debug("Raw player status: %s", raw)
+
         data: dict[str, Any] = {}
 
         for k, v in raw.items():
@@ -551,10 +589,22 @@ class WiiMClient:
         data["artist"] = _hex_to_str(raw.get("Artist")) or raw.get("artist")
         data["album"] = _hex_to_str(raw.get("Album")) or raw.get("album")
 
+        # Power – getPlayerStatusEx does not include a dedicated key; assume ON
+        data.setdefault("power", True)
+
+        # Wi-Fi diagnostics fallback (some firmwares use lowercase)
+        if "wifi_channel" not in data and raw.get("wifi_channel"):
+            data["wifi_channel"] = raw["wifi_channel"]
+        if "wifi_rssi" not in data and raw.get("wifi_rssi"):
+            data["wifi_rssi"] = raw["wifi_rssi"]
+
         # Volume normalisation 0-1 float (HA convention)
         if (vol := raw.get("vol")) is not None:
             try:
-                data["volume_level"] = int(vol) / 100
+                vol_int = int(vol)
+                data["volume_level"] = vol_int / 100
+                # Also keep 0-100 style for existing entity code
+                data["volume"] = vol_int
             except ValueError:
                 pass
 
@@ -565,6 +615,42 @@ class WiiMClient:
         if raw.get("totlen"):
             data["duration"] = int(raw["totlen"]) // 1_000
 
+        # Convert numeric strings to int where helpful
+        if "mute" in data:
+            try:
+                data["mute"] = bool(int(data["mute"]))
+            except (TypeError, ValueError):
+                data["mute"] = bool(data["mute"])
+
+        # Derive play_mode from LinkPlay "loop" code if not supplied directly
+        if "play_mode" not in data and "loop_mode" in data:
+            try:
+                loop_val = int(data["loop_mode"])
+            except (TypeError, ValueError):
+                loop_val = 4  # default = normal
+
+            if loop_val == 0:
+                data["play_mode"] = PLAY_MODE_REPEAT_ALL  # repeat all
+            elif loop_val == 1:
+                data["play_mode"] = PLAY_MODE_REPEAT_ONE
+            elif loop_val == 2:
+                data["play_mode"] = PLAY_MODE_SHUFFLE_REPEAT_ALL
+            elif loop_val == 3:
+                data["play_mode"] = PLAY_MODE_SHUFFLE
+            else:
+                data["play_mode"] = PLAY_MODE_NORMAL
+
+        # Artwork: various firmwares use different keys
+        cover = (
+            raw.get("cover")
+            or raw.get("cover_url")
+            or raw.get("albumart")
+            or raw.get("pic_url")
+        )
+        if cover:
+            data["entity_picture"] = cover
+
+        _LOGGER.debug("Parsed status: %s", data)
         return data
 
     async def get_multiroom_info(self) -> dict[str, Any]:
