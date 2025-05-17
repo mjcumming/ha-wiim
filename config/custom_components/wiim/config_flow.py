@@ -112,26 +112,44 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if async_search is None:
             return []
 
-        found_hosts: set[str] = set()
+        discovered: set[str] = set()
 
-        async def _callback(device):  # type: ignore[missing-param-doc]
-            """Collect hosts from SSDP discovery callback."""
-            # `SsdpDevice` objects provide a `host` attribute with the IP address.
-            host = getattr(device, "host", None)
+        # ------------------------------------------------------------------
+        # 1. Fire a directed M-SEARCH for MediaRenderer devices --------------
+        # ------------------------------------------------------------------
 
-            # Fallback to parsing LOCATION header if attribute missing (older versions)
-            if host is None:
-                location = getattr(device, "location", None)
-                if location:
-                    host = urlparse(location).hostname
+        from async_upnp_client.ssdp import SSDP_PORT
 
-            if host:
-                found_hosts.add(host)
+        async def _on_ssdp_device(device):  # type: ignore[missing-param-doc]
+            host: str | None = getattr(device, "host", None)
+            if host is None and (loc := getattr(device, "location", None)):
+                host = urlparse(loc).hostname
 
-        # Use a short timeout for discovery
-        await async_search(async_callback=_callback, timeout=5)
+            if not host or host in discovered:
+                return
 
-        return list(found_hosts)
+            _LOGGER.debug("SSDP probe candidate %s – validating", host)
+
+            # Quick HTTP validation: getStatusEx should return JSON with firmware/uuid
+            try:
+                await _async_validate_host(host)
+            except WiiMError:
+                _LOGGER.debug("Host %s responded but is not LinkPlay/WiiM", host)
+                return
+
+            discovered.add(host)
+
+        # Targeted search for MediaRenderer devices (LinkPlay speakers expose this)
+        await async_search(
+            async_callback=_on_ssdp_device,
+            timeout=5,
+            source_ip="0.0.0.0",
+            mx=2,
+            search_target="urn:schemas-upnp-org:device:MediaRenderer:1",
+            port=SSDP_PORT,
+        )
+
+        return list(discovered)
 
     async def async_step_zeroconf(self, discovery_info: dict[str, Any]) -> FlowResult:  # noqa: D401
         """Handle Zeroconf discovery."""

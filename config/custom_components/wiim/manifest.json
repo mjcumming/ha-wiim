@@ -9,10 +9,7 @@
   "logo": "WIIM.png",
   "config_flow": true,
   "zeroconf": [
-    {
-      "type": "_linkplay._tcp",
-      "name": "WiiM*"
-    }
+    "_linkplay._tcp"
   ],
   "ssdp": [
     {
