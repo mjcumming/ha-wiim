@@ -1,154 +1,515 @@
-2025-05-17 22:06:23.750 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration wiim which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
-2025-05-17 22:06:24.450 WARNING (MainThread) [aiohttp_fast_zlib] zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
-2025-05-17 22:06:24.465 INFO (MainThread) [homeassistant.setup] Setup of domain system_log took 0.03 seconds
-2025-05-17 22:06:24.466 INFO (MainThread) [homeassistant.setup] Setup of domain http took 0.02 seconds
-2025-05-17 22:06:24.466 INFO (MainThread) [homeassistant.setup] Setup of domain logger took 0.02 seconds
-2025-05-17 22:06:24.467 INFO (MainThread) [homeassistant.setup] Setting up websocket_api
-2025-05-17 22:06:24.467 INFO (MainThread) [homeassistant.setup] Setup of domain websocket_api took 0.00 seconds
-2025-05-17 22:06:24.468 INFO (MainThread) [homeassistant.setup] Setting up network
-2025-05-17 22:06:24.469 INFO (MainThread) [homeassistant.setup] Setup of domain network took 0.00 seconds
-2025-05-17 22:06:24.470 INFO (MainThread) [homeassistant.bootstrap] Setting up stage frontend: {'frontend'} | set()
-Dependencies: {'device_automation', 'auth', 'api', 'file_upload', 'repairs', 'lovelace', 'diagnostics', 'search', 'onboarding', 'config'} | {'http', 'websocket_api', 'system_log'}
-2025-05-17 22:06:24.471 INFO (MainThread) [homeassistant.setup] Setting up device_automation
-2025-05-17 22:06:24.471 INFO (MainThread) [homeassistant.setup] Setup of domain device_automation took 0.00 seconds
-2025-05-17 22:06:24.472 INFO (MainThread) [homeassistant.setup] Setting up api
-2025-05-17 22:06:24.473 INFO (MainThread) [homeassistant.setup] Setup of domain api took 0.00 seconds
-2025-05-17 22:06:24.474 INFO (MainThread) [homeassistant.setup] Setting up auth
-2025-05-17 22:06:24.475 INFO (MainThread) [homeassistant.setup] Setup of domain auth took 0.00 seconds
-2025-05-17 22:06:24.476 INFO (MainThread) [homeassistant.setup] Setting up config
-2025-05-17 22:06:24.477 INFO (MainThread) [homeassistant.setup] Setup of domain config took 0.00 seconds
-2025-05-17 22:06:24.478 INFO (MainThread) [homeassistant.setup] Setting up diagnostics
-2025-05-17 22:06:24.480 INFO (MainThread) [homeassistant.setup] Setup of domain diagnostics took 0.00 seconds
-2025-05-17 22:06:24.481 INFO (MainThread) [homeassistant.setup] Setting up file_upload
-2025-05-17 22:06:24.481 INFO (MainThread) [homeassistant.setup] Setup of domain file_upload took 0.00 seconds
-2025-05-17 22:06:24.483 INFO (MainThread) [homeassistant.setup] Setting up onboarding
-2025-05-17 22:06:24.485 INFO (MainThread) [homeassistant.setup] Setup of domain onboarding took 0.00 seconds
-2025-05-17 22:06:24.486 INFO (MainThread) [homeassistant.setup] Setting up lovelace
-2025-05-17 22:06:24.490 INFO (MainThread) [homeassistant.setup] Setting up repairs
-2025-05-17 22:06:24.490 INFO (MainThread) [homeassistant.setup] Setup of domain repairs took 0.00 seconds
-2025-05-17 22:06:24.491 INFO (MainThread) [homeassistant.setup] Setting up search
-2025-05-17 22:06:24.491 INFO (MainThread) [homeassistant.setup] Setup of domain search took 0.00 seconds
-2025-05-17 22:06:24.494 INFO (MainThread) [homeassistant.setup] Setup of domain lovelace took 0.01 seconds
-2025-05-17 22:06:24.495 INFO (MainThread) [homeassistant.setup] Setting up frontend
-2025-05-17 22:06:24.501 INFO (MainThread) [homeassistant.setup] Setup of domain frontend took 0.01 seconds
-2025-05-17 22:06:24.506 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage recorder: {'recorder'}
-2025-05-17 22:06:24.506 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage debugger: {'debugpy'}
-2025-05-17 22:06:24.506 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage zeroconf: {'zeroconf'}
-2025-05-17 22:06:24.506 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage 1: {'mqtt_eventstream', 'ssdp', 'cloud', 'dhcp', 'usb', 'hassio', 'bluetooth'}
-2025-05-17 22:06:24.506 INFO (MainThread) [homeassistant.bootstrap] Setting up stage 2: {'wiim', 'google_translate', 'sun', 'person', 'input_text', 'input_button', 'script', 'input_datetime', 'input_boolean', 'met', 'schedule', 'automation', 'application_credentials', 'zone', 'counter', 'input_select', 'timer', 'tag', 'hardware', 'backup', 'analytics', 'radio_browser', 'shopping_list', 'input_number', 'system_health', 'scene'} | {'logger', 'frontend', 'network'}
-Dependencies: {'trace', 'image_upload', 'blueprint'} | {'http', 'device_automation', 'auth', 'api', 'websocket_api'}
-2025-05-17 22:06:24.508 INFO (MainThread) [homeassistant.setup] Setting up scene
-2025-05-17 22:06:24.510 INFO (MainThread) [homeassistant.components.scene] Setting up homeassistant.scene
-2025-05-17 22:06:24.513 INFO (MainThread) [homeassistant.setup] Setup of domain scene took 0.01 seconds
-2025-05-17 22:06:24.516 INFO (MainThread) [homeassistant.setup] Setting up zone
-2025-05-17 22:06:24.517 INFO (SyncWorker_2) [homeassistant.loader] Loaded ssdp from homeassistant.components.ssdp
-2025-05-17 22:06:24.519 INFO (MainThread) [homeassistant.setup] Setup of domain zone took 0.00 seconds
-2025-05-17 22:06:24.523 INFO (MainThread) [homeassistant.setup] Setting up image_upload
-2025-05-17 22:06:24.525 INFO (MainThread) [homeassistant.setup] Setup of domain image_upload took 0.00 seconds
-2025-05-17 22:06:24.535 INFO (MainThread) [homeassistant.setup] Setting up person
-2025-05-17 22:06:24.540 INFO (MainThread) [homeassistant.setup] Setting up blueprint
-2025-05-17 22:06:24.543 INFO (MainThread) [homeassistant.setup] Setup of domain blueprint took 0.00 seconds
-2025-05-17 22:06:24.544 INFO (MainThread) [homeassistant.setup] Setting up trace
-2025-05-17 22:06:24.545 INFO (MainThread) [homeassistant.setup] Setup of domain trace took 0.00 seconds
-2025-05-17 22:06:24.547 INFO (MainThread) [homeassistant.setup] Setting up script
-2025-05-17 22:06:24.554 INFO (MainThread) [homeassistant.setup] Setup of domain script took 0.01 seconds
-2025-05-17 22:06:24.565 INFO (MainThread) [homeassistant.setup] Setting up backup
-2025-05-17 22:06:24.576 INFO (MainThread) [homeassistant.setup] Setting up automation
-2025-05-17 22:06:24.580 INFO (MainThread) [homeassistant.setup] Setup of domain automation took 0.00 seconds
-2025-05-17 22:06:24.590 INFO (MainThread) [homeassistant.setup] Setting up input_number
-2025-05-17 22:06:24.595 INFO (MainThread) [homeassistant.setup] Setup of domain input_number took 0.00 seconds
-2025-05-17 22:06:24.597 INFO (MainThread) [homeassistant.setup] Setting up system_health
-2025-05-17 22:06:24.600 INFO (MainThread) [homeassistant.setup] Setup of domain system_health took 0.00 seconds
-2025-05-17 22:06:24.612 INFO (MainThread) [homeassistant.setup] Setting up counter
-2025-05-17 22:06:24.616 INFO (MainThread) [homeassistant.setup] Setup of domain counter took 0.00 seconds
-2025-05-17 22:06:24.617 INFO (MainThread) [homeassistant.setup] Setting up input_select
-2025-05-17 22:06:24.621 INFO (MainThread) [homeassistant.setup] Setup of domain input_select took 0.00 seconds
-2025-05-17 22:06:24.624 INFO (MainThread) [homeassistant.setup] Setup of domain backup took 0.06 seconds
-2025-05-17 22:06:24.627 INFO (MainThread) [homeassistant.setup] Setting up google_translate
-2025-05-17 22:06:24.628 INFO (MainThread) [homeassistant.setup] Setup of domain google_translate took 0.00 seconds
-2025-05-17 22:06:24.633 INFO (MainThread) [homeassistant.setup] Setting up timer
-2025-05-17 22:06:24.636 INFO (MainThread) [homeassistant.setup] Setup of domain timer took 0.00 seconds
-2025-05-17 22:06:24.637 INFO (MainThread) [homeassistant.setup] Setting up sun
-2025-05-17 22:06:24.638 INFO (MainThread) [homeassistant.setup] Setup of domain sun took 0.00 seconds
-2025-05-17 22:06:24.643 INFO (MainThread) [homeassistant.setup] Setting up sensor
-2025-05-17 22:06:24.644 INFO (MainThread) [homeassistant.setup] Setup of domain sensor took 0.00 seconds
-2025-05-17 22:06:24.645 INFO (MainThread) [homeassistant.components.sensor] Setting up sun.sensor
-2025-05-17 22:06:24.658 INFO (MainThread) [homeassistant.setup] Setting up tag
-2025-05-17 22:06:24.661 INFO (MainThread) [homeassistant.setup] Setup of domain tag took 0.00 seconds
-2025-05-17 22:06:24.662 INFO (MainThread) [homeassistant.setup] Setting up input_text
-2025-05-17 22:06:24.667 INFO (MainThread) [homeassistant.setup] Setup of domain input_text took 0.00 seconds
-2025-05-17 22:06:24.668 INFO (MainThread) [homeassistant.setup] Setup of domain person took 0.13 seconds
-2025-05-17 22:06:24.670 INFO (MainThread) [asyncio] <Server sockets=(<asyncio.TransportSocket fd=9, family=10, type=1, proto=6, laddr=('::', 8123, 0, 0)>, <asyncio.TransportSocket fd=10, family=2, type=1, proto=6, laddr=('0.0.0.0', 8123)>)> is serving
-2025-05-17 22:06:24.670 INFO (MainThread) [homeassistant.components.http] Now listening on port 8123
-2025-05-17 22:06:24.670 INFO (MainThread) [homeassistant.setup] Setup of domain http took 0.17 seconds
-2025-05-17 22:06:24.672 INFO (MainThread) [homeassistant.setup] Setting up input_button
-2025-05-17 22:06:24.676 INFO (MainThread) [homeassistant.setup] Setup of domain input_button took 0.00 seconds
-2025-05-17 22:06:24.680 INFO (MainThread) [homeassistant.setup] Setting up input_datetime
-2025-05-17 22:06:24.683 INFO (SyncWorker_1) [homeassistant.loader] Loaded zeroconf from homeassistant.components.zeroconf
-2025-05-17 22:06:24.686 INFO (MainThread) [homeassistant.setup] Setup of domain input_datetime took 0.01 seconds
-2025-05-17 22:06:24.687 INFO (MainThread) [homeassistant.setup] Setting up input_boolean
-2025-05-17 22:06:24.690 INFO (MainThread) [homeassistant.setup] Setup of domain input_boolean took 0.00 seconds
-2025-05-17 22:06:24.691 INFO (MainThread) [homeassistant.setup] Setting up met
-2025-05-17 22:06:24.691 INFO (MainThread) [homeassistant.setup] Setup of domain met took 0.00 seconds
-2025-05-17 22:06:24.745 INFO (MainThread) [homeassistant.setup] Setting up hardware
-2025-05-17 22:06:24.752 INFO (MainThread) [homeassistant.setup] Setting up schedule
-2025-05-17 22:06:24.760 INFO (MainThread) [homeassistant.setup] Setup of domain schedule took 0.01 seconds
-2025-05-17 22:06:24.775 INFO (MainThread) [homeassistant.setup] Setting up analytics
-2025-05-17 22:06:24.777 INFO (MainThread) [homeassistant.setup] Setup of domain analytics took 0.00 seconds
-2025-05-17 22:06:24.782 INFO (MainThread) [homeassistant.setup] Setting up radio_browser
-2025-05-17 22:06:24.783 INFO (MainThread) [homeassistant.setup] Setup of domain radio_browser took 0.00 seconds
-2025-05-17 22:06:24.791 INFO (MainThread) [homeassistant.setup] Setting up shopping_list
-2025-05-17 22:06:24.792 INFO (MainThread) [homeassistant.setup] Setup of domain shopping_list took 0.00 seconds
-2025-05-17 22:06:24.794 INFO (MainThread) [homeassistant.setup] Setting up application_credentials
-2025-05-17 22:06:24.796 INFO (MainThread) [homeassistant.setup] Setup of domain application_credentials took 0.00 seconds
-2025-05-17 22:06:24.799 INFO (MainThread) [homeassistant.setup] Setup of domain hardware took 0.05 seconds
-2025-05-17 22:06:24.808 INFO (MainThread) [homeassistant.setup] Setting up ffmpeg
-2025-05-17 22:06:24.834 INFO (MainThread) [homeassistant.components.sensor] Setting up backup.sensor
-2025-05-17 22:06:24.839 INFO (MainThread) [homeassistant.setup] Setting up wiim
-2025-05-17 22:06:24.839 INFO (MainThread) [homeassistant.setup] Setup of domain wiim took 0.00 seconds
-2025-05-17 22:06:24.841 INFO (MainThread) [homeassistant.setup] Setting up todo
-2025-05-17 22:06:24.843 INFO (MainThread) [homeassistant.setup] Setup of domain todo took 0.00 seconds
-2025-05-17 22:06:24.844 INFO (MainThread) [homeassistant.components.todo] Setting up shopping_list.todo
-2025-05-17 22:06:24.848 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=True)
-2025-05-17 22:06:24.851 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=True)
-2025-05-17 22:06:24.853 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=True)
-2025-05-17 22:06:24.858 INFO (MainThread) [asyncio] execute program 'ffmpeg': <_UnixSubprocessTransport pid=79088 running stdin=<_UnixWritePipeTransport fd=29 idle bufsize=0> stdout=<_UnixReadPipeTransport fd=30 polling>>
-2025-05-17 22:06:24.931 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
-2025-05-17 22:06:24.931 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
-2025-05-17 22:06:24.935 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
-2025-05-17 22:06:24.935 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
-2025-05-17 22:06:24.938 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=getStatusEx failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
-2025-05-17 22:06:24.938 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
-2025-05-17 22:06:25.012 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 378 bytes JSON
-2025-05-17 22:06:25.012 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
-2025-05-17 22:06:25.012 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '77000', 'offset_pts': '75760', 'totlen': '187000', 'Title': '576F6C6620536F6E67', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
-2025-05-17 22:06:25.012 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '77000', 'offset_pts': '75760', 'duration_ms': '187000', 'title_hex': '576F6C6620536F6E67', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Wolf Song', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 77, 'position_updated_at': 69888.31631329, 'duration': 187, 'play_mode': 'normal'}
-2025-05-17 22:06:25.015 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
-2025-05-17 22:06:25.016 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
-2025-05-17 22:06:25.069 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
-2025-05-17 22:06:25.069 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
-2025-05-17 22:06:25.070 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
-2025-05-17 22:06:25.118 INFO (MainThread) [asyncio] <_UnixReadPipeTransport fd=30 polling> was closed by peer
-2025-05-17 22:06:25.119 INFO (MainThread) [asyncio] <_UnixSubprocessTransport pid=79088 running stdin=<_UnixWritePipeTransport closed fd=29 closed> stdout=<_UnixReadPipeTransport closed fd=30 closed>> exited with return code 0
-2025-05-17 22:06:25.120 INFO (MainThread) [homeassistant.setup] Setup of domain ffmpeg took 0.31 seconds
-2025-05-17 22:06:25.121 INFO (MainThread) [homeassistant.setup] Setting up tts
-2025-05-17 22:06:25.125 INFO (MainThread) [homeassistant.setup] Setup of domain tts took 0.00 seconds
-2025-05-17 22:06:25.125 INFO (MainThread) [homeassistant.components.tts] Setting up google_translate.tts
-2025-05-17 22:06:25.151 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
-2025-05-17 22:06:25.152 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
-2025-05-17 22:06:25.152 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.312 seconds (success: True)
-2025-05-17 22:06:25.159 INFO (MainThread) [homeassistant.setup] Setting up media_player
-2025-05-17 22:06:25.162 INFO (MainThread) [homeassistant.setup] Setup of domain media_player took 0.00 seconds
-2025-05-17 22:06:25.162 INFO (MainThread) [homeassistant.components.media_player] Setting up wiim.media_player
-2025-05-17 22:06:25.165 INFO (MainThread) [homeassistant.components.sensor] Setting up wiim.sensor
-2025-05-17 22:06:25.169 INFO (MainThread) [homeassistant.setup] Setting up button
-2025-05-17 22:06:25.171 INFO (MainThread) [homeassistant.setup] Setup of domain button took 0.00 seconds
-2025-05-17 22:06:25.171 INFO (MainThread) [homeassistant.components.button] Setting up wiim.button
-2025-05-17 22:06:25.175 INFO (MainThread) [homeassistant.setup] Setting up number
-2025-05-17 22:06:25.176 INFO (MainThread) [homeassistant.setup] Setup of domain number took 0.00 seconds
-2025-05-17 22:06:25.176 INFO (MainThread) [homeassistant.components.number] Setting up wiim.number
-2025-05-17 22:06:25.257 INFO (MainThread) [homeassistant.setup] Setting up weather
-2025-05-17 22:06:25.258 INFO (MainThread) [homeassistant.setup] Setup of domain weather took 0.00 seconds
-2025-05-17 22:06:25.258 INFO (MainThread) [homeassistant.components.weather] Setting up met.weather
-2025-05-17 22:06:25.261 INFO (MainThread) [homeassistant.bootstrap] Home Assistant initialized in 1.51s
-2025-05-17 22:06:25.262 INFO (MainThread) [homeassistant.core] Starting Home Assistant
+2025-05-17 22:12:07.970 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration wiim which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+2025-05-17 22:12:08.662 INFO (MainThread) [homeassistant.setup] Setting up system_log
+2025-05-17 22:12:08.664 WARNING (MainThread) [aiohttp_fast_zlib] zlib_ng and isal are not available, falling back to zlib, performance will be degraded.
+2025-05-17 22:12:08.676 INFO (MainThread) [homeassistant.setup] Setup of domain http took 0.02 seconds
+2025-05-17 22:12:08.677 INFO (MainThread) [homeassistant.setup] Setup of domain logger took 0.02 seconds
+2025-05-17 22:12:08.677 INFO (MainThread) [homeassistant.setup] Setting up websocket_api
+2025-05-17 22:12:08.678 INFO (MainThread) [homeassistant.setup] Setup of domain websocket_api took 0.00 seconds
+2025-05-17 22:12:08.678 INFO (MainThread) [homeassistant.setup] Setup of domain system_log took 0.02 seconds
+2025-05-17 22:12:08.679 INFO (MainThread) [homeassistant.setup] Setting up network
+2025-05-17 22:12:08.681 INFO (MainThread) [homeassistant.setup] Setup of domain network took 0.00 seconds
+2025-05-17 22:12:08.681 INFO (MainThread) [homeassistant.bootstrap] Setting up stage frontend: {'frontend'} | set()
+Dependencies: {'onboarding', 'api', 'device_automation', 'diagnostics', 'file_upload', 'lovelace', 'repairs', 'search', 'config', 'auth'} | {'websocket_api', 'http', 'system_log'}
+2025-05-17 22:12:08.682 INFO (MainThread) [homeassistant.setup] Setting up auth
+2025-05-17 22:12:08.684 INFO (MainThread) [homeassistant.setup] Setup of domain auth took 0.00 seconds
+2025-05-17 22:12:08.684 INFO (MainThread) [homeassistant.setup] Setting up onboarding
+2025-05-17 22:12:08.686 INFO (MainThread) [homeassistant.setup] Setup of domain onboarding took 0.00 seconds
+2025-05-17 22:12:08.686 INFO (MainThread) [homeassistant.setup] Setting up api
+2025-05-17 22:12:08.687 INFO (MainThread) [homeassistant.setup] Setup of domain api took 0.00 seconds
+2025-05-17 22:12:08.688 INFO (MainThread) [homeassistant.setup] Setting up device_automation
+2025-05-17 22:12:08.689 INFO (MainThread) [homeassistant.setup] Setup of domain device_automation took 0.00 seconds
+2025-05-17 22:12:08.691 INFO (MainThread) [homeassistant.setup] Setting up diagnostics
+2025-05-17 22:12:08.693 INFO (MainThread) [homeassistant.setup] Setup of domain diagnostics took 0.00 seconds
+2025-05-17 22:12:08.694 INFO (MainThread) [homeassistant.setup] Setting up file_upload
+2025-05-17 22:12:08.695 INFO (MainThread) [homeassistant.setup] Setup of domain file_upload took 0.00 seconds
+2025-05-17 22:12:08.696 INFO (MainThread) [homeassistant.setup] Setting up lovelace
+2025-05-17 22:12:08.699 INFO (MainThread) [homeassistant.setup] Setting up repairs
+2025-05-17 22:12:08.700 INFO (MainThread) [homeassistant.setup] Setup of domain repairs took 0.00 seconds
+2025-05-17 22:12:08.701 INFO (MainThread) [homeassistant.setup] Setting up config
+2025-05-17 22:12:08.703 INFO (MainThread) [homeassistant.setup] Setup of domain config took 0.00 seconds
+2025-05-17 22:12:08.705 INFO (MainThread) [homeassistant.setup] Setting up search
+2025-05-17 22:12:08.705 INFO (MainThread) [homeassistant.setup] Setup of domain search took 0.00 seconds
+2025-05-17 22:12:08.708 INFO (MainThread) [homeassistant.setup] Setup of domain lovelace took 0.01 seconds
+2025-05-17 22:12:08.709 INFO (MainThread) [homeassistant.setup] Setting up frontend
+2025-05-17 22:12:08.715 INFO (MainThread) [homeassistant.setup] Setup of domain frontend took 0.01 seconds
+2025-05-17 22:12:08.719 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage recorder: {'recorder'}
+2025-05-17 22:12:08.719 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage debugger: {'debugpy'}
+2025-05-17 22:12:08.719 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage zeroconf: {'zeroconf'}
+2025-05-17 22:12:08.719 INFO (MainThread) [homeassistant.bootstrap] Nothing to set up in stage 1: {'hassio', 'dhcp', 'mqtt_eventstream', 'bluetooth', 'cloud', 'ssdp', 'usb'}
+2025-05-17 22:12:08.719 INFO (MainThread) [homeassistant.bootstrap] Setting up stage 2: {'shopping_list', 'zone', 'input_select', 'input_button', 'input_boolean', 'system_health', 'input_datetime', 'person', 'timer', 'schedule', 'input_text', 'met', 'hardware', 'radio_browser', 'google_translate', 'backup', 'counter', 'scene', 'analytics', 'automation', 'tag', 'wiim', 'script', 'input_number', 'sun', 'application_credentials'} | {'frontend', 'logger', 'network'}
+Dependencies: {'trace', 'image_upload', 'blueprint'} | {'websocket_api', 'api', 'device_automation', 'auth', 'http'}
+2025-05-17 22:12:08.721 INFO (MainThread) [homeassistant.setup] Setting up scene
+2025-05-17 22:12:08.724 INFO (MainThread) [homeassistant.components.scene] Setting up homeassistant.scene
+2025-05-17 22:12:08.728 INFO (MainThread) [homeassistant.setup] Setup of domain scene took 0.01 seconds
+2025-05-17 22:12:08.730 INFO (MainThread) [homeassistant.setup] Setting up zone
+2025-05-17 22:12:08.735 INFO (MainThread) [homeassistant.setup] Setup of domain zone took 0.01 seconds
+2025-05-17 22:12:08.737 INFO (MainThread) [homeassistant.setup] Setting up blueprint
+2025-05-17 22:12:08.738 INFO (MainThread) [homeassistant.setup] Setup of domain blueprint took 0.00 seconds
+2025-05-17 22:12:08.753 INFO (MainThread) [homeassistant.setup] Setting up system_health
+2025-05-17 22:12:08.758 INFO (MainThread) [homeassistant.setup] Setup of domain system_health took 0.00 seconds
+2025-05-17 22:12:08.764 INFO (MainThread) [homeassistant.setup] Setting up image_upload
+2025-05-17 22:12:08.766 INFO (MainThread) [homeassistant.setup] Setup of domain image_upload took 0.00 seconds
+2025-05-17 22:12:08.767 INFO (MainThread) [homeassistant.setup] Setting up person
+2025-05-17 22:12:08.781 INFO (MainThread) [homeassistant.setup] Setting up trace
+2025-05-17 22:12:08.782 INFO (MainThread) [homeassistant.setup] Setup of domain trace took 0.00 seconds
+2025-05-17 22:12:08.793 INFO (MainThread) [homeassistant.setup] Setting up automation
+2025-05-17 22:12:08.801 INFO (MainThread) [homeassistant.setup] Setup of domain automation took 0.01 seconds
+2025-05-17 22:12:08.808 INFO (MainThread) [homeassistant.setup] Setting up script
+2025-05-17 22:12:08.809 INFO (SyncWorker_2) [homeassistant.loader] Loaded ssdp from homeassistant.components.ssdp
+2025-05-17 22:12:08.815 INFO (MainThread) [homeassistant.setup] Setup of domain script took 0.01 seconds
+2025-05-17 22:12:08.816 INFO (MainThread) [homeassistant.setup] Setting up input_number
+2025-05-17 22:12:08.851 INFO (MainThread) [homeassistant.setup] Setup of domain input_number took 0.03 seconds
+2025-05-17 22:12:08.855 INFO (MainThread) [homeassistant.setup] Setting up backup
+2025-05-17 22:12:08.862 WARNING (MainThread) [asyncio] Executing <Task pending name='Task-1' coro=<setup_and_run_hass() running at /ha-venv/lib/python3.13/site-packages/homeassistant/runner.py:122> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.13/asyncio/tasks.py:765> cb=[_run_until_complete_cb() at /usr/local/lib/python3.13/asyncio/base_events.py:181] created at /usr/local/lib/python3.13/asyncio/tasks.py:748> took 0.143 seconds
+2025-05-17 22:12:08.867 INFO (MainThread) [homeassistant.setup] Setting up shopping_list
+2025-05-17 22:12:08.868 INFO (MainThread) [homeassistant.setup] Setup of domain shopping_list took 0.00 seconds
+2025-05-17 22:12:08.874 INFO (MainThread) [homeassistant.setup] Setting up input_select
+2025-05-17 22:12:08.878 INFO (MainThread) [homeassistant.setup] Setup of domain input_select took 0.00 seconds
+2025-05-17 22:12:08.879 INFO (MainThread) [homeassistant.setup] Setting up input_button
+2025-05-17 22:12:08.882 INFO (MainThread) [homeassistant.setup] Setup of domain input_button took 0.00 seconds
+2025-05-17 22:12:08.882 INFO (MainThread) [homeassistant.setup] Setting up counter
+2025-05-17 22:12:08.886 INFO (MainThread) [homeassistant.setup] Setup of domain counter took 0.00 seconds
+2025-05-17 22:12:08.889 INFO (MainThread) [homeassistant.setup] Setting up input_boolean
+2025-05-17 22:12:08.891 INFO (MainThread) [homeassistant.setup] Setup of domain input_boolean took 0.00 seconds
+2025-05-17 22:12:08.895 INFO (MainThread) [homeassistant.setup] Setting up analytics
+2025-05-17 22:12:08.906 INFO (MainThread) [homeassistant.setup] Setup of domain analytics took 0.01 seconds
+2025-05-17 22:12:08.907 INFO (MainThread) [homeassistant.setup] Setting up input_datetime
+2025-05-17 22:12:08.912 INFO (MainThread) [homeassistant.setup] Setup of domain input_datetime took 0.01 seconds
+2025-05-17 22:12:08.914 INFO (MainThread) [homeassistant.setup] Setting up timer
+2025-05-17 22:12:08.917 INFO (MainThread) [homeassistant.setup] Setup of domain timer took 0.00 seconds
+2025-05-17 22:12:08.918 INFO (MainThread) [homeassistant.setup] Setting up schedule
+2025-05-17 22:12:08.921 INFO (MainThread) [homeassistant.setup] Setup of domain schedule took 0.00 seconds
+2025-05-17 22:12:08.923 INFO (MainThread) [homeassistant.setup] Setting up input_text
+2025-05-17 22:12:08.927 INFO (MainThread) [homeassistant.setup] Setup of domain input_text took 0.00 seconds
+2025-05-17 22:12:08.929 INFO (MainThread) [homeassistant.setup] Setting up met
+2025-05-17 22:12:08.929 INFO (MainThread) [homeassistant.setup] Setup of domain met took 0.00 seconds
+2025-05-17 22:12:08.950 INFO (MainThread) [homeassistant.setup] Setup of domain backup took 0.10 seconds
+2025-05-17 22:12:08.954 INFO (MainThread) [homeassistant.setup] Setup of domain person took 0.19 seconds
+2025-05-17 22:12:08.955 INFO (MainThread) [asyncio] <Server sockets=(<asyncio.TransportSocket fd=16, family=10, type=1, proto=6, laddr=('::', 8123, 0, 0)>, <asyncio.TransportSocket fd=17, family=2, type=1, proto=6, laddr=('0.0.0.0', 8123)>)> is serving
+2025-05-17 22:12:08.956 INFO (MainThread) [homeassistant.components.http] Now listening on port 8123
+2025-05-17 22:12:08.956 INFO (MainThread) [homeassistant.setup] Setup of domain http took 0.24 seconds
+2025-05-17 22:12:08.956 INFO (MainThread) [homeassistant.setup] Setting up radio_browser
+2025-05-17 22:12:08.957 INFO (MainThread) [homeassistant.setup] Setup of domain radio_browser took 0.00 seconds
+2025-05-17 22:12:08.962 INFO (MainThread) [homeassistant.setup] Setting up sun
+2025-05-17 22:12:08.963 INFO (MainThread) [homeassistant.setup] Setup of domain sun took 0.00 seconds
+2025-05-17 22:12:08.971 INFO (MainThread) [homeassistant.setup] Setting up sensor
+2025-05-17 22:12:08.972 INFO (MainThread) [homeassistant.setup] Setup of domain sensor took 0.00 seconds
+2025-05-17 22:12:08.972 INFO (MainThread) [homeassistant.components.sensor] Setting up sun.sensor
+2025-05-17 22:12:08.976 INFO (MainThread) [homeassistant.setup] Setting up tag
+2025-05-17 22:12:08.977 INFO (MainThread) [homeassistant.setup] Setup of domain tag took 0.00 seconds
+2025-05-17 22:12:08.978 INFO (MainThread) [homeassistant.setup] Setting up google_translate
+2025-05-17 22:12:08.978 INFO (MainThread) [homeassistant.setup] Setup of domain google_translate took 0.00 seconds
+2025-05-17 22:12:08.981 INFO (MainThread) [homeassistant.setup] Setting up hardware
+2025-05-17 22:12:08.986 INFO (MainThread) [homeassistant.setup] Setting up application_credentials
+2025-05-17 22:12:08.989 INFO (MainThread) [homeassistant.setup] Setup of domain application_credentials took 0.00 seconds
+2025-05-17 22:12:09.000 INFO (SyncWorker_0) [homeassistant.loader] Loaded zeroconf from homeassistant.components.zeroconf
+2025-05-17 22:12:09.009 INFO (MainThread) [homeassistant.setup] Setting up todo
+2025-05-17 22:12:09.016 INFO (MainThread) [homeassistant.setup] Setup of domain todo took 0.01 seconds
+2025-05-17 22:12:09.016 INFO (MainThread) [homeassistant.components.todo] Setting up shopping_list.todo
+2025-05-17 22:12:09.026 INFO (MainThread) [homeassistant.setup] Setup of domain hardware took 0.04 seconds
+2025-05-17 22:12:09.032 INFO (MainThread) [homeassistant.setup] Setting up ffmpeg
+2025-05-17 22:12:09.038 INFO (MainThread) [homeassistant.components.sensor] Setting up backup.sensor
+2025-05-17 22:12:09.046 INFO (MainThread) [asyncio] execute program 'ffmpeg': <_UnixSubprocessTransport pid=81253 running stdin=<_UnixWritePipeTransport fd=29 idle bufsize=0> stdout=<_UnixReadPipeTransport fd=30 polling>>
+2025-05-17 22:12:09.064 INFO (MainThread) [homeassistant.setup] Setting up wiim
+2025-05-17 22:12:09.064 INFO (MainThread) [homeassistant.setup] Setup of domain wiim took 0.00 seconds
+2025-05-17 22:12:09.067 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=True)
+2025-05-17 22:12:09.070 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=True)
+2025-05-17 22:12:09.071 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=True)
+2025-05-17 22:12:09.147 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
+2025-05-17 22:12:09.147 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:09.149 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=getStatusEx failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
+2025-05-17 22:12:09.149 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:09.151 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
+2025-05-17 22:12:09.151 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:09.229 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 376 bytes JSON
+2025-05-17 22:12:09.229 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:09.229 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '97000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:09.229 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '97000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 97, 'position_updated_at': 70266.987237163, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:09.282 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:09.282 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:09.283 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:09.283 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:09.284 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:09.300 INFO (MainThread) [asyncio] <_UnixReadPipeTransport fd=30 polling> was closed by peer
+2025-05-17 22:12:09.302 INFO (MainThread) [asyncio] <_UnixSubprocessTransport pid=81253 running stdin=<_UnixWritePipeTransport closed fd=29 closed> stdout=<_UnixReadPipeTransport closed fd=30 closed>> exited with return code 0
+2025-05-17 22:12:09.303 INFO (MainThread) [homeassistant.setup] Setup of domain ffmpeg took 0.27 seconds
+2025-05-17 22:12:09.304 INFO (MainThread) [homeassistant.setup] Setting up tts
+2025-05-17 22:12:09.308 INFO (MainThread) [homeassistant.setup] Setup of domain tts took 0.00 seconds
+2025-05-17 22:12:09.308 INFO (MainThread) [homeassistant.components.tts] Setting up google_translate.tts
+2025-05-17 22:12:09.364 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:09.364 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:09.364 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.300 seconds (success: True)
+2025-05-17 22:12:09.371 INFO (MainThread) [homeassistant.setup] Setting up media_player
+2025-05-17 22:12:09.374 INFO (MainThread) [homeassistant.setup] Setup of domain media_player took 0.00 seconds
+2025-05-17 22:12:09.375 INFO (MainThread) [homeassistant.components.media_player] Setting up wiim.media_player
+2025-05-17 22:12:09.380 INFO (MainThread) [homeassistant.components.sensor] Setting up wiim.sensor
+2025-05-17 22:12:09.386 INFO (MainThread) [homeassistant.setup] Setting up button
+2025-05-17 22:12:09.387 INFO (MainThread) [homeassistant.setup] Setup of domain button took 0.00 seconds
+2025-05-17 22:12:09.387 INFO (MainThread) [homeassistant.components.button] Setting up wiim.button
+2025-05-17 22:12:09.390 INFO (MainThread) [homeassistant.setup] Setting up number
+2025-05-17 22:12:09.390 INFO (MainThread) [homeassistant.setup] Setup of domain number took 0.00 seconds
+2025-05-17 22:12:09.390 INFO (MainThread) [homeassistant.components.number] Setting up wiim.number
+2025-05-17 22:12:09.461 INFO (MainThread) [homeassistant.setup] Setting up weather
+2025-05-17 22:12:09.462 INFO (MainThread) [homeassistant.setup] Setup of domain weather took 0.00 seconds
+2025-05-17 22:12:09.462 INFO (MainThread) [homeassistant.components.weather] Setting up met.weather
+2025-05-17 22:12:09.487 INFO (MainThread) [homeassistant.bootstrap] Home Assistant initialized in 1.52s
+2025-05-17 22:12:09.488 INFO (MainThread) [homeassistant.core] Starting Home Assistant
+2025-05-17 22:12:14.126 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:14.127 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:14.128 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:14.213 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:14.214 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:14.214 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '102000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:14.214 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '102000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 102, 'position_updated_at': 70272.469794576, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:14.222 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:14.223 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:14.274 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:14.274 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:14.275 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:14.359 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:14.359 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:14.359 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.234 seconds (success: True)
+2025-05-17 22:12:18.529 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:18.531 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:18.532 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:18.619 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:18.619 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:18.674 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:18.674 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:18.676 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:18.676 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:18.676 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '107000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:18.676 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '107000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 107, 'position_updated_at': 70277.429939331, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:18.677 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:18.759 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:18.759 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:18.759 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.234 seconds (success: True)
+2025-05-17 22:12:22.987 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:22.989 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:22.990 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:23.125 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:23.125 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:23.126 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '111000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:23.126 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '111000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 111, 'position_updated_at': 70282.379618427, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:23.127 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:23.128 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:23.128 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:23.128 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:23.131 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:23.215 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:23.215 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:23.215 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.229 seconds (success: True)
+2025-05-17 22:12:27.494 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:27.495 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:27.496 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:27.579 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:27.579 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:27.580 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '116000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:27.580 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '116000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 116, 'position_updated_at': 70287.330743267, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:27.633 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:27.634 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:27.635 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:27.635 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:27.636 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:27.717 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:27.717 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:27.717 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.225 seconds (success: True)
+2025-05-17 22:12:31.995 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:31.996 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:31.999 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:32.087 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:32.087 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:32.087 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '120000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:32.087 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '120000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 120, 'position_updated_at': 70292.336047334, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:32.090 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:32.090 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:32.142 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:32.142 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:32.143 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:32.223 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:32.223 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:32.223 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.229 seconds (success: True)
+2025-05-17 22:12:36.993 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:36.996 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:36.999 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:37.081 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:37.081 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:37.136 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:37.137 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:37.139 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:37.140 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:37.140 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '125000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:37.140 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '125000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 125, 'position_updated_at': 70297.388643933, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:37.142 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:36.827 INFO (MainThread) [homeassistant.components.websocket_api.http.connection] [140704807593568] Received unknown command: recorder/info
+2025-05-17 22:12:36.989 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:36.989 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:36.990 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.496 seconds (success: True)
+2025-05-17 22:12:39.710 INFO (MainThread) [homeassistant.components.websocket_api.http.connection] [140704394774624] Received unknown command: recorder/info
+2025-05-17 22:12:41.495 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:41.496 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:41.497 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:41.632 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:41.633 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:41.635 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:41.635 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:41.635 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '129000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:41.635 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '129000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 129, 'position_updated_at': 70302.381902659, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:41.637 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:41.637 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:41.638 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:41.721 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:41.721 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:41.721 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.227 seconds (success: True)
+2025-05-17 22:12:42.524 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=True)
+2025-05-17 22:12:42.526 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=True)
+2025-05-17 22:12:42.527 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=True)
+2025-05-17 22:12:42.600 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
+2025-05-17 22:12:42.601 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:42.607 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
+2025-05-17 22:12:42.607 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:42.612 DEBUG (MainThread) [custom_components.wiim.api] Request to https://192.168.1.68:443/httpapi.asp?command=getStatusEx failed: Cannot connect to host 192.168.1.68:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)')]
+2025-05-17 22:12:42.612 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:42.700 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:42.700 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:42.700 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '131000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:42.700 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '131000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 131, 'position_updated_at': 70303.945703771, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:42.703 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:42.703 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:42.754 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:42.755 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:42.755 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:42.841 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:42.841 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:42.841 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.318 seconds (success: True)
+2025-05-17 22:12:42.842 INFO (MainThread) [homeassistant.components.media_player] Setting up wiim.media_player
+2025-05-17 22:12:42.845 INFO (MainThread) [homeassistant.components.sensor] Setting up wiim.sensor
+2025-05-17 22:12:42.847 INFO (MainThread) [homeassistant.components.button] Setting up wiim.button
+2025-05-17 22:12:42.848 INFO (MainThread) [homeassistant.components.number] Setting up wiim.number
+2025-05-17 22:12:47.525 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:47.527 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:47.529 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:47.669 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:47.670 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:47.670 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:47.670 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:47.670 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '136000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:47.670 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '136000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 136, 'position_updated_at': 70309.415955966, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:47.672 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:47.672 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:47.673 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:47.756 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:47.756 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:47.756 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.232 seconds (success: True)
+2025-05-17 22:12:52.023 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:52.024 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:52.025 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:52.108 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:52.109 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:52.170 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:52.170 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:52.170 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '140000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:52.170 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '140000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 140, 'position_updated_at': 70314.417543511, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:52.172 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:52.172 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:52.173 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:52.255 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:52.255 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:52.255 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.233 seconds (success: True)
+2025-05-17 22:12:57.045 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:12:57.047 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:12:57.048 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:12:57.181 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:12:57.181 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:12:57.182 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:12:57.182 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:12:57.183 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:12:57.183 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:12:57.183 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '145000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:12:57.183 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '145000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 145, 'position_updated_at': 70319.430855147, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:12:57.185 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:12:57.264 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:12:57.264 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:12:57.264 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.220 seconds (success: True)
+2025-05-17 22:12:56.891 INFO (MainThread) [homeassistant.components.websocket_api.http.connection] [140704339113952] Received unknown command: recorder/info
+2025-05-17 22:13:00.137 INFO (MainThread) [homeassistant.components.websocket_api.http.connection] [140704339445056] Received unknown command: recorder/info
+2025-05-17 22:13:01.545 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:01.547 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:01.548 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:01.643 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:01.643 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:01.643 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '149000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:01.643 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '149000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 149, 'position_updated_at': 70324.391425574, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:01.649 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:01.649 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:01.714 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:01.714 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:01.714 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:01.796 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:01.796 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:01.796 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.253 seconds (success: True)
+2025-05-17 22:13:06.030 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:06.033 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:06.034 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:06.124 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:06.124 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:06.126 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:06.126 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:06.126 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '154000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:06.126 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '154000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 154, 'position_updated_at': 70329.375464772, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:06.182 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:06.182 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:06.184 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:06.266 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:06.266 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:06.266 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.237 seconds (success: True)
+2025-05-17 22:13:10.585 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:10.587 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:10.589 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:10.675 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:10.675 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:10.675 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '158000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:10.675 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '158000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 158, 'position_updated_at': 70334.425380604, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:10.677 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:10.677 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:10.735 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:10.735 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:10.736 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:10.819 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:10.820 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:10.820 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.237 seconds (success: True)
+2025-05-17 22:13:15.069 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:15.071 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:15.071 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:15.206 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:15.206 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:15.208 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:15.209 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:15.211 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:15.211 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:15.212 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '163000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:15.212 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '163000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 163, 'position_updated_at': 70339.461286314, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:15.213 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:15.296 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:15.297 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:15.297 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.229 seconds (success: True)
+2025-05-17 22:13:19.547 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:19.549 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:19.551 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:19.640 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:19.641 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:19.641 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '168000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:19.641 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '168000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 168, 'position_updated_at': 70344.389331837, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:19.698 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:19.698 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:19.698 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:19.698 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:19.699 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:19.780 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:19.780 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:19.780 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.235 seconds (success: True)
+2025-05-17 22:13:24.024 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:24.027 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:24.028 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:24.167 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:24.168 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:24.171 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:24.171 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:24.171 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '172000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:24.171 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '172000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 172, 'position_updated_at': 70349.417925112, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:24.173 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:24.173 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:24.174 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:24.251 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:24.251 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:24.251 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.229 seconds (success: True)
+2025-05-17 22:13:28.601 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:28.603 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:28.603 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:28.736 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:28.736 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:28.737 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:28.737 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:28.739 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:28.739 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:28.739 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '177000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:28.739 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '177000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 177, 'position_updated_at': 70354.485229023, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:28.741 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:28.827 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:28.827 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:28.827 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.226 seconds (success: True)
+2025-05-17 22:13:33.038 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:33.039 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:33.040 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:33.140 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:33.140 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:33.140 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '181000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:33.140 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '181000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 181, 'position_updated_at': 70359.384295312, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:33.143 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:33.143 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:33.193 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:33.193 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:33.194 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:33.273 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:33.273 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:33.273 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.236 seconds (success: True)
+2025-05-17 22:13:37.695 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:37.698 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:37.699 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:37.784 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:37.784 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:37.784 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '186000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:37.784 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '186000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 186, 'position_updated_at': 70364.528113398, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:37.839 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:37.840 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:37.843 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:37.843 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:37.845 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:37.929 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:37.929 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:37.930 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.235 seconds (success: True)
+2025-05-17 22:13:42.087 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:42.088 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:42.089 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:42.193 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:42.193 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:42.193 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '190000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:42.193 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '190000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 190, 'position_updated_at': 70369.435818766, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:42.195 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:42.196 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:42.251 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:42.252 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:42.253 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:42.339 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:42.339 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:42.339 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.253 seconds (success: True)
+2025-05-17 22:13:47.105 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:47.108 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:47.109 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:47.240 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:47.240 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:47.241 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:47.242 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:47.242 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '195000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:47.242 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '195000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 195, 'position_updated_at': 70374.484713252, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:47.243 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:47.243 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:47.244 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:47.328 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:47.328 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:47.329 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.225 seconds (success: True)
+2025-05-17 22:13:51.527 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx (verify_ssl=False)
+2025-05-17 22:13:51.528 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getStatusEx (verify_ssl=False)
+2025-05-17 22:13:51.529 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList (verify_ssl=False)
+2025-05-17 22:13:51.619 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList -> 53 bytes JSON
+2025-05-17 22:13:51.619 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=multiroom:getSlaveList
+2025-05-17 22:13:51.625 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx -> 377 bytes JSON
+2025-05-17 22:13:51.625 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerStatusEx
+2025-05-17 22:13:51.625 DEBUG (MainThread) [custom_components.wiim.api] Raw player status: {'type': '0', 'ch': '0', 'mode': '1', 'loop': '4', 'eq': '0', 'vendor': '', 'status': 'play', 'curpos': '199000', 'offset_pts': '75760', 'totlen': '309000', 'Title': '4D656D6F72696573', 'Artist': '416E64726577204C6F636B696E67746F6E', 'Album': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'vol': '0', 'mute': '0'}
+2025-05-17 22:13:51.625 DEBUG (MainThread) [custom_components.wiim.api] Parsed status: {'type': '0', 'ch': '0', 'mode': '1', 'loop_mode': '4', 'eq_preset': '0', 'vendor': '', 'play_status': 'play', 'position_ms': '199000', 'offset_pts': '75760', 'duration_ms': '309000', 'title_hex': '4D656D6F72696573', 'artist_hex': '416E64726577204C6F636B696E67746F6E', 'album_hex': '4C616E646D616E202846726F6D2074686520506172616D6F756E742B204F726967696E616C2053657269657329', 'alarmflag': '0', 'plicount': '0', 'plicurr': '0', 'volume': 0, 'mute': False, 'title': 'Memories', 'artist': 'Andrew Lockington', 'album': 'Landman (From the Paramount+ Original Series)', 'power': True, 'volume_level': 0.0, 'position': 199, 'position_updated_at': 70379.367047423, 'duration': 309, 'play_mode': 'normal'}
+2025-05-17 22:13:51.679 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getStatusEx -> 2724 bytes JSON
+2025-05-17 22:13:51.679 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getStatusEx
+2025-05-17 22:13:51.680 DEBUG (MainThread) [custom_components.wiim.api] WiiM HTTP GET https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode (verify_ssl=False)
+2025-05-17 22:13:51.760 DEBUG (MainThread) [custom_components.wiim.api] https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode -> non-JSON: unknown command
+2025-05-17 22:13:51.760 DEBUG (MainThread) [custom_components.wiim.api] Successful request on https://192.168.1.68:443/httpapi.asp?command=getPlayerCmd:switchmode
+2025-05-17 22:13:51.760 DEBUG (MainThread) [custom_components.wiim.coordinator] Finished fetching wiim_192.168.1.68 data in 0.233 seconds (success: True)

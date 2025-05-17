@@ -16,11 +16,6 @@
   ],
   "ssdp": [
     {
-      "manufacturer": "Linkplay",
-      "device_type": "urn:schemas-upnp-org:device:MediaRenderer:1"
-    },
-    {
-      "manufacturer": "WiiM",
       "device_type": "urn:schemas-upnp-org:device:MediaRenderer:1"
     }
   ],
