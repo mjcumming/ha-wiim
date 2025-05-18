@@ -64,16 +64,30 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             host = user_input[CONF_HOST]
-            await self.async_set_unique_id(host)
-            self._abort_if_unique_id_configured()
             try:
                 await _async_validate_host(host)
-            except WiiMError:
-                errors["base"] = "cannot_connect"
-            else:
+                # Fetch device info for unique ID (MAC or UUID preferred)
+                client = WiiMClient(host)
+                info = await client.get_device_info()
+                unique_id = info.get("uuid") or info.get("mac") or host
+                await client.close()
+                await self.async_set_unique_id(unique_id)
+                # If already configured, update host/IP if changed
+                existing_entry = self._async_current_entries()
+                for entry in existing_entry:
+                    if entry.unique_id == unique_id:
+                        if entry.data.get(CONF_HOST) != host:
+                            _LOGGER.debug("[WiiM] Updating host for %s: %s -> %s", unique_id, entry.data.get(CONF_HOST), host)
+                            self.hass.config_entries.async_update_entry(entry, data={**entry.data, CONF_HOST: host})
+                        self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=f"WiiM {host}", data={CONF_HOST: host}
                 )
+            except WiiMError:
+                errors["base"] = "cannot_connect"
+            except Exception as e:
+                _LOGGER.error("[WiiM] Error during config flow: %s", e)
+                errors["base"] = "unknown"
 
         # Offer UPnP discovery as a fallback
         if async_search is not None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+import asyncio
 
 from homeassistant.components.media_player import (
     MediaPlayerEntity,
@@ -105,20 +106,23 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             sw_version=coordinator.data.get("status", {}).get("firmware", ""),
         )
         # Compose the bitmask of capabilities supported by the WiiM device.
-        self._attr_supported_features = MediaPlayerEntityFeature(
+        self._attr_supported_features = (
             MediaPlayerEntityFeature.PLAY
             | MediaPlayerEntityFeature.PAUSE
             | MediaPlayerEntityFeature.STOP
             | MediaPlayerEntityFeature.NEXT_TRACK
             | MediaPlayerEntityFeature.PREVIOUS_TRACK
             | MediaPlayerEntityFeature.VOLUME_SET
-            | MediaPlayerEntityFeature.VOLUME_STEP
             | MediaPlayerEntityFeature.VOLUME_MUTE
             | MediaPlayerEntityFeature.SELECT_SOURCE
-            | MediaPlayerEntityFeature.CLEAR_PLAYLIST
-            | MediaPlayerEntityFeature.SHUFFLE_SET
-            | MediaPlayerEntityFeature.REPEAT_SET
             | MediaPlayerEntityFeature.GROUPING
+        )
+        _LOGGER.debug(
+            "WiiM %s: supported_features bitmask = %s (type: %s, enum: %s)",
+            coordinator.client.host,
+            self._attr_supported_features,
+            type(self._attr_supported_features),
+            MediaPlayerEntityFeature,
         )
 
     @property
@@ -204,20 +208,22 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def group_members(self) -> list[str]:
         """Return list of group member entity IDs."""
-        return list(self.coordinator.ha_group_members)
+        members = list(self.coordinator.ha_group_members)
+        _LOGGER.debug("[WiiM] %s group_members: %s", self.entity_id, members)
+        return members
 
     @property
     def group_leader(self) -> str | None:
         """Return the entity ID of the group leader."""
-        if self.coordinator.is_ha_group_leader:
-            return self.entity_id
-        return None
+        leader = self.entity_id if self.coordinator.is_ha_group_leader else None
+        _LOGGER.debug("[WiiM] %s group_leader: %s", self.entity_id, leader)
+        return leader
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return entity specific state attributes."""
         status = self.coordinator.data.get("status", {})
-        return {
+        attrs = {
             # Artwork path consumed by frontend via entity_picture
             "entity_picture": status.get("entity_picture"),
             ATTR_DEVICE_MODEL: status.get("device_model"),
@@ -234,9 +240,11 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             ATTR_EQ_CUSTOM: status.get("eq_custom"),
             # Use HA-core constant names so the frontend recognises the
             # grouping capability and displays the chain-link button.
-            HA_ATTR_GROUP_MEMBERS: list(self.coordinator.ha_group_members),
+            HA_ATTR_GROUP_MEMBERS: list(self.coordinator.ha_group_members or []),
             HA_ATTR_GROUP_LEADER: self.group_leader,
         }
+        _LOGGER.debug("[WiiM] %s extra_state_attributes: %s", self.entity_id, attrs)
+        return attrs
 
     @property
     def entity_picture(self) -> str | None:
@@ -431,30 +439,70 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             _LOGGER.error("Failed to toggle power on WiiM device: %s", err)
             raise
 
+    def _entity_id_to_host(self, entity_id: str) -> str:
+        """Map HA entity_id to device IP address (host)."""
+        for coord in self.hass.data[DOMAIN].values():
+            expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
+            if expected == entity_id:
+                return coord.client.host
+        raise ValueError(f"Unknown entity_id: {entity_id}")
+
     async def async_join(self, group_members: list[str]) -> None:
         """Join `group_members` as a group."""
-        # Create group if leader, else join leader's group
-        if not self.coordinator.client.group_master:
-            # Become master
-            await self.coordinator.create_wiim_group()
-            master_ip = self.coordinator.client.host
-        else:
-            master_ip = self.coordinator.client.group_master
+        _LOGGER.info("[WiiM] %s: Starting join operation with group_members=%s", self.entity_id, group_members)
+        try:
+            if not self.coordinator.client.group_master:
+                _LOGGER.info("[WiiM] %s: Creating new group as master", self.entity_id)
+                await self.coordinator.create_wiim_group()
+                master_ip = self.coordinator.client.host
+                _LOGGER.info("[WiiM] %s: Successfully created group as master (%s)", self.entity_id, master_ip)
+            else:
+                master_ip = self.coordinator.client.group_master
+                _LOGGER.info("[WiiM] %s: Using existing group master %s", self.entity_id, master_ip)
 
-        # Command each member to join via service call
-        for entity_id in group_members:
-            if entity_id == self.entity_id:
-                continue
-            coord = _find_coordinator(self.hass, entity_id)
-            if coord is not None:
-                await coord.join_wiim_group(master_ip)
+            for entity_id in group_members:
+                if entity_id == self.entity_id:
+                    _LOGGER.debug("[WiiM] %s: Skipping self in group members", self.entity_id)
+                    continue
+                coord = _find_coordinator(self.hass, entity_id)
+                if coord is not None:
+                    member_ip = self._entity_id_to_host(entity_id)
+                    _LOGGER.info("[WiiM] %s: Instructing %s to join master %s", self.entity_id, member_ip, master_ip)
+                    try:
+                        await coord.join_wiim_group(master_ip)
+                        _LOGGER.info("[WiiM] %s: Successfully joined %s to group", self.entity_id, member_ip)
+                    except Exception as join_err:
+                        _LOGGER.error("[WiiM] %s: Failed to join %s to group: %s", self.entity_id, member_ip, join_err)
+                        raise
+                else:
+                    _LOGGER.warning("[WiiM] %s: Could not find coordinator for %s", self.entity_id, entity_id)
+
+            _LOGGER.info("[WiiM] %s: Triggering coordinator refresh after join operation", self.entity_id)
+            await self.coordinator.async_request_refresh()
+            _LOGGER.info("[WiiM] %s: Join operation completed successfully", self.entity_id)
+        except Exception as err:
+            _LOGGER.error("[WiiM] %s: Failed to complete join operation: %s", self.entity_id, err)
+            raise
 
     async def async_unjoin(self) -> None:
         """Remove this player from any group."""
-        if self.coordinator.client.is_master:
-            await self.coordinator.delete_wiim_group()
-        else:
-            await self.coordinator.leave_wiim_group()
+        _LOGGER.info("[WiiM] %s: Starting unjoin operation", self.entity_id)
+        try:
+            if self.coordinator.client.is_master:
+                _LOGGER.info("[WiiM] %s: Disbanding group as master", self.entity_id)
+                await self.coordinator.delete_wiim_group()
+                _LOGGER.info("[WiiM] %s: Successfully disbanded group", self.entity_id)
+            else:
+                _LOGGER.info("[WiiM] %s: Leaving group as member", self.entity_id)
+                await self.coordinator.leave_wiim_group()
+                _LOGGER.info("[WiiM] %s: Successfully left group", self.entity_id)
+
+            _LOGGER.info("[WiiM] %s: Triggering coordinator refresh after unjoin operation", self.entity_id)
+            await self.coordinator.async_request_refresh()
+            _LOGGER.info("[WiiM] %s: Unjoin operation completed successfully", self.entity_id)
+        except Exception as err:
+            _LOGGER.error("[WiiM] %s: Failed to complete unjoin operation: %s", self.entity_id, err)
+            raise
 
     # ------------------------------------------------------------------
     # Diagnostic helpers exposed as entity services
@@ -476,6 +524,16 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             _LOGGER.error("Failed to sync time on WiiM device: %s", err)
             raise
 
+    def join_players(self, group_members: list[str]) -> None:
+        """Synchronous join for HA compatibility (thread-safe)."""
+        future = asyncio.run_coroutine_threadsafe(self.async_join(group_members), self.hass.loop)
+        future.result()
+
+    def unjoin_player(self) -> None:
+        """Synchronous unjoin for HA compatibility (thread-safe)."""
+        future = asyncio.run_coroutine_threadsafe(self.async_unjoin(), self.hass.loop)
+        future.result()
+
 
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:
     """Return coordinator for the given entity ID."""
@@ -485,3 +543,108 @@ def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | 
         if expected == entity_id:
             return coord
     return None
+
+
+class WiiMGroupMediaPlayer(MediaPlayerEntity):
+    """Representation of a WiiM group media player entity."""
+
+    def __init__(self, hass, coordinator, master_ip):
+        self.hass = hass
+        self.coordinator = coordinator
+        self.master_ip = master_ip
+        self._attr_unique_id = f"wiim_group_{master_ip.replace('.', '_')}"
+        group_info = coordinator.get_group_by_master(master_ip) or {}
+        self._attr_name = f"{group_info.get('name', master_ip)} (Group)"
+
+    @property
+    def group_info(self):
+        return self.coordinator.get_group_by_master(self.master_ip) or {}
+
+    @property
+    def group_members(self):
+        return list(self.group_info.get("members", {}).keys())
+
+    @property
+    def group_leader(self):
+        return self.master_ip
+
+    @property
+    def state(self):
+        # Aggregated: playing if any member is playing, paused if all paused, idle if all idle
+        states = [m.get("state") for m in self.group_info.get("members", {}).values() if m.get("state")]
+        if not states:
+            return MediaPlayerState.IDLE
+        if any(s == MediaPlayerState.PLAYING or s == "play" for s in states):
+            return MediaPlayerState.PLAYING
+        if all(s == MediaPlayerState.PAUSED or s == "pause" for s in states):
+            return MediaPlayerState.PAUSED
+        return MediaPlayerState.IDLE
+
+    @property
+    def volume_level(self):
+        # Max of all member volumes (0-1)
+        vols = [m.get("volume") for m in self.group_info.get("members", {}).values() if m.get("volume") is not None]
+        if not vols:
+            return None
+        return max(vols) / 100
+
+    @property
+    def is_volume_muted(self):
+        # True if all members are muted
+        mutes = [m.get("mute") for m in self.group_info.get("members", {}).values()]
+        return all(mutes) if mutes else None
+
+    @property
+    def extra_state_attributes(self):
+        # Expose per-slave volume/mute
+        attrs = {}
+        for ip, m in self.group_info.get("members", {}).items():
+            attrs[f"member_{ip}_volume"] = m.get("volume")
+            attrs[f"member_{ip}_mute"] = m.get("mute")
+            attrs[f"member_{ip}_name"] = m.get("name")
+        return attrs
+
+    async def async_set_volume_level(self, volume):
+        # Relative group volume logic: all members change by the same delta
+        group = self.group_info
+        if not group or not group["members"]:
+            return
+        current_max = max(m.get("volume", 0) for m in group["members"].values())
+        new_max = int(volume * 100)
+        delta = new_max - current_max
+        for ip, m in group["members"].items():
+            cur = m.get("volume", 0)
+            new_vol = max(0, min(100, cur + delta))
+            # Set volume via API (master or slave)
+            coord = self._find_coordinator_by_ip(ip)
+            if coord:
+                await coord.client.set_volume(new_vol / 100)
+
+    async def async_mute_volume(self, mute: bool):
+        # Mute/unmute all members
+        group = self.group_info
+        for ip in group.get("members", {}):
+            coord = self._find_coordinator_by_ip(ip)
+            if coord:
+                await coord.client.set_mute(mute)
+
+    async def async_media_play(self):
+        # Play on all members
+        for ip in self.group_members:
+            coord = self._find_coordinator_by_ip(ip)
+            if coord:
+                await coord.client.play()
+
+    async def async_media_pause(self):
+        # Pause on all members
+        for ip in self.group_members:
+            coord = self._find_coordinator_by_ip(ip)
+            if coord:
+                await coord.client.pause()
+
+    def _find_coordinator_by_ip(self, ip):
+        # Helper to find coordinator by IP
+        for coord in self.hass.data[DOMAIN].values():
+            if coord.client.host == ip:
+                return coord
+        return None

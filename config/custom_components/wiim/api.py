@@ -63,6 +63,9 @@ from .const import (
     PLAY_MODE_SHUFFLE,
     PLAY_MODE_SHUFFLE_REPEAT_ALL,
     API_ENDPOINT_MULTIROOM_SLAVES,
+    API_ENDPOINT_GROUP_SLAVES,
+    API_ENDPOINT_GROUP_KICK,
+    API_ENDPOINT_GROUP_SLAVE_MUTE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -418,6 +421,7 @@ class WiiMClient:
 
     async def create_group(self) -> None:
         """Create a multiroom group and become the master."""
+        _LOGGER.debug("[WiiM] Creating multiroom group on %s", self._host)
         await self._request(API_ENDPOINT_GROUP_CREATE)
         self._group_master = self._host
         self._group_slaves = []
@@ -426,22 +430,30 @@ class WiiMClient:
         """Delete the current multiroom group."""
         if not self._group_master:
             raise WiiMError("Not part of a multiroom group")
+        _LOGGER.debug("[WiiM] Deleting multiroom group on %s", self._host)
         await self._request(API_ENDPOINT_GROUP_DELETE)
         self._group_master = None
         self._group_slaves = []
 
     async def join_group(self, master_ip: str) -> None:
         """Join a multiroom group as a slave."""
-        if self._group_master:
-            raise WiiMError("Already part of a multiroom group")
-        await self._request(f"{API_ENDPOINT_GROUP_JOIN}{master_ip}")
+        # Check actual device state before raising error
+        multiroom = await self.get_multiroom_info()
+        if multiroom.get("type") == "1" or self._group_master:
+            # Try to leave group first
+            try:
+                await self.leave_group()
+            except Exception:
+                pass  # Ignore errors, try to join anyway
+        _LOGGER.debug("[WiiM] %s joining group with master %s", self._host, master_ip)
+        endpoint = API_ENDPOINT_GROUP_JOIN.format(ip=master_ip)
+        await self._request(endpoint)
         self._group_master = master_ip
         self._group_slaves = []
 
     async def leave_group(self) -> None:
         """Leave the current multiroom group."""
-        if not self._group_master:
-            raise WiiMError("Not part of a multiroom group")
+        _LOGGER.debug("[WiiM] %s leaving group", self._host)
         await self._request(API_ENDPOINT_GROUP_EXIT)
         self._group_master = None
         self._group_slaves = []
@@ -654,36 +666,47 @@ class WiiMClient:
         return data
 
     async def get_multiroom_info(self) -> dict[str, Any]:
-        """Return full multiroom JSON.
-
-        Preference order: multiroom:getSlaveList → getMultiroomInfoEx → empty dict.
-        """
+        """Get multiroom status."""
         try:
-            raw = await self._request(API_ENDPOINT_MULTIROOM_SLAVES)
-            return self._parse_slave_list(raw)
-        except WiiMError:
-            return {}
+            response = await self._request(API_ENDPOINT_GROUP_SLAVES)
+            _LOGGER.debug("Multiroom response: %s", response)
 
-    # ------------------------------------------------------------------
-    # Multi-room parsing helpers
-    # ------------------------------------------------------------------
+            # Parse the response
+            result = {}
 
-    def _parse_slave_list(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Normalise the *getSlaveList* payload."""
-        out: dict[str, Any] = {"slave_count": int(raw.get("slaves", 0)), "slaves": []}
+            # Check if we're a master
+            if "slave_list" in response:
+                result["slaves"] = len(response["slave_list"])
+                result["slave_list"] = response["slave_list"]
+            else:
+                result["slaves"] = 0
+                result["slave_list"] = []
 
-        for entry in raw.get("slave_list", []):
-            out["slaves"].append(
-                {
-                    "ip": entry.get("ip"),
-                    "uuid": entry.get("uuid"),
-                    "name": _hex_to_str(entry.get("name")) or entry.get("name"),
-                    "volume_level": (int(entry["volume"]) / 100) if entry.get("volume") else None,
-                    "mute": bool(int(entry.get("mute", 0))),
-                    "channel": entry.get("channel"),
-                }
-            )
-        return out
+            # Check if we're a slave
+            if "master_uuid" in response:
+                result["type"] = "1"  # We're a slave
+                result["master_uuid"] = response["master_uuid"]
+            else:
+                result["type"] = "0"  # We're not a slave
+
+            return result
+        except Exception as e:
+            _LOGGER.error("Failed to get multiroom info: %s", e)
+            return {"slaves": 0, "slave_list": [], "type": "0"}
+
+    async def kick_slave(self, slave_ip: str) -> None:
+        """Remove a slave device from the group."""
+        if not self.is_master:
+            raise WiiMError("Not a group master")
+        _LOGGER.debug("[WiiM] Kicking slave %s from group", slave_ip)
+        await self._request(f"{API_ENDPOINT_GROUP_KICK}{slave_ip}")
+
+    async def mute_slave(self, slave_ip: str, mute: bool) -> None:
+        """Mute/unmute a slave device."""
+        if not self.is_master:
+            raise WiiMError("Not a group master")
+        _LOGGER.debug("[WiiM] Setting mute=%s for slave %s", mute, slave_ip)
+        await self._request(f"{API_ENDPOINT_GROUP_SLAVE_MUTE}{slave_ip}:{1 if mute else 0}")
 
     # ---------------------------------------------------------------------
     # Diagnostic / maintenance helpers

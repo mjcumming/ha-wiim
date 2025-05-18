@@ -85,10 +85,14 @@ API_ENDPOINT_PLAYLIST = "/httpapi.asp?command=setPlayerCmd:playlist:"
 API_ENDPOINT_CLEAR_PLAYLIST = "/httpapi.asp?command=setPlayerCmd:clear_playlist"
 
 # Multiroom
-API_ENDPOINT_GROUP_JOIN = "/httpapi.asp?command=setMultiroom:Slave:"
-API_ENDPOINT_GROUP_EXIT = "/httpapi.asp?command=setMultiroom:Exit"
-API_ENDPOINT_GROUP_CREATE = "/httpapi.asp?command=setMultiroom:Master"
-API_ENDPOINT_GROUP_DELETE = "/httpapi.asp?command=setMultiroom:Delete"
+API_ENDPOINT_GROUP_JOIN = "/httpapi.asp?command=ConnectMasterAp:JoinGroupMaster:eth{ip}:wifi0.0.0.0"
+API_ENDPOINT_GROUP_EXIT = "/httpapi.asp?command=multiroom:Ungroup"
+API_ENDPOINT_GROUP_CREATE = "/httpapi.asp?command=multiroom:Master"
+API_ENDPOINT_GROUP_DELETE = "/httpapi.asp?command=multiroom:Ungroup"
+API_ENDPOINT_GROUP_SLAVES = "/httpapi.asp?command=multiroom:getSlaveList"
+API_ENDPOINT_GROUP_KICK = "/httpapi.asp?command=multiroom:SlaveKickout:"
+API_ENDPOINT_GROUP_SLAVE_MUTE = "/httpapi.asp?command=multiroom:SlaveMute:"
+API_ENDPOINT_GROUP_SLAVE_VOLUME = "/httpapi.asp?command=multiroom:SlaveVolume:"
 
 # EQ Controls
 API_ENDPOINT_EQ_PRESET = "/httpapi.asp?command=setEQ:preset:"

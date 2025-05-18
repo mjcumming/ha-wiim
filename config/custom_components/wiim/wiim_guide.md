@@ -285,3 +285,121 @@ Field mapping:
 | 6    | Extend `WiiMMediaPlayer` attributes and grouping methods                                                             | `media_player.py` |
 | 7    | Unit tests covering parsing & role detection                                                                         | `tests/`          |
 | 8    | Guide & CHANGELOG update                                                                                             | `wiim_guide.md`   |
+
+### 13.7 Implementation Phases for Grouping (2025-05)
+
+#### Phase 1: Foundation & Home Assistant Compliance
+
+- **Why:** Home Assistant core requires both asynchronous and synchronous join/unjoin methods for full compatibility with the `media_player.join` and `media_player.unjoin` services. Even if your integration is fully async, the core will call the synchronous methods unless they are implemented or explicitly marked as async-only.
+
+- **What to do:**
+
+  - Implement the following in your `MediaPlayerEntity` subclass:
+
+    ```python
+    def join_players(self, group_members: list[str]) -> None:
+        """Synchronous join for HA compatibility."""
+        self.hass.async_create_task(self.async_join(group_members))
+
+    def unjoin_player(self) -> None:
+        """Synchronous unjoin for HA compatibility."""
+        self.hass.async_create_task(self.async_unjoin())
+    ```
+
+  - These methods act as wrappers, scheduling the async versions on the event loop.
+  - This pattern is used by official integrations (Sonos, Linkplay, Yamaha MusicCast) and is required for the built-in grouping services to work.
+
+- **Checklist:**
+
+  - [x] `MediaPlayerEntityFeature.GROUPING` is set in `_attr_supported_features`.
+  - [x] `async_join` and `async_unjoin` are implemented for device-specific logic.
+  - [x] `join_players` and `unjoin_player` are implemented as wrappers.
+
+- **Next:** After this phase, grouping services should no longer raise `NotImplementedError` and will be routed to your entity correctly by Home Assistant.
+
+#### Phase 2: Device API Integration and State Management
+
+- **Why:** Home Assistant entity IDs must be mapped to device-specific identifiers (e.g., IP, MAC, UUID) for group operations. Robust API calls, state refresh, and error handling are essential for reliable grouping.
+
+- **What to do:**
+
+  - Implement a helper to map entity_id to device ID (host/IP) using the coordinator or entity registry.
+  - In `async_join` and `async_unjoin`, use this mapping to call the correct device API endpoints for group management (create, join, leave).
+  - After any group operation, call `await self.coordinator.async_request_refresh()` to update all entities promptly.
+  - Use try/except blocks for all API calls, log errors, and raise `HomeAssistantError` for user-facing issues.
+  - Add debug logging for all group operations and state changes.
+
+- **Checklist:**
+
+  - [x] Entity ID to device ID mapping helper implemented.
+  - [x] API calls for group management use correct device IDs.
+  - [x] Coordinator refresh after group changes.
+  - [x] Error handling and debug logging in group operations.
+
+- **Next:** After this phase, group operations will reliably update device and Home Assistant state, and errors will be visible in logs for troubleshooting.
+
+#### Phase 3: Discovery, Config Flow, and State Sync
+
+- **Why:** Reliable device discovery, unique identification, and robust state synchronization are essential for a seamless user experience and accurate group management in Home Assistant.
+
+- **What to do:**
+
+  - Ensure Zeroconf/SSDP discovery is declared in `manifest.json` and implemented in `config_flow.py`.
+  - In the config flow, always set a unique ID for each device (preferably MAC or UUID, not just host/IP).
+  - Use `self._abort_if_unique_id_configured()` to prevent duplicates and update the config entry if a device is rediscovered with a new IP.
+  - On Home Assistant startup, ensure the coordinator polls all devices and updates group state, even for externally grouped devices.
+  - After any group operation, force a coordinator refresh for all involved entities.
+  - Handle device removal, IP changes, and network issues gracefully, updating group state and marking devices unavailable as needed.
+  - Provide clear error messages and a user-friendly setup experience in the config flow.
+  - Add debug logging for discovery, config flow steps, and state sync events.
+
+- **Checklist:**
+
+  - [x] Zeroconf/SSDP discovery in manifest.json and config_flow.py
+  - [x] Unique ID set for each device (MAC/UUID preferred)
+  - [x] Duplicate device handling and config entry updates
+  - [x] Coordinator fetches and syncs full group topology
+  - [x] Immediate refresh after group changes and on startup
+  - [x] Graceful handling of device/network changes
+  - [x] Clear error messages and user-friendly config flow
+  - [x] Debug logging for discovery and state sync
+
+- **Next:** After this phase, device setup, group management, and state accuracy will be robust, even in dynamic network environments or after Home Assistant restarts.
+
+#### Phase 4: Frontend, User Experience, Documentation, and Advanced Troubleshooting
+
+- **Why:** A seamless UI, clear documentation, and robust diagnostics are essential for user satisfaction and effective support.
+
+- **What to do:**
+
+  - Ensure the default Lovelace media-control card and popular custom cards (e.g., mini-media-player) display and control grouping as expected.
+  - Verify that `group_members` and group leader are accurately reflected in the UI, and that group volume/playback controls work for grouped entities.
+  - Update user documentation to cover:
+    - How to set up and use grouping
+    - Supported features and limitations
+    - Troubleshooting common issues (UI, network, device state)
+  - Update developer documentation with code structure, key methods, and extension points.
+  - Add advanced debug logging for all group operations, service calls, and state changes.
+  - Test edge cases: device offline, network interruptions, mixed firmware, etc.
+  - Provide a FAQ and support instructions for users.
+
+- **Checklist:**
+
+  - [x] UI grouping button appears and works
+  - [x] Custom cards tested and documented
+  - [x] Group state and controls accurate in UI
+  - [x] User and developer documentation updated
+  - [x] Debug logging for all group operations
+  - [x] Edge cases and real-world scenarios tested
+  - [x] FAQ and support instructions provided
+
+- **Sample FAQ:**
+
+  - **Q:** The grouping button does not appear in the UI.
+    - **A:** Ensure at least two WiiM devices are set up, both support grouping, and are online. Check that `group_members` is populated in Developer Tools → States.
+  - **Q:** Group state is not updating after join/unjoin.
+    - **A:** Check logs for errors, ensure coordinator refresh is triggered after group operations, and verify network connectivity.
+  - **Q:** Grouping fails with an error.
+    - **A:** Enable debug logging, reproduce the issue, and check Home Assistant logs for detailed error messages. Report issues with logs attached.
+
+- **Next:** After this phase, the integration will provide a robust, user-friendly, and supportable grouping experience, with clear diagnostics and documentation for both users and developers.

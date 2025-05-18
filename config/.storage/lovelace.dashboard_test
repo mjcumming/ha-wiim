@@ -21,6 +21,10 @@
               "show_forecast": false
             },
             {
+              "type": "media-control",
+              "entity": "media_player.wiim_192_168_1_68"
+            },
+            {
               "type": "grid",
               "square": false,
               "columns": 1,
@@ -67,11 +71,7 @@
             },
             {
               "type": "media-control",
-              "entity": "media_player.wiim_192_168_1_68"
-            },
-            {
-              "type": "media-control",
-              "entity": "sensor.wiim_192_168_1_116_group_role"
+              "entity": "media_player.wiim_192_168_1_116"
             }
           ]
         }
