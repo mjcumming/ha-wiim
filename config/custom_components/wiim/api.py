@@ -681,7 +681,7 @@ class WiiMClient:
             _LOGGER.debug("[WiiM] %s: Set group_master from 'master_uuid' field: %s", self._host, self._group_master)
         else:
             self._group_master = None
-            _LOGGER.debug("[WiiM] %s: No master info found in multiroom response; group_master set to None", self._host)
+            _LOGGER.debug("[WiiM] %s: No master info found in group info response.", self._host)
         return response
 
     async def kick_slave(self, slave_ip: str) -> None:

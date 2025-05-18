@@ -145,8 +145,11 @@ class WiiMCoordinator(DataUpdateCoordinator):
 
     def _update_group_registry(self, status: dict, multiroom: dict) -> None:
         """Update the group registry with current group info."""
+        _LOGGER.debug("[WiiM] _update_group_registry: status=%s, multiroom=%s", status, multiroom)
         master_ip = self.client.host if multiroom.get("slaves", 0) > 0 else multiroom.get("master_uuid")
+        _LOGGER.debug("[WiiM] _update_group_registry: master_ip=%s", master_ip)
         if not master_ip:
+            _LOGGER.debug("[WiiM] _update_group_registry: No master_ip found, skipping group registry update.")
             return
         master_name = status.get("device_name") or "WiiM Group"
         group_info = self._groups.setdefault(master_ip, {"members": {}, "master": master_ip, "name": master_name})
@@ -173,6 +176,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
         # Clean up any members no longer present
         current_ips = {self.client.host} | {entry.get("ip") for entry in multiroom.get("slave_list", []) if entry.get("ip")}
         group_info["members"] = {ip: v for ip, v in group_info["members"].items() if ip in current_ips}
+        _LOGGER.debug("[WiiM] _update_group_registry: group_info=%s", group_info)
 
     def _update_ha_group_status(self) -> None:
         """Update Home Assistant group status."""

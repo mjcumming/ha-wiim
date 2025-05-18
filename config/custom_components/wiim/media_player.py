@@ -187,26 +187,48 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         _LOGGER.debug("[WiiM] %s: role=%s", self.coordinator.client.host, role)
         if role == "slave":
             master_id = self.coordinator.client.group_master
-            _LOGGER.debug("[WiiM] Slave %s: group_master=%s", self.coordinator.client.host, master_id)
-            found = False
+            multiroom = self.coordinator.data.get("multiroom", {})
+            my_ip = self.coordinator.client.host
+            my_uuid = self.coordinator.data.get("status", {}).get("device_id")
+            _LOGGER.debug("[WiiM] Slave %s: group_master=%s, multiroom=%s, my_ip=%s, my_uuid=%s", self.coordinator.client.host, master_id, multiroom, my_ip, my_uuid)
+            # If group_master is set, try to match by IP or UUID
+            if master_id:
+                for coord in self.hass.data[DOMAIN].values():
+                    if not hasattr(coord, "client"):
+                        continue
+                    host = coord.client.host
+                    uuid = coord.data.get("status", {}).get("device_id")
+                    _LOGGER.debug("[WiiM] Slave %s: checking coord host=%s, uuid=%s against master_id=%s", self.coordinator.client.host, host, uuid, master_id)
+                    if host == master_id or uuid == master_id:
+                        status = coord.data.get("status", {})
+                        _LOGGER.debug("[WiiM] Slave %s: mirroring master's status by id: %s", self.coordinator.client.host, status)
+                        return status
+            # If group_master is None, search all coordinators for a master whose slave_list includes this device
+            _LOGGER.debug("[WiiM] Slave %s: searching for master by slave_list (my_ip=%s, my_uuid=%s)", self.coordinator.client.host, my_ip, my_uuid)
             for coord in self.hass.data[DOMAIN].values():
                 if not hasattr(coord, "client"):
                     continue
-                host = coord.client.host
-                uuid = coord.data.get("status", {}).get("device_id")
-                _LOGGER.debug("[WiiM] Checking coordinator: host=%s, uuid=%s", host, uuid)
-                if host == master_id or uuid == master_id:
-                    status = coord.data.get("status", {})
-                    _LOGGER.debug("[WiiM] Slave %s: mirroring master's status: %s", self.coordinator.client.host, status)
-                    found = True
-                    return status
-            if not found:
-                _LOGGER.warning("[WiiM] Slave %s: could not find master coordinator for %s. Known hosts: %s", self.coordinator.client.host, master_id, [getattr(c.client, 'host', None) for c in self.hass.data[DOMAIN].values() if hasattr(c, 'client')])
-                return {}  # Return empty dict instead of None
-        elif role == "master":
-            return self.coordinator.data.get("status", {})
-        else:
-            return self.coordinator.data.get("status", {})
+                # Check if this coordinator is a master
+                if coord.data.get("role") != "master":
+                    continue
+                # Check master's multiroom info for this slave
+                master_multiroom = coord.data.get("multiroom", {})
+                slave_list = master_multiroom.get("slave_list", [])
+                _LOGGER.debug("[WiiM] Slave %s: checking master %s slave_list=%s", self.coordinator.client.host, coord.client.host, slave_list)
+                for slave in slave_list:
+                    if isinstance(slave, dict):
+                        slave_ip = slave.get("ip")
+                        slave_uuid = slave.get("uuid")
+                        _LOGGER.debug("[WiiM] Slave %s: comparing to slave_ip=%s, slave_uuid=%s", self.coordinator.client.host, slave_ip, slave_uuid)
+                        if (my_ip and my_ip == slave_ip) or (my_uuid and my_uuid == slave_uuid):
+                            _LOGGER.debug("[WiiM] Slave %s: found master %s by slave_list", self.coordinator.client.host, coord.client.host)
+                            return coord.data.get("status", {})
+            _LOGGER.warning("[WiiM] Slave %s: could not find master to mirror!", self.coordinator.client.host)
+            return {}
+        # Not a slave: return own status
+        status = self.coordinator.data.get("status", {})
+        _LOGGER.debug("[WiiM] %s: returning own status: %s", self.coordinator.client.host, status)
+        return status
 
     @property
     def media_title(self) -> str | None:
