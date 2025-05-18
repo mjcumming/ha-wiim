@@ -17,6 +17,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers import entity_platform
 import voluptuous as vol
+from homeassistant.components.media_player.const import (
+    ATTR_GROUP_MEMBERS as HA_ATTR_GROUP_MEMBERS,
+)
 
 from .api import WiiMError
 from .const import (
@@ -26,8 +29,6 @@ from .const import (
     ATTR_EQ_CUSTOM,
     ATTR_EQ_PRESET,
     ATTR_FIRMWARE,
-    ATTR_GROUP_LEADER,
-    ATTR_GROUP_MEMBERS,
     ATTR_MUTE,
     ATTR_PLAY_MODE,
     ATTR_PRESET,
@@ -46,6 +47,9 @@ from .const import (
 from .coordinator import WiiMCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+# Home Assistant doesn't define a constant for the leader attribute.
+HA_ATTR_GROUP_LEADER = "group_leader"
 
 
 async def async_setup_entry(
@@ -228,8 +232,10 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             ATTR_MUTE: status.get("mute"),
             ATTR_EQ_PRESET: status.get("eq_preset"),
             ATTR_EQ_CUSTOM: status.get("eq_custom"),
-            ATTR_GROUP_MEMBERS: list(self.coordinator.ha_group_members),
-            ATTR_GROUP_LEADER: self.group_leader,
+            # Use HA-core constant names so the frontend recognises the
+            # grouping capability and displays the chain-link button.
+            HA_ATTR_GROUP_MEMBERS: list(self.coordinator.ha_group_members),
+            HA_ATTR_GROUP_LEADER: self.group_leader,
         }
 
     @property

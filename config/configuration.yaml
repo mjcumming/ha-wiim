@@ -9,10 +9,11 @@ script: !include scripts.yaml
 scene: !include scenes.yaml
 
 logger:
-  default: info
+  default: warning
   logs:
     custom_components.wiim: debug
     homeassistant.components.ssdp: debug
     custom_components.wiim.api: debug
+    custom_components.wiim.config_flow: debug
 
 default_config:

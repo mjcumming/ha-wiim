@@ -118,8 +118,6 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # 1. Fire a directed M-SEARCH for MediaRenderer devices --------------
         # ------------------------------------------------------------------
 
-        from async_upnp_client.ssdp import SSDP_PORT
-
         async def _on_ssdp_device(device):  # type: ignore[missing-param-doc]
             host: str | None = getattr(device, "host", None)
             if host is None and (loc := getattr(device, "location", None)):
@@ -139,15 +137,24 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             discovered.add(host)
 
-        # Targeted search for MediaRenderer devices (LinkPlay speakers expose this)
-        await async_search(
-            async_callback=_on_ssdp_device,
-            timeout=5,
-            source_ip="0.0.0.0",
-            mx=2,
-            search_target="urn:schemas-upnp-org:device:MediaRenderer:1",
-            port=SSDP_PORT,
-        )
+        try:
+            # Newer async_upnp_client (≤ 0.23) still exposes *mx*; pass it so
+            # we only wait two seconds for replies.  If the version in the HA
+            # container removed the parameter we catch the TypeError and
+            # re-invoke without it.
+            await async_search(
+                async_callback=_on_ssdp_device,
+                timeout=5,
+                search_target="urn:schemas-upnp-org:device:MediaRenderer:1",
+                mx=2,
+            )
+        except TypeError:
+            # Fallback for >= 0.29 where *mx* was dropped.
+            await async_search(
+                async_callback=_on_ssdp_device,
+                timeout=5,
+                search_target="urn:schemas-upnp-org:device:MediaRenderer:1",
+            )
 
         return list(discovered)
 

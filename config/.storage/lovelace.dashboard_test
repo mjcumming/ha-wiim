@@ -68,6 +68,10 @@
             {
               "type": "media-control",
               "entity": "media_player.wiim_192_168_1_68"
+            },
+            {
+              "type": "media-control",
+              "entity": "sensor.wiim_192_168_1_116_group_role"
             }
           ]
         }
