@@ -1,5 +1,8 @@
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerState, MediaPlayerEntityFeature
 from .const import DOMAIN
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 class WiiMGroupMediaPlayer(MediaPlayerEntity):
     """Representation of a WiiM group media player entity."""
@@ -28,6 +31,8 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
             MediaPlayerEntityFeature.PLAY
             | MediaPlayerEntityFeature.PAUSE
             | MediaPlayerEntityFeature.STOP
+            | MediaPlayerEntityFeature.NEXT_TRACK
+            | MediaPlayerEntityFeature.PREVIOUS_TRACK
             | MediaPlayerEntityFeature.VOLUME_SET
             | MediaPlayerEntityFeature.VOLUME_MUTE
             | MediaPlayerEntityFeature.GROUPING
@@ -35,7 +40,9 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
 
     @property
     def group_info(self):
-        return self.coordinator.get_group_by_master(self.master_ip) or {}
+        info = self.coordinator.get_group_by_master(self.master_ip) or {}
+        _LOGGER.debug("[WiiMGroup] Group info for master %s: %s", self.master_ip, info)
+        return info
 
     @property
     def group_members(self):
@@ -47,29 +54,44 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
 
     @property
     def state(self):
-        # Aggregated: playing if any member is playing, paused if all paused, idle if all idle
-        states = [m.get("state") for m in self.group_info.get("members", {}).values() if m.get("state")]
-        if not states:
+        # Get master's state directly from its coordinator
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
+            _LOGGER.warning("[WiiMGroup] No coordinator found for master %s in group %s", self.master_ip, self._attr_name)
             return MediaPlayerState.IDLE
-        if any(s == MediaPlayerState.PLAYING or s == "play" for s in states):
+
+        status = master_coord.data.get("status", {})
+        role = master_coord.data.get("role")
+        _LOGGER.debug(
+            "[WiiMGroup] Master %s state check - role=%s, status=%s",
+            self.master_ip, role, status
+        )
+
+        if not status.get("power"):
+            return MediaPlayerState.OFF
+        if status.get("play_status") == "play":
             return MediaPlayerState.PLAYING
-        if all(s == MediaPlayerState.PAUSED or s == "pause" for s in states):
+        if status.get("play_status") == "pause":
             return MediaPlayerState.PAUSED
         return MediaPlayerState.IDLE
 
     @property
     def volume_level(self):
-        # Max of all member volumes (0-1), default to 0 if missing
-        vols = [m.get("volume", 0) or 0 for m in self.group_info.get("members", {}).values()]
-        if not vols:
+        # Get master's volume directly from its coordinator
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
             return 0
-        return max(vols) / 100
+        if volume := master_coord.data.get("status", {}).get("volume"):
+            return float(volume) / 100
+        return 0
 
     @property
     def is_volume_muted(self):
-        # True if all members are muted
-        mutes = [m.get("mute") for m in self.group_info.get("members", {}).values()]
-        return all(mutes) if mutes else None
+        # Get master's mute state directly from its coordinator
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
+            return None
+        return master_coord.data.get("status", {}).get("mute")
 
     @property
     def extra_state_attributes(self):
@@ -87,23 +109,68 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
 
     @property
     def entity_picture(self):
-        master = self.group_info.get("members", {}).get(self.master_ip, {})
-        return master.get("entity_picture")
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
+            _LOGGER.debug("[WiiMGroup] No coordinator found for master %s in group %s", self.master_ip, self._attr_name)
+            return None
+        pic = master_coord.data.get("status", {}).get("entity_picture")
+        if not pic:
+            _LOGGER.debug("[WiiMGroup] No entity_picture for master %s in group %s: %s", self.master_ip, self._attr_name, master_coord.data.get("status", {}))
+        return pic
 
     @property
     def media_title(self):
-        master = self.group_info.get("members", {}).get(self.master_ip, {})
-        return master.get("title")
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
+            _LOGGER.debug("[WiiMGroup] No coordinator found for master %s in group %s", self.master_ip, self._attr_name)
+            return None
+        title = master_coord.data.get("status", {}).get("title")
+        if not title:
+            _LOGGER.debug("[WiiMGroup] No media_title for master %s in group %s: %s", self.master_ip, self._attr_name, master_coord.data.get("status", {}))
+        return title
 
     @property
     def media_artist(self):
-        master = self.group_info.get("members", {}).get(self.master_ip, {})
-        return master.get("artist")
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
+            _LOGGER.debug("[WiiMGroup] No coordinator found for master %s in group %s", self.master_ip, self._attr_name)
+            return None
+        artist = master_coord.data.get("status", {}).get("artist")
+        if not artist:
+            _LOGGER.debug("[WiiMGroup] No media_artist for master %s in group %s: %s", self.master_ip, self._attr_name, master_coord.data.get("status", {}))
+        return artist
 
     @property
     def media_album_name(self):
-        master = self.group_info.get("members", {}).get(self.master_ip, {})
-        return master.get("album")
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if not master_coord:
+            _LOGGER.debug("[WiiMGroup] No coordinator found for master %s in group %s", self.master_ip, self._attr_name)
+            return None
+        album = master_coord.data.get("status", {}).get("album")
+        if not album:
+            _LOGGER.debug("[WiiMGroup] No media_album_name for master %s in group %s: %s", self.master_ip, self._attr_name, master_coord.data.get("status", {}))
+        return album
+
+    @property
+    def media_position(self):
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if master_coord:
+            return master_coord.data.get("status", {}).get("position")
+        return None
+
+    @property
+    def media_duration(self):
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if master_coord:
+            return master_coord.data.get("status", {}).get("duration")
+        return None
+
+    @property
+    def media_position_updated_at(self):
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if master_coord:
+            return master_coord.data.get("status", {}).get("position_updated_at")
+        return None
 
     async def async_set_volume_level(self, volume):
         # Relative group volume logic: all members change by the same delta
@@ -143,9 +210,32 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
             if coord:
                 await coord.client.pause()
 
+    async def async_media_next_track(self):
+        """Send next track command to the group master only."""
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if master_coord:
+            await master_coord.client.next_track()
+        else:
+            _LOGGER.warning("[WiiMGroup] No coordinator found for master %s when trying to send next_track", self.master_ip)
+
+    async def async_media_previous_track(self):
+        """Send previous track command to the group master only."""
+        master_coord = self._find_coordinator_by_ip(self.master_ip)
+        if master_coord:
+            await master_coord.client.previous_track()
+        else:
+            _LOGGER.warning("[WiiMGroup] No coordinator found for master %s when trying to send previous_track", self.master_ip)
+
     def _find_coordinator_by_ip(self, ip):
         # Helper to find coordinator by IP
         for coord in self.hass.data[DOMAIN].values():
             if coord.client.host == ip:
+                role = coord.data.get("role")
+                multiroom = coord.data.get("multiroom", {})
+                _LOGGER.debug(
+                    "[WiiMGroup] Found coordinator for %s: role=%s, multiroom=%s, data=%s",
+                    ip, role, multiroom, coord.data
+                )
                 return coord
+        _LOGGER.warning("[WiiMGroup] No coordinator found for IP %s", ip)
         return None

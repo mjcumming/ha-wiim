@@ -159,13 +159,15 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def state(self) -> MediaPlayerState:
         """Return the state of the device."""
-        status = self.coordinator.data.get("status", {})
-        if not status.get("power"):
-            return MediaPlayerState.OFF
-        if status.get("play_status") == "play":
+        status = self._effective_status() or {}
+        play_status = status.get("play_status")
+        _LOGGER.debug("[WiiM] %s: state property, play_status=%s", self.coordinator.client.host, play_status)
+        if play_status == "play":
             return MediaPlayerState.PLAYING
-        if status.get("play_status") == "pause":
+        if play_status == "pause":
             return MediaPlayerState.PAUSED
+        if play_status == "stop":
+            return MediaPlayerState.IDLE
         return MediaPlayerState.IDLE
 
     @property
@@ -181,47 +183,78 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         return self.coordinator.data.get("status", {}).get("mute")
 
     def _effective_status(self):
-        # If this device is a slave, mirror the master's status
-        if self.coordinator.is_wiim_slave:
-            master_ip = self.coordinator.client.group_master
-            group = self.coordinator.get_group_by_master(master_ip)
-            if group and master_ip in group["members"]:
-                status = group["members"][master_ip]
-                _LOGGER.debug("[WiiM] Slave %s using master's status: %s", self.coordinator.client.host, status)
-                return status
-        status = self.coordinator.data.get("status", {})
-        _LOGGER.debug("[WiiM] Device %s using own status: %s", self.coordinator.client.host, status)
-        return status
+        role = self.coordinator.data.get("role")
+        _LOGGER.debug("[WiiM] %s: role=%s", self.coordinator.client.host, role)
+        if role == "slave":
+            master_id = self.coordinator.client.group_master
+            _LOGGER.debug("[WiiM] Slave %s: group_master=%s", self.coordinator.client.host, master_id)
+            found = False
+            for coord in self.hass.data[DOMAIN].values():
+                if not hasattr(coord, "client"):
+                    continue
+                host = coord.client.host
+                uuid = coord.data.get("status", {}).get("device_id")
+                _LOGGER.debug("[WiiM] Checking coordinator: host=%s, uuid=%s", host, uuid)
+                if host == master_id or uuid == master_id:
+                    status = coord.data.get("status", {})
+                    _LOGGER.debug("[WiiM] Slave %s: mirroring master's status: %s", self.coordinator.client.host, status)
+                    found = True
+                    return status
+            if not found:
+                _LOGGER.warning("[WiiM] Slave %s: could not find master coordinator for %s. Known hosts: %s", self.coordinator.client.host, master_id, [getattr(c.client, 'host', None) for c in self.hass.data[DOMAIN].values() if hasattr(c, 'client')])
+                return {}  # Return empty dict instead of None
+        elif role == "master":
+            return self.coordinator.data.get("status", {})
+        else:
+            return self.coordinator.data.get("status", {})
 
     @property
     def media_title(self) -> str | None:
         """Return the title of current playing media."""
-        return self._effective_status().get("title")
+        status = self._effective_status() or {}
+        title = status.get("title")
+        _LOGGER.debug("[WiiM] %s: media_title=%s", self.coordinator.client.host, title)
+        return title
 
     @property
     def media_artist(self) -> str | None:
         """Return the artist of current playing media."""
-        return self._effective_status().get("artist")
+        status = self._effective_status() or {}
+        artist = status.get("artist")
+        _LOGGER.debug("[WiiM] %s: media_artist=%s", self.coordinator.client.host, artist)
+        return artist
 
     @property
     def media_album_name(self) -> str | None:
         """Return the album name of current playing media."""
-        return self._effective_status().get("album")
+        status = self._effective_status() or {}
+        album = status.get("album")
+        _LOGGER.debug("[WiiM] %s: media_album_name=%s", self.coordinator.client.host, album)
+        return album
 
     @property
     def media_position(self) -> int | None:
         """Position of current playing media in seconds."""
-        return self.coordinator.data.get("status", {}).get("position")
+        status = self._effective_status() or {}
+        pos = status.get("position")
+        _LOGGER.debug("[WiiM] %s: media_position=%s", self.coordinator.client.host, pos)
+        return pos
 
     @property
     def media_position_updated_at(self) -> float | None:
         """When was the position of the current playing media valid."""
-        return self.coordinator.data.get("status", {}).get("position_updated_at")
+        status = self._effective_status() or {}
+        updated = status.get("position_updated_at")
+        _LOGGER.debug("[WiiM] %s: media_position_updated_at=%s", self.coordinator.client.host, updated)
+        return updated
 
     @property
     def media_duration(self) -> int | None:
         """Duration of current playing media in seconds."""
-        return self.coordinator.data.get("status", {}).get("duration")
+        status = self._effective_status() or {}
+        dur = status.get("duration")
+        _LOGGER.debug("[WiiM] %s: media_duration=%s", self.coordinator.client.host, dur)
+        return dur
 
     @property
     def shuffle(self) -> bool | None:
@@ -266,10 +299,10 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return entity specific state attributes."""
-        status = self.coordinator.data.get("status", {})
+        status = self._effective_status() or {}
         attrs = {
             # Artwork path consumed by frontend via entity_picture
-            "entity_picture": status.get("entity_picture"),
+            "entity_picture": status.get("cover"),
             ATTR_DEVICE_MODEL: status.get("device_model"),
             ATTR_DEVICE_NAME: status.get("device_name"),
             ATTR_DEVICE_ID: status.get("device_id"),
@@ -293,8 +326,9 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def entity_picture(self) -> str | None:
         """Return URL to current artwork."""
-        pic = self._effective_status().get("entity_picture")
-        _LOGGER.debug("[WiiM] %s entity_picture: %s", self.entity_id, pic)
+        status = self._effective_status() or {}
+        pic = status.get("cover")
+        _LOGGER.debug("[WiiM] %s: entity_picture=%s", self.coordinator.client.host, pic)
         return pic
 
     async def async_turn_on(self) -> None:
@@ -317,21 +351,25 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 
     async def async_media_play(self) -> None:
         """Send play command."""
-        try:
-            await self.coordinator.client.play()
-            await self.coordinator.async_refresh()
-        except WiiMError as err:
-            _LOGGER.error("Failed to play on WiiM device: %s", err)
-            raise
+        role = self.coordinator.data.get("role")
+        if role == "slave":
+            master_ip = self.coordinator.client.group_master
+            for coord in self.hass.data[DOMAIN].values():
+                if coord.client.host == master_ip:
+                    await coord.client.play()
+                    return
+        await self.coordinator.client.play()
 
     async def async_media_pause(self) -> None:
         """Send pause command."""
-        try:
-            await self.coordinator.client.pause()
-            await self.coordinator.async_refresh()
-        except WiiMError as err:
-            _LOGGER.error("Failed to pause WiiM device: %s", err)
-            raise
+        role = self.coordinator.data.get("role")
+        if role == "slave":
+            master_ip = self.coordinator.client.group_master
+            for coord in self.hass.data[DOMAIN].values():
+                if coord.client.host == master_ip:
+                    await coord.client.pause()
+                    return
+        await self.coordinator.client.pause()
 
     async def async_media_stop(self) -> None:
         """Send stop command."""
@@ -344,21 +382,25 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 
     async def async_media_next_track(self) -> None:
         """Send next track command."""
-        try:
-            await self.coordinator.client.next_track()
-            await self.coordinator.async_refresh()
-        except WiiMError as err:
-            _LOGGER.error("Failed to play next track on WiiM device: %s", err)
-            raise
+        role = self.coordinator.data.get("role")
+        if role == "slave":
+            master_ip = self.coordinator.client.group_master
+            for coord in self.hass.data[DOMAIN].values():
+                if coord.client.host == master_ip:
+                    await coord.client.next_track()
+                    return
+        await self.coordinator.client.next_track()
 
     async def async_media_previous_track(self) -> None:
         """Send previous track command."""
-        try:
-            await self.coordinator.client.previous_track()
-            await self.coordinator.async_refresh()
-        except WiiMError as err:
-            _LOGGER.error("Failed to play previous track on WiiM device: %s", err)
-            raise
+        role = self.coordinator.data.get("role")
+        if role == "slave":
+            master_ip = self.coordinator.client.group_master
+            for coord in self.hass.data[DOMAIN].values():
+                if coord.client.host == master_ip:
+                    await coord.client.previous_track()
+                    return
+        await self.coordinator.client.previous_track()
 
     def _volume_step(self) -> float:
         entry_id = getattr(self.coordinator, 'entry_id', None)

@@ -85,13 +85,19 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 except WiiMError as err:
                     _LOGGER.debug("Failed to fetch source list: %s", err)
 
-            # Derive role
-            if status.get("type") == "1" or status.get("master_uuid"):
-                role = "guest"
-            elif multiroom.get("slaves", 0) > 0:
+            # --- Updated role detection logic ---
+            slave_list = multiroom.get("slave_list", [])
+            _LOGGER.debug("[WiiM] %s: Role detection - multiroom=%s, slave_list=%s", self.client.host, multiroom, slave_list)
+
+            if multiroom.get("type") == "1" or status.get("type") == "1":
+                role = "slave"
+                _LOGGER.debug("[WiiM] %s: Detected as SLAVE (type=1)", self.client.host)
+            elif slave_list:
                 role = "master"
+                _LOGGER.debug("[WiiM] %s: Detected as MASTER (has %d slaves)", self.client.host, len(slave_list))
             else:
                 role = "solo"
+                _LOGGER.debug("[WiiM] %s: Detected as SOLO (no slaves, type!=1)", self.client.host)
 
             # Update group registry
             self._update_group_registry(status, multiroom)

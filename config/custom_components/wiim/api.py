@@ -667,32 +667,22 @@ class WiiMClient:
 
     async def get_multiroom_info(self) -> dict[str, Any]:
         """Get multiroom status."""
-        try:
-            response = await self._request(API_ENDPOINT_GROUP_SLAVES)
-            _LOGGER.debug("Multiroom response: %s", response)
-
-            # Parse the response
-            result = {}
-
-            # Check if we're a master
-            if "slave_list" in response:
-                result["slaves"] = len(response["slave_list"])
-                result["slave_list"] = response["slave_list"]
-            else:
-                result["slaves"] = 0
-                result["slave_list"] = []
-
-            # Check if we're a slave
-            if "master_uuid" in response:
-                result["type"] = "1"  # We're a slave
-                result["master_uuid"] = response["master_uuid"]
-            else:
-                result["type"] = "0"  # We're not a slave
-
-            return result
-        except Exception as e:
-            _LOGGER.error("Failed to get multiroom info: %s", e)
-            return {"slaves": 0, "slave_list": [], "type": "0"}
+        response = await self._request(API_ENDPOINT_GROUP_SLAVES)
+        _LOGGER.debug("[WiiM] get_multiroom_info response for %s: %s", self._host, response)
+        # Try to set group_master for slave
+        if "master" in response:
+            self._group_master = response["master"]
+            _LOGGER.debug("[WiiM] %s: Set group_master from 'master' field: %s", self._host, self._group_master)
+        elif "master_ip" in response:
+            self._group_master = response["master_ip"]
+            _LOGGER.debug("[WiiM] %s: Set group_master from 'master_ip' field: %s", self._host, self._group_master)
+        elif "master_uuid" in response:
+            self._group_master = response["master_uuid"]
+            _LOGGER.debug("[WiiM] %s: Set group_master from 'master_uuid' field: %s", self._host, self._group_master)
+        else:
+            self._group_master = None
+            _LOGGER.debug("[WiiM] %s: No master info found in multiroom response; group_master set to None", self._host)
+        return response
 
     async def kick_slave(self, slave_ip: str) -> None:
         """Remove a slave device from the group."""
