@@ -146,7 +146,28 @@ class WiiMCoordinator(DataUpdateCoordinator):
     def _update_group_registry(self, status: dict, multiroom: dict) -> None:
         """Update the group registry with current group info."""
         _LOGGER.debug("[WiiM] _update_group_registry: status=%s, multiroom=%s", status, multiroom)
+        # Try to determine master_ip from own multiroom info
         master_ip = self.client.host if multiroom.get("slaves", 0) > 0 else multiroom.get("master_uuid")
+        # If not found and this device is a slave, search all coordinators for a master whose slave_list includes this device
+        if not master_ip and (multiroom.get("type") == "1" or status.get("type") == "1"):
+            my_ip = self.client.host
+            my_uuid = status.get("device_id")
+            for coord in self.hass.data[DOMAIN].values():
+                if not hasattr(coord, "client") or coord.data is None:
+                    continue
+                # Check if this coordinator is a master
+                coord_multiroom = coord.data.get("multiroom", {})
+                slave_list = coord_multiroom.get("slave_list", [])
+                for slave in slave_list:
+                    if isinstance(slave, dict):
+                        slave_ip = slave.get("ip")
+                        slave_uuid = slave.get("uuid")
+                        if (my_ip and my_ip == slave_ip) or (my_uuid and my_uuid == slave_uuid):
+                            master_ip = coord.client.host
+                            _LOGGER.debug("[WiiM] _update_group_registry: Found master %s for slave %s by slave_list", master_ip, my_ip)
+                            break
+                if master_ip:
+                    break
         _LOGGER.debug("[WiiM] _update_group_registry: master_ip=%s", master_ip)
         if not master_ip:
             _LOGGER.debug("[WiiM] _update_group_registry: No master_ip found, skipping group registry update.")

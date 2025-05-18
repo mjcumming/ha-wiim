@@ -117,7 +117,10 @@ async def async_setup_entry(
     # Listen for coordinator updates to refresh group entities
     async def _on_coordinator_update():
         await update_group_entities()
-    coordinator.async_add_listener(_on_coordinator_update)
+    # Register the listener properly for async
+    def _listener():
+        hass.async_create_task(_on_coordinator_update())
+    coordinator.async_add_listener(_listener)
     await update_group_entities()
 
 
@@ -371,26 +374,49 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             _LOGGER.error("Failed to turn off WiiM device: %s", err)
             raise
 
+    def _find_master_coordinator(self):
+        master_ip = self.coordinator.client.group_master
+        if not master_ip:
+            # Fallback: search for master by slave_list
+            my_ip = self.coordinator.client.host
+            my_uuid = self.coordinator.data.get("status", {}).get("device_id")
+            for coord in self.hass.data[DOMAIN].values():
+                if not hasattr(coord, "client") or coord.data is None:
+                    continue
+                if coord.data.get("role") != "master":
+                    continue
+                multiroom = coord.data.get("multiroom", {})
+                slave_list = multiroom.get("slave_list", [])
+                for slave in slave_list:
+                    if isinstance(slave, dict):
+                        if (my_ip and my_ip == slave.get("ip")) or (my_uuid and my_uuid == slave.get("uuid")):
+                            return coord
+            return None
+        for coord in self.hass.data[DOMAIN].values():
+            if not hasattr(coord, "client"):
+                continue
+            if coord.client.host == master_ip:
+                return coord
+        return None
+
     async def async_media_play(self) -> None:
         """Send play command."""
         role = self.coordinator.data.get("role")
         if role == "slave":
-            master_ip = self.coordinator.client.group_master
-            for coord in self.hass.data[DOMAIN].values():
-                if coord.client.host == master_ip:
-                    await coord.client.play()
-                    return
+            master_coord = self._find_master_coordinator()
+            if master_coord:
+                await master_coord.client.play()
+                return
         await self.coordinator.client.play()
 
     async def async_media_pause(self) -> None:
         """Send pause command."""
         role = self.coordinator.data.get("role")
         if role == "slave":
-            master_ip = self.coordinator.client.group_master
-            for coord in self.hass.data[DOMAIN].values():
-                if coord.client.host == master_ip:
-                    await coord.client.pause()
-                    return
+            master_coord = self._find_master_coordinator()
+            if master_coord:
+                await master_coord.client.pause()
+                return
         await self.coordinator.client.pause()
 
     async def async_media_stop(self) -> None:
@@ -406,22 +432,20 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         """Send next track command."""
         role = self.coordinator.data.get("role")
         if role == "slave":
-            master_ip = self.coordinator.client.group_master
-            for coord in self.hass.data[DOMAIN].values():
-                if coord.client.host == master_ip:
-                    await coord.client.next_track()
-                    return
+            master_coord = self._find_master_coordinator()
+            if master_coord:
+                await master_coord.client.next_track()
+                return
         await self.coordinator.client.next_track()
 
     async def async_media_previous_track(self) -> None:
         """Send previous track command."""
         role = self.coordinator.data.get("role")
         if role == "slave":
-            master_ip = self.coordinator.client.group_master
-            for coord in self.hass.data[DOMAIN].values():
-                if coord.client.host == master_ip:
-                    await coord.client.previous_track()
-                    return
+            master_coord = self._find_master_coordinator()
+            if master_coord:
+                await master_coord.client.previous_track()
+                return
         await self.coordinator.client.previous_track()
 
     def _volume_step(self) -> float:

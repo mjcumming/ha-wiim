@@ -77,13 +77,15 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
 
     @property
     def volume_level(self):
-        # Get master's volume directly from its coordinator
-        master_coord = self._find_coordinator_by_ip(self.master_ip)
-        if not master_coord:
-            return 0
-        if volume := master_coord.data.get("status", {}).get("volume"):
-            return float(volume) / 100
-        return 0
+        # Always get the latest volume from each coordinator
+        max_vol = 0
+        for ip in self.group_members:
+            coord = self._find_coordinator_by_ip(ip)
+            if coord and coord.data and "status" in coord.data:
+                vol = coord.data["status"].get("volume", 0)
+                if vol > max_vol:
+                    max_vol = vol
+        return float(max_vol) / 100
 
     @property
     def is_volume_muted(self):
@@ -173,17 +175,21 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
         return None
 
     async def async_set_volume_level(self, volume):
-        # Relative group volume logic: all members change by the same delta
-        group = self.group_info
-        if not group or not group["members"]:
+        # Always get the latest volume from each coordinator
+        member_vols = {}
+        for ip in self.group_members:
+            coord = self._find_coordinator_by_ip(ip)
+            if coord and coord.data and "status" in coord.data:
+                member_vols[ip] = coord.data["status"].get("volume", 0)
+            else:
+                member_vols[ip] = 0
+        if not member_vols:
             return
-        current_max = max(m.get("volume", 0) for m in group["members"].values())
+        current_max = max(member_vols.values())
         new_max = int(volume * 100)
         delta = new_max - current_max
-        for ip, m in group["members"].items():
-            cur = m.get("volume", 0)
+        for ip, cur in member_vols.items():
             new_vol = max(0, min(100, cur + delta))
-            # Set volume via API (master or slave)
             coord = self._find_coordinator_by_ip(ip)
             if coord:
                 await coord.client.set_volume(new_vol / 100)

@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from datetime import timedelta
 
 from .const import (
     DOMAIN,
@@ -66,8 +67,13 @@ class _PollIntervalNumber(_BaseWiiMNumber):
 
     async def async_set_native_value(self, value):
         # Update coordinator interval immediately
-        self.coordinator.update_interval = self.coordinator.update_interval.replace(seconds=int(value)) if self.coordinator.update_interval else None
-        self._save(int(value))
+        value = int(value)
+        self.coordinator.update_interval = timedelta(seconds=value)
+        self.coordinator._base_poll_interval = value
+        self._save(value)
+        # Restart the coordinator's polling loop
+        await self.coordinator.async_stop()
+        await self.coordinator.async_start()
         await self.coordinator.async_refresh()
 
 class _VolumeStepNumber(_BaseWiiMNumber):
