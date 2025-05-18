@@ -1,1 +1,17 @@
-config/
+# Ignore database and log files in config
+config/*.db
+config/*.log
+config/*.log.*
+
+# Ignore storage directory which contains runtime data
+config/.storage/
+
+# Ignore cloud directory which contains sensitive data
+config/.cloud/
+
+# Ignore deps directory which contains runtime dependencies
+config/deps/
+
+# Keep everything else in config
+!config/
+!config/**/

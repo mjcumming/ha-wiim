@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "core.restore_state",
+  "data": [
+    {
+      "state": {"entity_id":"conversation.home_assistant","state":"unknown","attributes":{"friendly_name":"Home Assistant","supported_features":1},"last_changed":"2025-05-18T19:24:39.623104+00:00","last_reported":"2025-05-18T19:24:39.623104+00:00","last_updated":"2025-05-18T19:24:39.623104+00:00","context":{"id":"01JVJDNZT7MM9N6HKAJ7K73F43","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    },
+    {
+      "state": {"entity_id":"person.dev","state":"unknown","attributes":{"editable":true,"id":"dev","device_trackers":[],"user_id":"7a858a20e5444280992ede963bd634b8","friendly_name":"dev"},"last_changed":"2025-05-18T19:24:39.996685+00:00","last_reported":"2025-05-18T19:25:09.089754+00:00","last_updated":"2025-05-18T19:25:09.089754+00:00","context":{"id":"01JVJDPWK1BBVM9K94QSZ7288E","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    },
+    {
+      "state": {"entity_id":"tts.google_translate_en_com","state":"unknown","attributes":{"friendly_name":"Google Translate en com"},"last_changed":"2025-05-18T19:24:40.092232+00:00","last_reported":"2025-05-18T19:24:40.092232+00:00","last_updated":"2025-05-18T19:24:40.092232+00:00","context":{"id":"01JVJDP08WFS9FGH6X50M071YT","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_116_reboot","state":"unknown","attributes":{"friendly_name":"192.168.1.116 Reboot"},"last_changed":"2025-05-18T19:24:40.509195+00:00","last_reported":"2025-05-18T19:25:05.046808+00:00","last_updated":"2025-05-18T19:24:40.512526+00:00","context":{"id":"01JVJDP0P0Y870FCEG0HM1BTHK","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_116_sync_time","state":"unknown","attributes":{"friendly_name":"192.168.1.116 Sync Time"},"last_changed":"2025-05-18T19:24:40.509411+00:00","last_reported":"2025-05-18T19:25:05.046818+00:00","last_updated":"2025-05-18T19:24:40.512544+00:00","context":{"id":"01JVJDP0P0ARW54T9JRJBGYP8Y","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_68_reboot","state":"unknown","attributes":{"friendly_name":"192.168.1.68 Reboot"},"last_changed":"2025-05-18T19:24:40.527620+00:00","last_reported":"2025-05-18T19:25:05.781605+00:00","last_updated":"2025-05-18T19:24:40.528815+00:00","context":{"id":"01JVJDP0PG135RZGJGRYWE93BX","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_68_sync_time","state":"unknown","attributes":{"friendly_name":"192.168.1.68 Sync Time"},"last_changed":"2025-05-18T19:24:40.527756+00:00","last_reported":"2025-05-18T19:25:05.781614+00:00","last_updated":"2025-05-18T19:24:40.528828+00:00","context":{"id":"01JVJDP0PGJFG0BMN8W0KMQC1H","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-18T19:27:00.949962+00:00"
+    }
+  ]
+}
