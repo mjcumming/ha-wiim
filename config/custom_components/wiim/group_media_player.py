@@ -1,4 +1,4 @@
-from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerState
+from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerState, MediaPlayerEntityFeature
 from .const import DOMAIN
 
 class WiiMGroupMediaPlayer(MediaPlayerEntity):
@@ -24,6 +24,14 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
         )
         self._attr_unique_id = f"wiim_group_{safe_name}"
         self._attr_name = f"{group_name} (Group)"
+        self._attr_supported_features = (
+            MediaPlayerEntityFeature.PLAY
+            | MediaPlayerEntityFeature.PAUSE
+            | MediaPlayerEntityFeature.STOP
+            | MediaPlayerEntityFeature.VOLUME_SET
+            | MediaPlayerEntityFeature.VOLUME_MUTE
+            | MediaPlayerEntityFeature.GROUPING
+        )
 
     @property
     def group_info(self):
@@ -72,6 +80,30 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
             attrs[f"member_{ip}_mute"] = m.get("mute")
             attrs[f"member_{ip}_name"] = m.get("name")
         return attrs
+
+    @property
+    def supported_features(self):
+        return self._attr_supported_features
+
+    @property
+    def entity_picture(self):
+        master = self.group_info.get("members", {}).get(self.master_ip, {})
+        return master.get("entity_picture")
+
+    @property
+    def media_title(self):
+        master = self.group_info.get("members", {}).get(self.master_ip, {})
+        return master.get("title")
+
+    @property
+    def media_artist(self):
+        master = self.group_info.get("members", {}).get(self.master_ip, {})
+        return master.get("artist")
+
+    @property
+    def media_album_name(self):
+        master = self.group_info.get("members", {}).get(self.master_ip, {})
+        return master.get("album")
 
     async def async_set_volume_level(self, volume):
         # Relative group volume logic: all members change by the same delta

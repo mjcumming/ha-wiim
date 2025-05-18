@@ -47,11 +47,13 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self._imported_hosts: set[str] = set()
         # New: group registry
         self._groups: dict[str, dict] = {}  # master_ip -> group info
+        self._last_title = None
+        self._last_meta_info = {}
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data from WiiM device."""
         try:
-            # Parallel fetch detailed status, basic status, and slave list
+            # Parallel fetch detailed status, basic status, and slave list (no meta info here)
             player_status, basic_status, multiroom = await asyncio.gather(
                 self.client.get_player_status(),
                 self.client.get_status(),
@@ -59,6 +61,22 @@ class WiiMCoordinator(DataUpdateCoordinator):
             )
 
             status = {**basic_status, **player_status}
+            current_title = status.get("title")
+
+            # Only fetch meta info if title changed
+            if current_title != self._last_title or not self._last_meta_info:
+                meta_info = await self.client.get_meta_info()
+                self._last_title = current_title
+                self._last_meta_info = meta_info
+            else:
+                meta_info = self._last_meta_info
+
+            # Merge meta info
+            if meta_info:
+                status["album"] = meta_info.get("album")
+                status["title"] = meta_info.get("title")
+                status["artist"] = meta_info.get("artist")
+                status["entity_picture"] = meta_info.get("albumArtURI")
 
             # Ensure source list exists so Lovelace shows picker
             if not status.get("sources"):

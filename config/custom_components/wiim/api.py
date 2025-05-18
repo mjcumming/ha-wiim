@@ -722,6 +722,15 @@ class WiiMClient:
             ts = int(asyncio.get_running_loop().time())
         await self._request(f"/httpapi.asp?command=timeSync:{ts}")
 
+    async def get_meta_info(self) -> dict[str, Any]:
+        """Get current track metadata including album art."""
+        try:
+            response = await self._request("/httpapi.asp?command=getMetaInfo")
+            return response.get("metaData", {})
+        except Exception as e:
+            _LOGGER.error("Failed to get meta info: %s", e)
+            return {}
+
 
 # ---------------------------------------------------------------------------
 # --- low-level helpers (adapted from python-linkplay, MIT) ------------------

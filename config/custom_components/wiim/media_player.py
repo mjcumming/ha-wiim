@@ -180,20 +180,33 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         """Return boolean if volume is currently muted."""
         return self.coordinator.data.get("status", {}).get("mute")
 
+    def _effective_status(self):
+        # If this device is a slave, mirror the master's status
+        if self.coordinator.is_wiim_slave:
+            master_ip = self.coordinator.client.group_master
+            group = self.coordinator.get_group_by_master(master_ip)
+            if group and master_ip in group["members"]:
+                status = group["members"][master_ip]
+                _LOGGER.debug("[WiiM] Slave %s using master's status: %s", self.coordinator.client.host, status)
+                return status
+        status = self.coordinator.data.get("status", {})
+        _LOGGER.debug("[WiiM] Device %s using own status: %s", self.coordinator.client.host, status)
+        return status
+
     @property
     def media_title(self) -> str | None:
         """Return the title of current playing media."""
-        return self.coordinator.data.get("status", {}).get("title")
+        return self._effective_status().get("title")
 
     @property
     def media_artist(self) -> str | None:
         """Return the artist of current playing media."""
-        return self.coordinator.data.get("status", {}).get("artist")
+        return self._effective_status().get("artist")
 
     @property
     def media_album_name(self) -> str | None:
         """Return the album name of current playing media."""
-        return self.coordinator.data.get("status", {}).get("album")
+        return self._effective_status().get("album")
 
     @property
     def media_position(self) -> int | None:
@@ -280,7 +293,9 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def entity_picture(self) -> str | None:
         """Return URL to current artwork."""
-        return self.coordinator.data.get("status", {}).get("entity_picture")
+        pic = self._effective_status().get("entity_picture")
+        _LOGGER.debug("[WiiM] %s entity_picture: %s", self.entity_id, pic)
+        return pic
 
     async def async_turn_on(self) -> None:
         """Turn the media player on."""
