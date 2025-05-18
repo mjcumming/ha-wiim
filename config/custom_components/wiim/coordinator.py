@@ -121,28 +121,30 @@ class WiiMCoordinator(DataUpdateCoordinator):
 
     def _update_group_registry(self, status: dict, multiroom: dict) -> None:
         """Update the group registry with current group info."""
-        # Only update if this device is a master or in a group
         master_ip = self.client.host if multiroom.get("slaves", 0) > 0 else multiroom.get("master_uuid")
         if not master_ip:
             return
-        group_info = self._groups.setdefault(master_ip, {"members": {}, "master": master_ip, "name": status.get("device_name", master_ip)})
+        master_name = status.get("device_name") or "WiiM Group"
+        group_info = self._groups.setdefault(master_ip, {"members": {}, "master": master_ip, "name": master_name})
+        group_info["name"] = master_name  # Always update name in case it changes
         # Add master
         group_info["members"][self.client.host] = {
-            "volume": status.get("volume"),
-            "mute": status.get("mute"),
+            "volume": status.get("volume", 0),
+            "mute": status.get("mute", False),
             "state": status.get("play_status"),
-            "name": status.get("device_name"),
+            "name": master_name,
         }
         # Add slaves
         for entry in multiroom.get("slave_list", []):
             ip = entry.get("ip")
             if not ip:
                 continue
+            slave_name = entry.get("name") or f"WiiM {ip}"
             group_info["members"][ip] = {
-                "volume": entry.get("volume"),
-                "mute": bool(entry.get("mute")),
+                "volume": entry.get("volume", 0),
+                "mute": bool(entry.get("mute", False)),
                 "state": None,  # Will be filled in by polling that device
-                "name": entry.get("name"),
+                "name": slave_name,
             }
         # Clean up any members no longer present
         current_ips = {self.client.host} | {entry.get("ip") for entry in multiroom.get("slave_list", []) if entry.get("ip")}

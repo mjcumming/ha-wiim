@@ -46,6 +46,7 @@ from .const import (
     DEFAULT_VOLUME_STEP,
 )
 from .coordinator import WiiMCoordinator
+from .group_media_player import WiiMGroupMediaPlayer
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,6 +89,36 @@ async def async_setup_entry(
         {},
         "async_sync_time",
     )
+
+    # --- Group entity management ---
+    if not hasattr(hass.data[DOMAIN], "_group_entities"):
+        hass.data[DOMAIN]["_group_entities"] = {}
+
+    async def update_group_entities():
+        """Create or remove group entities based on coordinator group registry."""
+        group_entities = hass.data[DOMAIN]["_group_entities"]
+        all_masters = set()
+        # Find all current group masters
+        for coord in hass.data[DOMAIN].values():
+            if not hasattr(coord, "groups"):
+                continue
+            for master_ip in coord.groups.keys():
+                all_masters.add(master_ip)
+                if master_ip not in group_entities:
+                    group_entity = WiiMGroupMediaPlayer(hass, coord, master_ip)
+                    async_add_entities([group_entity])
+                    group_entities[master_ip] = group_entity
+        # Remove group entities for groups that no longer exist
+        for master_ip in list(group_entities.keys()):
+            if master_ip not in all_masters:
+                group_entity = group_entities.pop(master_ip)
+                await group_entity.async_remove()
+
+    # Listen for coordinator updates to refresh group entities
+    async def _on_coordinator_update():
+        await update_group_entities()
+    coordinator.async_add_listener(_on_coordinator_update)
+    await update_group_entities()
 
 
 class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
@@ -543,108 +574,3 @@ def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | 
         if expected == entity_id:
             return coord
     return None
-
-
-class WiiMGroupMediaPlayer(MediaPlayerEntity):
-    """Representation of a WiiM group media player entity."""
-
-    def __init__(self, hass, coordinator, master_ip):
-        self.hass = hass
-        self.coordinator = coordinator
-        self.master_ip = master_ip
-        self._attr_unique_id = f"wiim_group_{master_ip.replace('.', '_')}"
-        group_info = coordinator.get_group_by_master(master_ip) or {}
-        self._attr_name = f"{group_info.get('name', master_ip)} (Group)"
-
-    @property
-    def group_info(self):
-        return self.coordinator.get_group_by_master(self.master_ip) or {}
-
-    @property
-    def group_members(self):
-        return list(self.group_info.get("members", {}).keys())
-
-    @property
-    def group_leader(self):
-        return self.master_ip
-
-    @property
-    def state(self):
-        # Aggregated: playing if any member is playing, paused if all paused, idle if all idle
-        states = [m.get("state") for m in self.group_info.get("members", {}).values() if m.get("state")]
-        if not states:
-            return MediaPlayerState.IDLE
-        if any(s == MediaPlayerState.PLAYING or s == "play" for s in states):
-            return MediaPlayerState.PLAYING
-        if all(s == MediaPlayerState.PAUSED or s == "pause" for s in states):
-            return MediaPlayerState.PAUSED
-        return MediaPlayerState.IDLE
-
-    @property
-    def volume_level(self):
-        # Max of all member volumes (0-1)
-        vols = [m.get("volume") for m in self.group_info.get("members", {}).values() if m.get("volume") is not None]
-        if not vols:
-            return None
-        return max(vols) / 100
-
-    @property
-    def is_volume_muted(self):
-        # True if all members are muted
-        mutes = [m.get("mute") for m in self.group_info.get("members", {}).values()]
-        return all(mutes) if mutes else None
-
-    @property
-    def extra_state_attributes(self):
-        # Expose per-slave volume/mute
-        attrs = {}
-        for ip, m in self.group_info.get("members", {}).items():
-            attrs[f"member_{ip}_volume"] = m.get("volume")
-            attrs[f"member_{ip}_mute"] = m.get("mute")
-            attrs[f"member_{ip}_name"] = m.get("name")
-        return attrs
-
-    async def async_set_volume_level(self, volume):
-        # Relative group volume logic: all members change by the same delta
-        group = self.group_info
-        if not group or not group["members"]:
-            return
-        current_max = max(m.get("volume", 0) for m in group["members"].values())
-        new_max = int(volume * 100)
-        delta = new_max - current_max
-        for ip, m in group["members"].items():
-            cur = m.get("volume", 0)
-            new_vol = max(0, min(100, cur + delta))
-            # Set volume via API (master or slave)
-            coord = self._find_coordinator_by_ip(ip)
-            if coord:
-                await coord.client.set_volume(new_vol / 100)
-
-    async def async_mute_volume(self, mute: bool):
-        # Mute/unmute all members
-        group = self.group_info
-        for ip in group.get("members", {}):
-            coord = self._find_coordinator_by_ip(ip)
-            if coord:
-                await coord.client.set_mute(mute)
-
-    async def async_media_play(self):
-        # Play on all members
-        for ip in self.group_members:
-            coord = self._find_coordinator_by_ip(ip)
-            if coord:
-                await coord.client.play()
-
-    async def async_media_pause(self):
-        # Pause on all members
-        for ip in self.group_members:
-            coord = self._find_coordinator_by_ip(ip)
-            if coord:
-                await coord.client.pause()
-
-    def _find_coordinator_by_ip(self, ip):
-        # Helper to find coordinator by IP
-        for coord in self.hass.data[DOMAIN].values():
-            if coord.client.host == ip:
-                return coord
-        return None
