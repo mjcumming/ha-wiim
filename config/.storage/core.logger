@@ -3,6 +3,12 @@
   "minor_version": 1,
   "key": "core.logger",
   "data": {
-    "logs": {}
+    "logs": {
+      "wiim": {
+        "level": "DEBUG",
+        "persistence": "once",
+        "type": "integration"
+      }
+    }
   }
 }

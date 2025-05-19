@@ -300,6 +300,18 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 self._imported_hosts.add(ip)
                 continue
 
+            # If we're the master of the current group, force the slave to leave
+            # before importing it so Home-Assistant discovers it in *solo* mode
+            # and avoids the missing-coordinator noise.  This replicates the
+            # behaviour of python-linkplay which issues a leave/kick on
+            # discovery.
+            try:
+                if self.is_wiim_master:
+                    _LOGGER.debug("[WiiM] Master %s kicking slave %s prior to import", self.client.host, ip)
+                    await self.client.kick_slave(ip)
+            except Exception as kick_err:
+                _LOGGER.debug("[WiiM] Failed to kick slave %s: %s (continuing import)", ip, kick_err)
+
             self._imported_hosts.add(ip)
 
             self.hass.async_create_task(

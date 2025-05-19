@@ -276,5 +276,5 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
                     ip, role, multiroom, coord.data
                 )
                 return coord
-        _LOGGER.warning("[WiiMGroup] No coordinator found for IP %s", ip)
+        _LOGGER.debug("[WiiMGroup] No coordinator found for IP %s (likely not yet set up)", ip)
         return None
