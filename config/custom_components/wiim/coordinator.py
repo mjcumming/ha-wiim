@@ -292,8 +292,11 @@ class WiiMCoordinator(DataUpdateCoordinator):
             if ip in self._imported_hosts:
                 continue
 
-            # Skip if already present
-            if any(coord.client.host == ip for coord in self.hass.data.get(DOMAIN, {}).values()):
+            # Skip if already present – ensure we only inspect coordinator objects
+            if any(
+                hasattr(coord, "client") and coord.client.host == ip
+                for coord in self.hass.data.get(DOMAIN, {}).values()
+            ):
                 self._imported_hosts.add(ip)
                 continue
 

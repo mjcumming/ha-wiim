@@ -265,6 +265,9 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
     def _find_coordinator_by_ip(self, ip):
         # Helper to find coordinator by IP
         for coord in self.hass.data[DOMAIN].values():
+            # Skip any non-coordinator entries that may have been added to hass.data[DOMAIN]
+            if not hasattr(coord, "client"):
+                continue
             if coord.client.host == ip:
                 role = coord.data.get("role")
                 multiroom = coord.data.get("multiroom", {})
