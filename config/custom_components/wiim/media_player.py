@@ -476,11 +476,14 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             raise
 
     def _find_master_coordinator(self):
+        _LOGGER.debug("[WiiM] %s: _find_master_coordinator() called", self.entity_id)
         master_ip = self.coordinator.client.group_master
+        _LOGGER.debug("[WiiM] %s: Reported master_ip=%s", self.entity_id, master_ip)
         if not master_ip:
             # Fallback: search for master by slave_list
             my_ip = self.coordinator.client.host
             my_uuid = self.coordinator.data.get("status", {}).get("device_id")
+            _LOGGER.debug("[WiiM] %s: Searching for master via slave_list (my_ip=%s, my_uuid=%s)", self.entity_id, my_ip, my_uuid)
             for coord in self.hass.data[DOMAIN].values():
                 if not hasattr(coord, "client") or coord.data is None:
                     continue
@@ -488,16 +491,22 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
                     continue
                 multiroom = coord.data.get("multiroom", {})
                 slave_list = multiroom.get("slave_list", [])
+                _LOGGER.debug("[WiiM] %s: Evaluating potential master %s with slave_list=%s", self.entity_id, coord.client.host, slave_list)
                 for slave in slave_list:
                     if isinstance(slave, dict):
                         if (my_ip and my_ip == slave.get("ip")) or (my_uuid and my_uuid == slave.get("uuid")):
+                            _LOGGER.debug("[WiiM] %s: Matched master %s via slave_list", self.entity_id, coord.client.host)
                             return coord
+            _LOGGER.debug("[WiiM] %s: No master coordinator found via slave_list", self.entity_id)
             return None
+        _LOGGER.debug("[WiiM] %s: Master_ip present, searching coordinators", self.entity_id)
         for coord in self.hass.data[DOMAIN].values():
             if not hasattr(coord, "client"):
                 continue
             if coord.client.host == master_ip:
+                _LOGGER.debug("[WiiM] %s: Found master coordinator object for %s", self.entity_id, master_ip)
                 return coord
+        _LOGGER.debug("[WiiM] %s: No coordinator object found for master_ip=%s", self.entity_id, master_ip)
         return None
 
     async def async_media_play(self) -> None:
@@ -672,16 +681,36 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 
     def _entity_id_to_host(self, entity_id: str) -> str:
         """Map HA entity_id to device IP address (host)."""
+        _LOGGER.debug("[WiiM] %s: _entity_id_to_host() called with entity_id=%s", self.entity_id, entity_id)
         for coord in self.hass.data[DOMAIN].values():
+            if not hasattr(coord, "client"):
+                _LOGGER.debug("[WiiM] _entity_id_to_host: Skipping object without client attribute: %s", type(coord))
+                continue
             expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
+            _LOGGER.debug("[WiiM] _entity_id_to_host: Comparing expected=%s to provided=%s", expected, entity_id)
             if expected == entity_id:
+                _LOGGER.debug("[WiiM] _entity_id_to_host: Match found, host=%s", coord.client.host)
                 return coord.client.host
+        _LOGGER.warning("[WiiM] _entity_id_to_host: No match for entity_id=%s", entity_id)
         raise ValueError(f"Unknown entity_id: {entity_id}")
 
     async def async_join(self, group_members: list[str]) -> None:
         """Join `group_members` as a group."""
         _LOGGER.info("[WiiM] %s: Starting join operation with group_members=%s", self.entity_id, group_members)
         try:
+            # ------------------------------------------------------------------
+            # 1) Ensure *this* device is ready to become/act as master
+            # ------------------------------------------------------------------
+
+            # If we are currently a slave but about to act as master, leave current group first
+            if self.coordinator.client.is_slave:
+                _LOGGER.info("[WiiM] %s: Currently a SLAVE, leaving existing group before creating new one", self.entity_id)
+                try:
+                    await self.coordinator.leave_wiim_group()
+                except Exception as leave_err:
+                    _LOGGER.warning("[WiiM] %s: Failed to leave existing group (may already be solo): %s", self.entity_id, leave_err)
+
+            # Ensure there is a master group created (either existing or create new)
             if not self.coordinator.client.group_master:
                 _LOGGER.info("[WiiM] %s: Creating new group as master", self.entity_id)
                 await self.coordinator.create_wiim_group()
@@ -707,6 +736,27 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
                         raise
                 else:
                     _LOGGER.warning("[WiiM] %s: Could not find coordinator for %s", self.entity_id, entity_id)
+
+            # ------------------------------------------------------------------
+            # 2) Remove slaves that are currently in the group but not in the
+            #    desired `group_members` list (automatic pruning)
+            # ------------------------------------------------------------------
+            desired_hosts = {self._entity_id_to_host(eid) for eid in group_members if eid != self.entity_id}
+            current_slaves = set(self.coordinator.wiim_group_members)
+            _LOGGER.debug("[WiiM] %s: desired_hosts=%s, current_slaves=%s", self.entity_id, desired_hosts, current_slaves)
+
+            extraneous_slaves = current_slaves - desired_hosts
+            for slave_ip in extraneous_slaves:
+                _LOGGER.info("[WiiM] %s: Removing extraneous slave %s from group", self.entity_id, slave_ip)
+                slave_coord = next(
+                    (c for c in self.hass.data[DOMAIN].values() if hasattr(c, "client") and c.client.host == slave_ip),
+                    None,
+                )
+                if slave_coord is not None:
+                    try:
+                        await slave_coord.leave_wiim_group()
+                    except Exception as kick_err:
+                        _LOGGER.warning("[WiiM] %s: Failed to remove slave %s: %s", self.entity_id, slave_ip, kick_err)
 
             _LOGGER.info("[WiiM] %s: Triggering coordinator refresh after join operation", self.entity_id)
             await self.coordinator.async_request_refresh()
@@ -831,13 +881,18 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:
     """Return coordinator for the given entity ID."""
+    _LOGGER.debug("[WiiM] _find_coordinator: Looking up coordinator for entity_id=%s", entity_id)
     for coord in hass.data[DOMAIN].values():
         # Skip helper dicts like "_group_entities" or anything that does not
         # expose a ``client`` attribute.
         if not hasattr(coord, "client"):
+            _LOGGER.debug("[WiiM] _find_coordinator: Skipping object without client attribute: %s", type(coord))
             continue
         # Coordinator stores entities via host; build expected entity_id
         expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
+        _LOGGER.debug("[WiiM] _find_coordinator: Comparing expected=%s to provided=%s", expected, entity_id)
         if expected == entity_id:
+            _LOGGER.debug("[WiiM] _find_coordinator: Match found for host=%s", coord.client.host)
             return coord
+    _LOGGER.debug("[WiiM] _find_coordinator: No coordinator found for entity_id=%s", entity_id)
     return None

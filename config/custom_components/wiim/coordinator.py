@@ -78,6 +78,8 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self._groups: dict[str, dict] = {}  # master_ip -> group info
         self._last_title = None
         self._last_meta_info = {}
+        self._meta_info_unsupported = False
+        self._status_unsupported = False
         self._logged_entity_not_found_for_ha_group = False
 
     def _parse_plm_support(self, plm_support: str) -> list[str]:
@@ -114,21 +116,50 @@ class WiiMCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data from WiiM device."""
         try:
-            # Parallel fetch detailed status, basic status, and slave list (no meta info here)
-            player_status, basic_status, multiroom = await asyncio.gather(
-                self.client.get_player_status(),
-                self.client.get_status(),
-                self.client.get_multiroom_info(),
-            )
+            # Fetch endpoints individually so we can gracefully degrade on devices lacking them
+            player_status: dict[str, Any]
+            basic_status: dict[str, Any]
+            multiroom: dict[str, Any]
+
+            # 1) Player status (getPlayerStatusEx / getStatusEx fallback inside)
+            try:
+                player_status = await self.client.get_player_status()
+            except WiiMError as err:
+                _LOGGER.debug("[WiiM] get_player_status failed on %s: %s", self.client.host, err)
+                player_status = {}
+
+            # 2) Basic status (getStatusEx) – skip if we previously marked unsupported
+            if self._status_unsupported:
+                basic_status = {}
+            else:
+                try:
+                    basic_status = await self.client.get_status()
+                except WiiMError as err:
+                    _LOGGER.debug("[WiiM] get_status unsupported on %s: %s (will not retry)", self.client.host, err)
+                    basic_status = {}
+                    self._status_unsupported = True
+
+            # 3) Multiroom info (always attempted)
+            try:
+                multiroom = await self.client.get_multiroom_info()
+            except WiiMError as err:
+                _LOGGER.debug("[WiiM] get_multiroom_info failed on %s: %s", self.client.host, err)
+                multiroom = {}
 
             status = {**basic_status, **player_status}
             current_title = status.get("title")
 
-            # Only fetch meta info if title changed
-            if current_title != self._last_title or not self._last_meta_info:
+            # Only fetch meta info if supported & title changed
+            if not self._meta_info_unsupported and (
+                current_title != self._last_title or not self._last_meta_info
+            ):
                 meta_info = await self.client.get_meta_info()
-                self._last_title = current_title
-                self._last_meta_info = meta_info
+                if not meta_info:
+                    # Empty dict – very likely unsupported on this device
+                    self._meta_info_unsupported = True
+                else:
+                    self._last_title = current_title
+                    self._last_meta_info = meta_info
             else:
                 meta_info = self._last_meta_info
 
