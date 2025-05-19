@@ -294,6 +294,8 @@ class WiiMClient:
                         response.raise_for_status()
                         text = await response.text()
                         _LOGGER.debug("Response from %s: %s", url, text)
+                        if text.strip() == "OK":
+                            return {"raw": text.strip()}
                         return json.loads(text)
             except (aiohttp.ClientError, asyncio.TimeoutError) as err:
                 last_error = err
@@ -305,9 +307,12 @@ class WiiMClient:
                 if verify_ssl:
                     continue
                 raise WiiMConnectionError(f"Failed to connect to WiiM device: {err}") from err
-            except json.JSONDecodeError as err:
-                _LOGGER.debug("Invalid JSON response from %s: %s", url, text)
-                raise WiiMResponseError(f"Invalid response from WiiM device: {err}") from err
+            except json.JSONDecodeError:
+                # Most control endpoints return plain "OK". Treat any
+                # non-JSON body as a successful raw response instead of an
+                # error so caller logic doesn't break on a volume/power/etc.
+                _LOGGER.debug("Non-JSON response from %s: %s", url, text)
+                return {"raw": text.strip()}
 
         # If we get here, all attempts failed
         error_msg = f"Failed to communicate with WiiM device after trying: {', '.join(tried)}"
