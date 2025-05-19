@@ -59,7 +59,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Set up instance."""
         self._host: str | None = None
-        self._discovered_hosts: list[str] = []
+        self._discovered_hosts: dict[str, str] = {}
 
     @staticmethod
     @callback
@@ -119,10 +119,14 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Discover WiiM/LinkPlay devices via UPnP/SSDP."""
         errors: dict[str, str] = {}
         if not self._discovered_hosts:
-            # Perform UPnP discovery
+            # Perform UPnP discovery.  Returns dict{host: friendly_name}
             self._discovered_hosts = await self._discover_upnp_hosts()
         if user_input is not None:
-            host = user_input[CONF_HOST]
+            selected = user_input[CONF_HOST]
+            if hasattr(self, "_options_map") and selected in self._options_map:  # type: ignore[attr-defined]
+                host = self._options_map[selected]  # type: ignore[attr-defined]
+            else:
+                host = selected
             await self.async_set_unique_id(host)
             self._abort_if_unique_id_configured()
             try:
@@ -150,18 +154,28 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={CONF_HOST: host},
                 )
         if self._discovered_hosts:
-            schema = vol.Schema({vol.Required(CONF_HOST): vol.In(self._discovered_hosts)})
-            return self.async_show_form(step_id="upnp", data_schema=schema, errors=errors, description_placeholders={"count": str(len(self._discovered_hosts))})
+            # Build a label→host map so the dropdown shows nice names
+            options_map = {
+                f"{name} ({host})": host for host, name in self._discovered_hosts.items()
+            }
+            self._options_map = options_map  # type: ignore[attr-defined]
+            schema = vol.Schema({vol.Required(CONF_HOST): vol.In(list(options_map.keys()))})
+            return self.async_show_form(
+                step_id="upnp",
+                data_schema=schema,
+                errors=errors,
+                description_placeholders={"count": str(len(self._discovered_hosts))},
+            )
         # If no devices found, fall back to manual
         schema = vol.Schema({vol.Required(CONF_HOST): str})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
-    async def _discover_upnp_hosts(self) -> list[str]:
-        """Use async_upnp_client to discover WiiM/LinkPlay devices on the network, filtering out already-configured devices."""
+    async def _discover_upnp_hosts(self) -> dict[str, str]:
+        """Discover devices and return mapping of host→friendly name."""
         if async_search is None:
-            return []
+            return {}
 
-        discovered: set[str] = set()
+        discovered: dict[str, str] = {}
         known_ids = {entry.unique_id for entry in self._async_current_entries()}
         in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
         all_known = known_ids | in_progress_ids
@@ -182,7 +196,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return
             except Exception:
                 return
-            discovered.add(host)
+            discovered[host] = info.get("device_name") or host
 
         try:
             await async_search(
@@ -197,7 +211,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 timeout=5,
                 search_target="urn:schemas-upnp-org:device:MediaRenderer:1",
             )
-        return list(discovered)
+        return discovered
 
     async def async_step_zeroconf(self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:
         """Handle Zeroconf discovery, filter duplicates, and use device name from API."""

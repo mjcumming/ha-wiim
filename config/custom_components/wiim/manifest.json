@@ -12,6 +12,7 @@
   "zeroconf": [
     "_linkplay._tcp.local."
   ],
+  "integration_type": "hub",
   "ssdp": [
     { "st": "upnp:rootdevice" },
     { "device_type": "urn:schemas-upnp-org:device:MediaRenderer:1" },
