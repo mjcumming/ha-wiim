@@ -23,7 +23,36 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class WiiMCoordinator(DataUpdateCoordinator):
-    """WiiM coordinator for handling device updates and groups."""
+    """WiiM coordinator for handling device updates and groups.
+
+    This class manages the state and communication for WiiM devices in Home Assistant,
+    providing centralized data management and group coordination.
+
+    Key Responsibilities:
+    - Periodic polling of device status
+    - Group membership tracking and management
+    - State synchronization between devices
+    - Error handling and recovery
+    - Device discovery and setup
+
+    Data Management:
+    - Maintains current device state
+    - Tracks group membership and roles
+    - Manages device configuration
+    - Handles state updates and notifications
+
+    Group Management:
+    - Coordinates multiroom group operations
+    - Maintains group membership information
+    - Handles group creation and disbanding
+    - Manages group synchronization
+
+    Error Handling:
+    - Implements retry logic for failed requests
+    - Provides detailed error logging
+    - Handles device disconnection gracefully
+    - Maintains state consistency during errors
+    """
 
     def __init__(
         self,

@@ -154,7 +154,36 @@ async def async_setup_entry(
 
 
 class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
-    """Representation of a WiiM media player."""
+    """Representation of a WiiM media player entity in Home Assistant.
+
+    This class implements the Home Assistant MediaPlayerEntity interface for WiiM devices,
+    providing a comprehensive set of media playback controls and device management features.
+
+    Key Features:
+    - Full media playback control (play, pause, stop, next/previous track)
+    - Volume control with configurable step size
+    - Source selection and management
+    - Multiroom group support
+    - Device diagnostics and maintenance
+    - Real-time status updates via coordinator
+
+    State Management:
+    - Tracks device power state, playback status, and media information
+    - Maintains volume and mute state
+    - Monitors device connectivity and group membership
+    - Provides detailed device attributes and diagnostics
+
+    Group Support:
+    - Can act as master or slave in multiroom groups
+    - Supports group creation, joining, and leaving
+    - Maintains group synchronization
+    - Provides per-device volume control within groups
+
+    Error Handling:
+    - Graceful handling of device communication errors
+    - Automatic reconnection attempts
+    - Detailed error logging for troubleshooting
+    """
 
     def __init__(self, coordinator: WiiMCoordinator) -> None:
         """Initialize the WiiM media player."""

@@ -1,4 +1,32 @@
-"""Constants for the WiiM integration."""
+"""Constants for the WiiM integration.
+
+This module defines all constants used throughout the WiiM integration,
+including configuration keys, default values, service names, and API endpoints.
+
+Configuration:
+    - Host configuration and connection settings
+    - Polling intervals and timeouts
+    - Volume control parameters
+    - Device-specific settings
+
+Services:
+    - Media playback control services
+    - Device management services
+    - Group control services
+    - Diagnostic services
+
+Attributes:
+    - Device information attributes
+    - Media playback attributes
+    - Group management attributes
+    - Diagnostic attributes
+
+API Endpoints:
+    - Player control endpoints
+    - Status and information endpoints
+    - Group management endpoints
+    - Device management endpoints
+"""
 
 from __future__ import annotations
 

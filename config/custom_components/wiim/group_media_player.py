@@ -5,7 +5,37 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 class WiiMGroupMediaPlayer(MediaPlayerEntity):
-    """Representation of a WiiM group media player entity."""
+    """Representation of a WiiM group media player entity.
+
+    This class implements a virtual media player entity that represents a group of WiiM devices
+    working together in a multiroom setup. It provides unified control over the group while
+    maintaining individual device control capabilities.
+
+    Key Features:
+    - Unified group control (playback, volume, mute)
+    - Individual device control within the group
+    - Automatic group state synchronization
+    - Real-time status updates
+    - Group membership management
+
+    State Management:
+    - Aggregates state from all group members
+    - Maintains group volume and mute state
+    - Tracks media playback information
+    - Monitors group membership changes
+
+    Volume Control:
+    - Implements relative volume changes across group
+    - Maintains volume relationships between devices
+    - Supports individual device volume control
+    - Handles volume synchronization
+
+    Error Handling:
+    - Graceful handling of device disconnections
+    - Automatic group state recovery
+    - Detailed error logging
+    - Maintains group consistency during errors
+    """
 
     def __init__(self, hass, coordinator, master_ip):
         self.hass = hass

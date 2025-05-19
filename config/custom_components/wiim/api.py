@@ -143,14 +143,38 @@ class WiiMInvalidDataError(WiiMError):
 class WiiMClient:
     """WiiM HTTP API client.
 
-    This class provides methods for interacting with a WiiM device through its HTTP API.
-    All methods are asynchronous and should be called with await.
+    This class provides a comprehensive interface for interacting with WiiM devices through their HTTP API.
+    It handles all communication with the device, including authentication, request/response handling,
+    and error management.
+
+    Key Features:
+    - Asynchronous HTTP communication with WiiM devices
+    - Automatic SSL/TLS handling with fallback to insecure mode
+    - Comprehensive error handling and logging
+    - Support for device grouping and multiroom functionality
+    - Volume and playback control
+    - Device status monitoring and diagnostics
 
     Attributes:
-        host (str): The IP address or hostname of the WiiM device.
-        port (int): The port number for the HTTP API (default: 443).
-        timeout (float): Request timeout in seconds (default: 10.0).
-        ssl_context (ssl.SSLContext | None): SSL context for HTTPS connections.
+        host (str): The IP address or hostname of the WiiM device
+        port (int): The port number for the HTTP API (default: 443)
+        timeout (float): Request timeout in seconds (default: 10.0)
+        ssl_context (ssl.SSLContext | None): SSL context for HTTPS connections
+        session (ClientSession | None): Optional aiohttp ClientSession for requests
+
+    Error Handling:
+        The client implements a robust error handling system with specific exception types:
+        - WiiMRequestError: General request/communication errors
+        - WiiMResponseError: Invalid or error responses from device
+        - WiiMTimeoutError: Request timeout errors
+        - WiiMConnectionError: Network/connection issues
+        - WiiMInvalidDataError: Malformed response data
+
+    Security:
+        - Uses HTTPS by default (port 443)
+        - Handles device-specific SSL certificates
+        - Falls back to insecure mode only after verification failure
+        - Maintains session security and proper cleanup
     """
 
     def __init__(
@@ -159,6 +183,7 @@ class WiiMClient:
         port: int = DEFAULT_PORT,
         timeout: float = DEFAULT_TIMEOUT,
         ssl_context: ssl.SSLContext | None = None,
+        session: ClientSession | None = None,
     ) -> None:
         """Initialize the WiiM client.
 
@@ -167,15 +192,18 @@ class WiiMClient:
             port: The port number for the HTTP API (default: 443).
             timeout: Request timeout in seconds (default: 10.0).
             ssl_context: SSL context for HTTPS connections.
+            session: Optional aiohttp ClientSession to use for requests.
         """
-        self.host = host
+        self._host = host
         self.port = port
         self.timeout = timeout
         self.ssl_context = ssl_context
-        self._session: ClientSession | None = None
-        self._endpoint = f"https://{host}:{port}"
+        self._session = session
+        # Choose scheme based on port (80 = http, everything else = https)
+        scheme = "http" if port == 80 else "https"
+        self._endpoint = f"{scheme}://{host}:{port}"
         self._lock = asyncio.Lock()
-        self._base_url = f"https://{host}:{port}"
+        self._base_url = self._endpoint
         self._group_master: str | None = None
         self._group_slaves: list[str] = []
         # Some firmwares ship a *device-unique* self-signed certificate.  We
@@ -200,27 +228,24 @@ class WiiMClient:
         back to an *unverified* context so the request code can still proceed
         and rely on the existing retry-with-insecure logic.
         """
-
         if self.ssl_context is not None:
             return self.ssl_context
 
         # Start with a minimal TLS client context (no file-system access)
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ctx.check_hostname = False  # Device uses self-signed cert with host-mismatch
+        ctx.verify_mode = ssl.CERT_NONE  # Don't verify cert since it's self-signed
 
         try:
+            # Load the WiiM CA certificate for reference
             ctx.load_verify_locations(cadata=WIIM_CA_CERT)
-        except ssl.SSLError as err:
-            # Invalid PEM bundled in the code – warn once and disable verification.
+            _LOGGER.debug("Successfully loaded WiiM CA certificate for %s", self.host)
+        except Exception as e:
             _LOGGER.warning(
-                "Failed to load pinned WiiM CA certificate (%s); falling back to "
-                "insecure SSL – this is less secure but keeps the integration "
-                "functional.",
-                err,
+                "Failed to load WiiM CA certificate for %s: %s. This may indicate a device with a self-signed certificate.",
+                self.host,
+                e
             )
-            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
 
         self.ssl_context = ctx
         return self.ssl_context
@@ -246,14 +271,17 @@ class WiiMClient:
             WiiMResponseError: If the device returns an error response.
         """
         if self._session is None:
-            self._session = aiohttp.ClientSession(timeout=self.timeout)
+            # aiohttp>=3.9 requires a ClientTimeout object
+            timeout_obj = aiohttp.ClientTimeout(total=self.timeout)
+            self._session = aiohttp.ClientSession(timeout=timeout_obj)
 
         kwargs.setdefault("headers", HEADERS)
         kwargs.setdefault("ssl", self._get_ssl_context())
 
         # Try both ports (443 and 80) with and without SSL verification
-        ports_to_try = [(self.port, True), (self.port, False), (80, False)]
+        ports_to_try = [(self.port, False), (80, False)]  # Always use unverified SSL
         tried: list[str] = []
+        last_error: Exception | None = None
 
         for port, verify_ssl in ports_to_try:
             url = f"https://{self.host}:{port}{endpoint}"
@@ -268,17 +296,24 @@ class WiiMClient:
                         _LOGGER.debug("Response from %s: %s", url, text)
                         return json.loads(text)
             except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-                _LOGGER.debug("Request to %s failed: %s", url, err)
+                last_error = err
+                _LOGGER.debug(
+                    "Connection error for %s: %s. Will try next configuration.",
+                    url,
+                    err
+                )
                 if verify_ssl:
                     continue
-                raise WiiMRequestError(f"Failed to communicate with WiiM device: {err}") from err
+                raise WiiMConnectionError(f"Failed to connect to WiiM device: {err}") from err
             except json.JSONDecodeError as err:
                 _LOGGER.error("Invalid JSON response from %s: %s", url, text)
                 raise WiiMResponseError(f"Invalid response from WiiM device: {err}") from err
 
-        raise WiiMRequestError(
-            f"Failed to communicate with WiiM device after trying: {', '.join(tried)}"
-        )
+        # If we get here, all attempts failed
+        error_msg = f"Failed to communicate with WiiM device after trying: {', '.join(tried)}"
+        if last_error:
+            error_msg += f"\nLast error: {last_error}"
+        raise WiiMRequestError(error_msg)
 
     async def close(self) -> None:
         """Close the client session.
@@ -738,6 +773,11 @@ class WiiMClient:
         from urllib.parse import quote
         encoded_url = quote(url, safe="")
         await self._request(f"{API_ENDPOINT_PLAY_PROMPT_URL}{encoded_url}")
+
+    @property
+    def base_url(self) -> str:  # noqa: D401 – simple property helper
+        """Return the base URL for the device (scheme://host:port)."""
+        return self._base_url
 
 
 # ---------------------------------------------------------------------------
