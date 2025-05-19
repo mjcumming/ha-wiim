@@ -231,7 +231,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="unknown_error_validation")
         self.context["configuration_in_progress"] = True
         self._host = host
-        self.context["title_placeholders"] = {"name": device_name}
+        self.context["title_placeholders"] = {"name": device_name, "host": host}
         return await self.async_step_confirm()
 
     async def async_step_confirm(
@@ -290,7 +290,7 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured()
         self._host = host
-        self.context["title_placeholders"] = {"name": device_name}
+        self.context["title_placeholders"] = {"name": device_name, "host": host}
         return await self.async_step_confirm()
 
     async def async_step_import(self, import_config: dict[str, Any]) -> FlowResult:
