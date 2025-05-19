@@ -681,16 +681,31 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 
     def _entity_id_to_host(self, entity_id: str) -> str:
         """Map HA entity_id to device IP address (host)."""
+        from homeassistant.helpers import entity_registry as er
+
         _LOGGER.debug("[WiiM] %s: _entity_id_to_host() called with entity_id=%s", self.entity_id, entity_id)
+
+        # First: try quick IP-based mapping (legacy scheme)
         for coord in self.hass.data[DOMAIN].values():
             if not hasattr(coord, "client"):
-                _LOGGER.debug("[WiiM] _entity_id_to_host: Skipping object without client attribute: %s", type(coord))
                 continue
             expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
-            _LOGGER.debug("[WiiM] _entity_id_to_host: Comparing expected=%s to provided=%s", expected, entity_id)
             if expected == entity_id:
-                _LOGGER.debug("[WiiM] _entity_id_to_host: Match found, host=%s", coord.client.host)
                 return coord.client.host
+
+        # Second: look up entity registry – the unique_id is the host IP for WiiM entities
+        try:
+            ent_reg = er.async_get(self.hass)
+            ent_entry = ent_reg.async_get(entity_id)
+            if ent_entry and ent_entry.unique_id:
+                unique = ent_entry.unique_id
+                _LOGGER.debug("[WiiM] _entity_id_to_host: Registry unique_id=%s", unique)
+                for coord in self.hass.data[DOMAIN].values():
+                    if hasattr(coord, "client") and coord.client.host == unique:
+                        return coord.client.host
+        except Exception as reg_err:
+            _LOGGER.debug("[WiiM] _entity_id_to_host: Entity registry lookup failed for %s: %s", entity_id, reg_err)
+
         _LOGGER.warning("[WiiM] _entity_id_to_host: No match for entity_id=%s", entity_id)
         raise ValueError(f"Unknown entity_id: {entity_id}")
 
@@ -735,13 +750,14 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
                         _LOGGER.error("[WiiM] %s: Failed to join %s to group: %s", self.entity_id, member_ip, join_err)
                         raise
                 else:
-                    _LOGGER.warning("[WiiM] %s: Could not find coordinator for %s", self.entity_id, entity_id)
+                    _LOGGER.warning("[WiiM] %s: Could not find coordinator for %s – skipping", self.entity_id, entity_id)
+                    continue
 
             # ------------------------------------------------------------------
             # 2) Remove slaves that are currently in the group but not in the
             #    desired `group_members` list (automatic pruning)
             # ------------------------------------------------------------------
-            desired_hosts = {self._entity_id_to_host(eid) for eid in group_members if eid != self.entity_id}
+            desired_hosts = {self._entity_id_to_host(eid) for eid in group_members if eid != self.entity_id and _find_coordinator(self.hass, eid) is not None}
             current_slaves = set(self.coordinator.wiim_group_members)
             _LOGGER.debug("[WiiM] %s: desired_hosts=%s, current_slaves=%s", self.entity_id, desired_hosts, current_slaves)
 
