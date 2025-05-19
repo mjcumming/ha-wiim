@@ -294,7 +294,28 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
                         if (my_ip and my_ip == slave_ip) or (my_uuid and my_uuid == slave_uuid):
                             _LOGGER.debug("[WiiM] Slave %s: found master %s by slave_list", self.coordinator.client.host, coord.client.host)
                             return coord.data.get("status", {})
-            _LOGGER.warning("[WiiM] Slave %s: could not find master to mirror!", self.coordinator.client.host)
+            # Could not locate the master in current coordinators – try to
+            # automatically start a config-flow for it if we know its IP.
+            _LOGGER.debug("[WiiM] Slave %s: could not find master to mirror (master not yet set up)", self.coordinator.client.host)
+
+            # If the device advertised the master IP/UUID, attempt an import.
+            potential_master = master_id or multiroom.get("master_ip") or multiroom.get("master")
+            if potential_master and isinstance(potential_master, str) and "." in potential_master:
+                master_ip = potential_master
+                # Check if we already have a coordinator for that IP
+                if not any(
+                    hasattr(c, "client") and c.client.host == master_ip
+                    for c in self.hass.data.get(DOMAIN, {}).values()
+                ):
+                    _LOGGER.debug("[WiiM] Slave %s: launching import flow for unknown master %s", self.coordinator.client.host, master_ip)
+                    # Schedule without awaiting – running inside property getter
+                    self.hass.async_create_task(
+                        self.hass.config_entries.flow.async_init(
+                            DOMAIN,
+                            context={"source": "import"},
+                            data={"host": master_ip},
+                        )
+                    )
             return {}
         # Not a slave: return own status
         status = self.coordinator.data.get("status", {})
