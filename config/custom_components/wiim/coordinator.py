@@ -49,6 +49,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self._groups: dict[str, dict] = {}  # master_ip -> group info
         self._last_title = None
         self._last_meta_info = {}
+        self._logged_entity_not_found_for_ha_group = False
 
     def _parse_plm_support(self, plm_support: str) -> list[str]:
         """Parse plm_support bitmask into list of available sources."""
@@ -235,8 +236,18 @@ class WiiMCoordinator(DataUpdateCoordinator):
         entity = self.hass.states.get(entity_id)
 
         if entity is None:
-            _LOGGER.debug("[WiiM] Coordinator: Entity %s not found for group status update", entity_id)
+            if not hasattr(self, '_logged_entity_not_found_for_ha_group') or not self._logged_entity_not_found_for_ha_group:
+                _LOGGER.debug(
+                    "[WiiM] Coordinator: Entity %s not found for group status update. "
+                    "This may be normal on startup or if the entity is not part of an HA group. "
+                    "Further similar messages for this entity will be suppressed.",
+                    entity_id
+                )
+                self._logged_entity_not_found_for_ha_group = True
             return
+
+        # If entity is found, reset the flag so it would log again if it disappears later
+        self._logged_entity_not_found_for_ha_group = False
 
         group_members = entity.attributes.get(ATTR_GROUP_MEMBERS, [])
         group_leader = entity.attributes.get(ATTR_GROUP_LEADER)

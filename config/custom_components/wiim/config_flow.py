@@ -27,6 +27,8 @@ try:
 except ImportError:
     async_search = None
 
+import zeroconf
+
 _LOGGER = logging.getLogger(__name__)
 
 async def _async_validate_host(host: str) -> None:
@@ -70,20 +72,28 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step (manual or UPnP discovery)."""
+        """Handle the initial step (manual or UPnP discovery), use device name from API, and filter duplicates."""
         errors: dict[str, str] = {}
-
         if user_input is not None:
             host = user_input[CONF_HOST]
             try:
-                await _async_validate_host(host)
-                # Fetch device info for unique ID (MAC or UUID preferred)
                 client = WiiMClient(host)
-                info = await client.get_device_info()
-                unique_id = info.get("uuid") or info.get("mac") or host
+                info = await client.get_player_status()
+                unique_id = info.get("device_id") or info.get("uuid") or info.get("MAC") or host
+                # If device is in a group, ungroup it
+                if info.get("role") == "slave" or info.get("group") == "1":
+                    try:
+                        await client.leave_group()
+                    except Exception:
+                        pass
+                    info = await client.get_player_status()
+                device_name = info.get("device_name") or info.get("DeviceName") or host
                 await client.close()
+                known_ids = {entry.unique_id for entry in self._async_current_entries()}
+                in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
+                if unique_id in (known_ids | in_progress_ids):
+                    return self.async_abort(reason="already_configured")
                 await self.async_set_unique_id(unique_id)
-                # If already configured, update host/IP if changed
                 existing_entry = self._async_current_entries()
                 for entry in existing_entry:
                     if entry.unique_id == unique_id:
@@ -92,18 +102,15 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             self.hass.config_entries.async_update_entry(entry, data={**entry.data, CONF_HOST: host})
                         self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=f"WiiM {host}", data={CONF_HOST: host}
+                    title=device_name, data={CONF_HOST: host}
                 )
             except WiiMError:
                 errors["base"] = "cannot_connect"
             except Exception as e:
                 _LOGGER.error("[WiiM] Error during config flow: %s", e)
                 errors["base"] = "unknown"
-
-        # Offer UPnP discovery as a fallback
         if async_search is not None:
             return await self.async_step_upnp()
-
         schema = vol.Schema({vol.Required(CONF_HOST): str})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
@@ -133,40 +140,33 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
     async def _discover_upnp_hosts(self) -> list[str]:
-        """Use async_upnp_client to discover WiiM/LinkPlay devices on the network."""
+        """Use async_upnp_client to discover WiiM/LinkPlay devices on the network, filtering out already-configured devices."""
         if async_search is None:
             return []
 
         discovered: set[str] = set()
+        known_ids = {entry.unique_id for entry in self._async_current_entries()}
+        in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
+        all_known = known_ids | in_progress_ids
 
-        # ------------------------------------------------------------------
-        # 1. Fire a directed M-SEARCH for MediaRenderer devices --------------
-        # ------------------------------------------------------------------
-
-        async def _on_ssdp_device(device):  # type: ignore[missing-param-doc]
+        async def _on_ssdp_device(device):
             host: str | None = getattr(device, "host", None)
             if host is None and (loc := getattr(device, "location", None)):
                 host = urlparse(loc).hostname
-
             if not host or host in discovered:
                 return
-
-            _LOGGER.debug("SSDP probe candidate %s – validating", host)
-
-            # Quick HTTP validation: getStatusEx should return JSON with firmware/uuid
             try:
-                await _async_validate_host(host)
-            except WiiMError:
-                _LOGGER.debug("Host %s responded but is not LinkPlay/WiiM", host)
+                client = WiiMClient(host)
+                info = await client.get_player_status()
+                unique_id = info.get("device_id") or info.get("uuid") or info.get("MAC") or host
+                await client.close()
+                if unique_id in all_known:
+                    return
+            except Exception:
                 return
-
             discovered.add(host)
 
         try:
-            # Newer async_upnp_client (≤ 0.23) still exposes *mx*; pass it so
-            # we only wait two seconds for replies.  If the version in the HA
-            # container removed the parameter we catch the TypeError and
-            # re-invoke without it.
             await async_search(
                 async_callback=_on_ssdp_device,
                 timeout=5,
@@ -174,68 +174,53 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 mx=2,
             )
         except TypeError:
-            # Fallback for >= 0.29 where *mx* was dropped.
             await async_search(
                 async_callback=_on_ssdp_device,
                 timeout=5,
                 search_target="urn:schemas-upnp-org:device:MediaRenderer:1",
             )
-
         return list(discovered)
 
-    async def async_step_zeroconf(self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:  # noqa: D401
-        """Handle Zeroconf discovery."""
-        _LOGGER.debug(
-            "Zeroconf discovery: host=%s, port=%s, hostname=%s, type=%s, name=%s, properties=%s",
-            discovery_info.host,
-            discovery_info.port,
-            discovery_info.hostname,
-            discovery_info.type,
-            discovery_info.name,
-            discovery_info.properties,
-        )
-
+    async def async_step_zeroconf(self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:
+        """Handle Zeroconf discovery, filter duplicates, and use device name from API."""
         host = discovery_info.host
-        # Linkplay devices typically use a MAC address or UUID in properties for uniqueness.
-        # Let's try to find a UUID or MAC from properties to use as unique_id.
-        # Common property names for MAC/UUID could be 'uuid', 'deviceId', 'MAC', 'macAddress'
-        # The exact property name might vary.
+        # Try to get unique_id from properties
         unique_id_prop = (
             discovery_info.properties.get("uuid")
             or discovery_info.properties.get("deviceId")
             or discovery_info.properties.get("MAC")
             or discovery_info.properties.get("mac")
-            or discovery_info.properties.get("unique_id") # a generic one
+            or discovery_info.properties.get("unique_id")
         )
-
-        if unique_id_prop:
-            unique_id = str(unique_id_prop).replace(":", "").lower()
-            _LOGGER.debug("Using property '%s' for unique_id: %s", unique_id_prop, unique_id)
-        else:
-            # Fallback to host if no better unique_id found in properties
-            unique_id = host
-            _LOGGER.debug("No suitable unique_id property found, falling back to host: %s", host)
-
+        unique_id = str(unique_id_prop).replace(":", "").lower() if unique_id_prop else host
+        # Filter out already-configured or in-progress
+        known_ids = {entry.unique_id for entry in self._async_current_entries()}
+        in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
+        if unique_id in (known_ids | in_progress_ids):
+            return self.async_abort(reason="already_configured")
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured(updates={CONF_HOST: host})
-
         try:
-            await _async_validate_host(host)
-            _LOGGER.debug("Successfully validated WiiM device at %s from Zeroconf", host)
+            client = WiiMClient(host)
+            info = await client.get_player_status()
+            # If device is in a group, ungroup it to enumerate all devices
+            if info.get("role") == "slave" or info.get("group") == "1":
+                try:
+                    await client.leave_group()
+                except Exception:
+                    pass
+                info = await client.get_player_status()
+            device_name = info.get("device_name") or info.get("DeviceName") or host
+            await client.close()
         except WiiMError as err:
             _LOGGER.error("Failed to validate WiiM device at %s from Zeroconf: %s", host, err)
             return self.async_abort(reason="cannot_connect")
         except Exception as e:
             _LOGGER.error("Unknown error validating WiiM device at %s from Zeroconf: %s", host, e, exc_info=True)
             return self.async_abort(reason="unknown_error_validation")
-
-
         self.context["configuration_in_progress"] = True
         self._host = host
-        # Set title for the confirmation step
-        self.context["title_placeholders"] = {
-            "name": discovery_info.properties.get("name", discovery_info.name) or host
-        }
+        self.context["title_placeholders"] = {"name": device_name}
         return await self.async_step_confirm()
 
     async def async_step_confirm(
@@ -253,17 +238,11 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # SSDP discovery (native HA flow) ---------------------
     # -----------------------------------------------------
 
-    async def async_step_ssdp(self, discovery_info: dict[str, Any]) -> FlowResult:  # noqa: D401
-        """Handle SSDP discovery from Home Assistant core."""
-
-        _LOGGER.debug("SSDP discovery: %s", discovery_info)
-        _LOGGER.debug("SSDP headers: %s", discovery_info.ssdp_headers)
-        _LOGGER.debug("SSDP location: %s", discovery_info.ssdp_location)
-
-        # Get device host – depending on HA version field may be 'host' or 'ssdp_location'.
+    async def async_step_ssdp(self, discovery_info: dict[str, Any]) -> FlowResult:
+        """Handle SSDP discovery from Home Assistant core, filter duplicates, and use device name from API."""
+        # Get device host
         host = discovery_info.ssdp_headers.get("_host")
         if not host:
-            # Try different possible locations for the host
             if loc := discovery_info.ssdp_headers.get("ssdp_location"):
                 host = urlparse(loc).hostname
             elif loc := discovery_info.ssdp_location:
@@ -272,23 +251,32 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 host = urlparse(discovery_info.ssdp_headers["LOCATION"]).hostname
             elif "location" in discovery_info.ssdp_headers:
                 host = urlparse(discovery_info.ssdp_headers["location"]).hostname
-
-        _LOGGER.debug("SSDP candidate host: %s", host)
-
         if not host:
-            _LOGGER.warning("No host found in SSDP discovery info")
             return self.async_abort(reason="no_host")
-
-        await self.async_set_unique_id(host)
-        self._abort_if_unique_id_configured()
-
+        # Fetch unique_id and filter
         try:
-            await _async_validate_host(host)
-        except WiiMError as err:
-            _LOGGER.error("Failed to validate WiiM device at %s: %s", host, err)
+            client = WiiMClient(host)
+            info = await client.get_player_status()
+            unique_id = info.get("device_id") or info.get("uuid") or info.get("MAC") or host
+            # If device is in a group, ungroup it
+            if info.get("role") == "slave" or info.get("group") == "1":
+                try:
+                    await client.leave_group()
+                except Exception:
+                    pass
+                info = await client.get_player_status()
+            device_name = info.get("device_name") or info.get("DeviceName") or host
+            await client.close()
+        except Exception:
             return self.async_abort(reason="cannot_connect")
-
+        known_ids = {entry.unique_id for entry in self._async_current_entries()}
+        in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
+        if unique_id in (known_ids | in_progress_ids):
+            return self.async_abort(reason="already_configured")
+        await self.async_set_unique_id(unique_id)
+        self._abort_if_unique_id_configured()
         self._host = host
+        self.context["title_placeholders"] = {"name": device_name}
         return await self.async_step_confirm()
 
 
