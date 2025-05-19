@@ -129,8 +129,24 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except WiiMError:
                 errors["base"] = "cannot_connect"
             else:
+                # Fetch device name for nicer entry title
+                device_name = host
+                client = None
+                try:
+                    client = WiiMClient(host)
+                    info = await client.get_player_status()
+                    device_name = info.get("device_name") or info.get("DeviceName") or host
+                except Exception:
+                    pass
+                finally:
+                    if client is not None:
+                        try:
+                            await client.close()
+                        except Exception:
+                            pass
                 return self.async_create_entry(
-                    title=f"WiiM {host}", data={CONF_HOST: host}
+                    title=device_name,
+                    data={CONF_HOST: host},
                 )
         if self._discovered_hosts:
             schema = vol.Schema({vol.Required(CONF_HOST): vol.In(self._discovered_hosts)})
@@ -228,8 +244,10 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Confirm discovery."""
         if user_input is not None:
+            device_name = self.context.get("title_placeholders", {}).get("name") or f"WiiM {self._host}"
             return self.async_create_entry(
-                title=f"WiiM {self._host}", data={CONF_HOST: self._host}
+                title=device_name,
+                data={CONF_HOST: self._host},
             )
 
         return self.async_show_form(step_id="confirm")
@@ -278,6 +296,10 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._host = host
         self.context["title_placeholders"] = {"name": device_name}
         return await self.async_step_confirm()
+
+    async def async_step_import(self, import_config: dict[str, Any]) -> FlowResult:
+        """Handle import from YAML or programmatic flow."""
+        return await self.async_step_user(import_config)
 
 
 class WiiMOptionsFlow(config_entries.OptionsFlow):

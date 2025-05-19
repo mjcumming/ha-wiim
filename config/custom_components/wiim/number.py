@@ -40,10 +40,14 @@ class _BaseWiiMNumber(CoordinatorEntity[WiiMCoordinator], NumberEntity):
         self._key = key
         self._attr_unique_id = f"{coordinator.client.host}-{key}"
         self._attr_name = name
+        status = coordinator.data.get("status", {}) if isinstance(coordinator.data, dict) else {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.client.host)},
-            name=getattr(coordinator, "friendly_name", f"WiiM {coordinator.client.host}"),
+            name=coordinator.friendly_name,
             manufacturer="WiiM",
+            model=status.get("hardware") or status.get("project"),
+            sw_version=status.get("firmware"),
+            connections={("mac", status.get("MAC"))} if status.get("MAC") else set(),
         )
 
     def _save(self, value):

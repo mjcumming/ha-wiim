@@ -408,10 +408,52 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 return group["members"][ip]
         return None
 
-    async def async_stop(self):
-        """Stop the polling loop (for interval change)."""
-        await self.async_cancel()
+    # ---------------------------------------------------------------------
+    # Convenience helpers --------------------------------------------------
+    # ---------------------------------------------------------------------
 
-    async def async_start(self):
-        """Restart the polling loop (for interval change)."""
+    @property
+    def friendly_name(self) -> str:
+        """Return a human-friendly name for the device.
+
+        Prefer the HTTP-API field ``device_name`` (normalised) or the raw
+        ``DeviceName`` if present; otherwise fall back to the host.
+        """
+
+        status = self.data.get("status", {}) if isinstance(self.data, dict) else {}
+        return (
+            status.get("device_name")
+            or status.get("DeviceName")  # legacy field – shouldn't exist now
+            or self.client.host
+        )
+
+    # ---------------------------------------------------------------------
+    # Compatibility helpers (used by Number entities) ---------------------
+    # ---------------------------------------------------------------------
+
+    async def async_stop(self) -> None:
+        """Pause the periodic polling loop.
+
+        The :class:`homeassistant.helpers.update_coordinator.DataUpdateCoordinator`
+        keeps an internal unsubscribe callback (``_unsub_refresh``) that is used
+        to cancel the scheduled refresh timer.  We call it here to ensure the
+        old timer is cleared before adjusting the update interval.
+        """
+
+        unsub = getattr(self, "_unsub_refresh", None)
+        if unsub is not None:
+            # Cancel the existing scheduled refresh call
+            unsub()
+            # Mark as unscheduled so ``_schedule_refresh`` can create a new one
+            self._unsub_refresh = None  # type: ignore[attr-defined]
+
+    async def async_start(self) -> None:
+        """Resume the periodic polling loop using the current update_interval."""
+
+        # The base coordinator exposes a private ``_schedule_refresh`` helper
+        # that (re-)schedules the periodic call.  It is safe to invoke here.
+        if hasattr(self, "_schedule_refresh"):
+            # pylint: disable=protected-access
+            self._schedule_refresh()  # type: ignore[attr-defined]
+        # Trigger an immediate refresh so listeners get up-to-date data
         await self.async_refresh()

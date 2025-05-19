@@ -4,39 +4,59 @@
   "key": "core.restore_state",
   "data": [
     {
-      "state": {"entity_id":"conversation.home_assistant","state":"unknown","attributes":{"friendly_name":"Home Assistant","supported_features":1},"last_changed":"2025-05-19T13:23:41.542627+00:00","last_reported":"2025-05-19T13:23:41.542627+00:00","last_updated":"2025-05-19T13:23:41.542627+00:00","context":{"id":"01JVMBDRB6AHX7CYD79AKDJYHJ","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"conversation.home_assistant","state":"unknown","attributes":{"friendly_name":"Home Assistant","supported_features":1},"last_changed":"2025-05-19T17:00:14.000959+00:00","last_reported":"2025-05-19T17:00:14.000959+00:00","last_updated":"2025-05-19T17:00:14.000959+00:00","context":{"id":"01JVMQT89GYHCK5WSEV08ZCSC7","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:24:12.332442+00:00"
+      "last_seen": "2025-05-19T17:00:30.616770+00:00"
     },
     {
-      "state": {"entity_id":"person.dev","state":"unknown","attributes":{"editable":true,"id":"dev","device_trackers":[],"source":"person.dev","user_id":"7a858a20e5444280992ede963bd634b8","friendly_name":"dev"},"last_changed":"2025-05-19T13:23:42.179431+00:00","last_reported":"2025-05-19T13:23:42.179431+00:00","last_updated":"2025-05-19T13:23:42.179431+00:00","context":{"id":"01JVMBDRZ3C4KXZ19DVA2QM8A7","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"person.dev","state":"unknown","attributes":{"editable":true,"id":"dev","device_trackers":[],"source":"person.dev","user_id":"7a858a20e5444280992ede963bd634b8","friendly_name":"dev"},"last_changed":"2025-05-19T17:00:14.415754+00:00","last_reported":"2025-05-19T17:00:14.415754+00:00","last_updated":"2025-05-19T17:00:14.415754+00:00","context":{"id":"01JVMQT8PFJH45W197H83RW4J7","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:24:12.332442+00:00"
+      "last_seen": "2025-05-19T17:00:30.616770+00:00"
     },
     {
-      "state": {"entity_id":"tts.google_translate_en_com","state":"unknown","attributes":{"friendly_name":"Google Translate en com"},"last_changed":"2025-05-19T13:23:42.315201+00:00","last_reported":"2025-05-19T13:23:42.315201+00:00","last_updated":"2025-05-19T13:23:42.315201+00:00","context":{"id":"01JVMBDS3B5JNC600NH4JYHQNX","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"tts.google_translate_en_com","state":"unknown","attributes":{"friendly_name":"Google Translate en com"},"last_changed":"2025-05-19T17:00:14.516283+00:00","last_reported":"2025-05-19T17:00:14.516283+00:00","last_updated":"2025-05-19T17:00:14.516283+00:00","context":{"id":"01JVMQT8SM5AENVGAEQD2AZ3T9","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:24:12.332442+00:00"
+      "last_seen": "2025-05-19T17:00:30.616770+00:00"
     },
     {
-      "state": {"entity_id":"button.wiim_192_168_1_116_reboot","state":"unknown","attributes":{"friendly_name":"192.168.1.116 Reboot"},"last_changed":"2025-05-19T13:23:42.696530+00:00","last_reported":"2025-05-19T13:24:12.176298+00:00","last_updated":"2025-05-19T13:23:42.704051+00:00","context":{"id":"01JVMBDSFGXZX356XXC399QT29","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"button.master_bedroom_reboot","state":"unknown","attributes":{"friendly_name":"Master Bedroom Reboot"},"last_changed":"2025-05-19T17:00:14.909736+00:00","last_reported":"2025-05-19T17:00:17.058897+00:00","last_updated":"2025-05-19T17:00:14.909736+00:00","context":{"id":"01JVMQT95X2PPKJG1KG9KWMKZY","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:24:12.332442+00:00"
+      "last_seen": "2025-05-19T17:00:21.489241+00:00"
     },
     {
-      "state": {"entity_id":"button.wiim_192_168_1_116_sync_time","state":"unknown","attributes":{"friendly_name":"192.168.1.116 Sync Time"},"last_changed":"2025-05-19T13:23:42.696862+00:00","last_reported":"2025-05-19T13:24:12.176314+00:00","last_updated":"2025-05-19T13:23:42.704079+00:00","context":{"id":"01JVMBDSFGNHCA7SZW16QRXKJR","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"button.master_bedroom_sync_time","state":"unknown","attributes":{"friendly_name":"Master Bedroom Sync Time"},"last_changed":"2025-05-19T17:00:14.909983+00:00","last_reported":"2025-05-19T17:00:17.058907+00:00","last_updated":"2025-05-19T17:00:14.909983+00:00","context":{"id":"01JVMQT95XV85MNVSSGRJARV87","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:24:12.332442+00:00"
+      "last_seen": "2025-05-19T17:00:21.489671+00:00"
     },
     {
-      "state": {"entity_id":"button.wiim_192_168_1_68_reboot","state":"unknown","attributes":{"friendly_name":"192.168.1.68 Reboot"},"last_changed":"2025-05-19T13:04:45.127102+00:00","last_reported":"2025-05-19T13:05:21.119209+00:00","last_updated":"2025-05-19T13:04:45.138120+00:00","context":{"id":"01JVMAB2JJ8KMS88VGJAYG50MV","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"button.main_floor_speakers_reboot","state":"unknown","attributes":{"friendly_name":"Main Floor Speakers Reboot"},"last_changed":"2025-05-19T17:00:14.891886+00:00","last_reported":"2025-05-19T17:00:16.768215+00:00","last_updated":"2025-05-19T17:00:14.891886+00:00","context":{"id":"01JVMQT95BYQENKHGMT39W6013","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:05:51.249760+00:00"
+      "last_seen": "2025-05-19T17:00:17.540605+00:00"
     },
     {
-      "state": {"entity_id":"button.wiim_192_168_1_68_sync_time","state":"unknown","attributes":{"friendly_name":"192.168.1.68 Sync Time"},"last_changed":"2025-05-19T13:04:45.127309+00:00","last_reported":"2025-05-19T13:05:21.119218+00:00","last_updated":"2025-05-19T13:04:45.138133+00:00","context":{"id":"01JVMAB2JJ1P6549VMS31BQN6S","parent_id":null,"user_id":null}},
+      "state": {"entity_id":"button.main_floor_speakers_sync_time","state":"unknown","attributes":{"friendly_name":"Main Floor Speakers Sync Time"},"last_changed":"2025-05-19T17:00:14.892068+00:00","last_reported":"2025-05-19T17:00:16.768227+00:00","last_updated":"2025-05-19T17:00:14.892068+00:00","context":{"id":"01JVMQT95CQ704EGT8AB994ZQA","parent_id":null,"user_id":null}},
       "extra_data": null,
-      "last_seen": "2025-05-19T13:05:51.250688+00:00"
+      "last_seen": "2025-05-19T17:00:17.540863+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_68_reboot","state":"unknown","attributes":{"friendly_name":"Main Floor Speakers Reboot"},"last_changed":"2025-05-19T16:56:09.542163+00:00","last_reported":"2025-05-19T16:56:33.932367+00:00","last_updated":"2025-05-19T16:56:09.542163+00:00","context":{"id":"01JVMQJSJ6W2EPZEA8FA2X0Z1Y","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-19T16:56:45.742158+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_68_sync_time","state":"unknown","attributes":{"friendly_name":"Main Floor Speakers Sync Time"},"last_changed":"2025-05-19T16:56:09.542599+00:00","last_reported":"2025-05-19T16:56:33.932378+00:00","last_updated":"2025-05-19T16:56:09.542599+00:00","context":{"id":"01JVMQJSJ668F133V57F6K707W","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-19T16:56:45.743366+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_116_reboot","state":"unknown","attributes":{"friendly_name":"Master Bedroom Reboot"},"last_changed":"2025-05-19T16:56:09.496340+00:00","last_reported":"2025-05-19T16:56:09.496340+00:00","last_updated":"2025-05-19T16:56:09.496340+00:00","context":{"id":"01JVMQJSGR0B54GCBKTERK0DNM","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-19T16:56:41.450677+00:00"
+    },
+    {
+      "state": {"entity_id":"button.wiim_192_168_1_116_sync_time","state":"unknown","attributes":{"friendly_name":"Master Bedroom Sync Time"},"last_changed":"2025-05-19T16:56:09.496863+00:00","last_reported":"2025-05-19T16:56:09.496863+00:00","last_updated":"2025-05-19T16:56:09.496863+00:00","context":{"id":"01JVMQJSGRHSCD6PGB3SNDCTTR","parent_id":null,"user_id":null}},
+      "extra_data": null,
+      "last_seen": "2025-05-19T16:56:41.451871+00:00"
     }
   ]
 }

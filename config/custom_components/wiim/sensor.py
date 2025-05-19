@@ -57,10 +57,14 @@ class _WiiMDiagnosticSensor(CoordinatorEntity[WiiMCoordinator], SensorEntity):
         self._attr_name = meta["name"]
         self._attr_native_unit_of_measurement = meta["unit"]
         self._attr_device_class = meta["device_class"]
+        status = coordinator.data.get("status", {}) if isinstance(coordinator.data, dict) else {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.client.host)},
-            name=f"WiiM {coordinator.client.host}",
+            name=coordinator.friendly_name,
             manufacturer="WiiM",
+            model=status.get("hardware") or status.get("project"),
+            sw_version=status.get("firmware"),
+            connections={("mac", status.get("MAC"))} if status.get("MAC") else set(),
         )
 
     @property

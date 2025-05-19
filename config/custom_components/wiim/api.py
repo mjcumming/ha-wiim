@@ -610,6 +610,7 @@ class WiiMClient:
         "Title": "title_hex",
         "Artist": "artist_hex",
         "Album": "album_hex",
+        "DeviceName": "device_name",
         # Wi-Fi (only present in fallback)
         "WifiChannel": "wifi_channel",
         "RSSI": "wifi_rssi",

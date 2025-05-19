@@ -31,10 +31,14 @@ class WiiMRebootButton(CoordinatorEntity, ButtonEntity):
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.client.host}-reboot"
         self._attr_name = "Reboot"
+        status = coordinator.data.get("status", {}) if isinstance(coordinator.data, dict) else {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.client.host)},
-            name=f"WiiM {coordinator.client.host}",
+            name=coordinator.friendly_name,
             manufacturer="WiiM",
+            model=status.get("hardware") or status.get("project"),
+            sw_version=status.get("firmware"),
+            connections={("mac", status.get("MAC"))} if status.get("MAC") else set(),
         )
     async def async_press(self) -> None:
         try:
@@ -48,10 +52,14 @@ class WiiMSyncTimeButton(CoordinatorEntity, ButtonEntity):
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.client.host}-sync_time"
         self._attr_name = "Sync Time"
+        status = coordinator.data.get("status", {}) if isinstance(coordinator.data, dict) else {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.client.host)},
-            name=f"WiiM {coordinator.client.host}",
+            name=coordinator.friendly_name,
             manufacturer="WiiM",
+            model=status.get("hardware") or status.get("project"),
+            sw_version=status.get("firmware"),
+            connections={("mac", status.get("MAC"))} if status.get("MAC") else set(),
         )
     async def async_press(self) -> None:
         try:
