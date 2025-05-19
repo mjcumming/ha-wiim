@@ -832,6 +832,10 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:
     """Return coordinator for the given entity ID."""
     for coord in hass.data[DOMAIN].values():
+        # Skip helper dicts like "_group_entities" or anything that does not
+        # expose a ``client`` attribute.
+        if not hasattr(coord, "client"):
+            continue
         # Coordinator stores entities via host; build expected entity_id
         expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
         if expected == entity_id:
