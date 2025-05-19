@@ -312,16 +312,27 @@ class WiiMCoordinator(DataUpdateCoordinator):
             except Exception as kick_err:
                 _LOGGER.debug("[WiiM] Failed to kick slave %s: %s (continuing import)", ip, kick_err)
 
-            self._imported_hosts.add(ip)
-
-            self.hass.async_create_task(
-                self.hass.config_entries.flow.async_init(
-                    DOMAIN,
-                    context={"source": "import"},
-                    data={CONF_HOST: ip},
+            # Prevent duplicate config-entries: skip if another entry already
+            # has the same host (even if its unique_id differs for legacy
+            # reasons or the entry is not fully set up yet)
+            for entry in self.hass.config_entries.async_entries(DOMAIN):
+                if entry.data.get(CONF_HOST) == ip:
+                    _LOGGER.debug("[WiiM] Config entry for %s already exists (%s). Skipping import.", ip, entry.entry_id)
+                    self._imported_hosts.add(ip)
+                    break
+            else:
+                # Only start a flow if no existing entry with this host
+                self.hass.async_create_task(
+                    self.hass.config_entries.flow.async_init(
+                        DOMAIN,
+                        context={"source": "import"},
+                        data={CONF_HOST: ip},
+                    )
                 )
-            )
-            _LOGGER.debug("Started import flow for slave %s", ip)
+                _LOGGER.debug("Started import flow for slave %s", ip)
+
+            # Mark as processed to avoid future duplicate attempts
+            self._imported_hosts.add(ip)
 
     async def create_wiim_group(self) -> None:
         """Create a WiiM multiroom group."""

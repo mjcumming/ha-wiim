@@ -79,7 +79,8 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 client = WiiMClient(host)
                 info = await client.get_player_status()
-                unique_id = info.get("device_id") or info.get("uuid") or info.get("MAC") or host
+                # Use host/IP as unique_id to guarantee one entry per device
+                unique_id = host
                 # If device is in a group, ungroup it
                 if info.get("role") == "slave" or info.get("group") == "1":
                     try:
@@ -174,7 +175,8 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 client = WiiMClient(host)
                 info = await client.get_player_status()
-                unique_id = info.get("device_id") or info.get("uuid") or info.get("MAC") or host
+                # Use host/IP as unique_id to guarantee one entry per device
+                unique_id = host
                 await client.close()
                 if unique_id in all_known:
                     return
@@ -200,15 +202,8 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_zeroconf(self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:
         """Handle Zeroconf discovery, filter duplicates, and use device name from API."""
         host = discovery_info.host
-        # Try to get unique_id from properties
-        unique_id_prop = (
-            discovery_info.properties.get("uuid")
-            or discovery_info.properties.get("deviceId")
-            or discovery_info.properties.get("MAC")
-            or discovery_info.properties.get("mac")
-            or discovery_info.properties.get("unique_id")
-        )
-        unique_id = str(unique_id_prop).replace(":", "").lower() if unique_id_prop else host
+        # Ignore advertised UUID/MAC; rely on host to enforce uniqueness
+        unique_id = host
         # Filter out already-configured or in-progress
         known_ids = {entry.unique_id for entry in self._async_current_entries()}
         in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
@@ -275,7 +270,8 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             client = WiiMClient(host)
             info = await client.get_player_status()
-            unique_id = info.get("device_id") or info.get("uuid") or info.get("MAC") or host
+            # Use host/IP as unique_id to guarantee one entry per device
+            unique_id = host
             # If device is in a group, ungroup it
             if info.get("role") == "slave" or info.get("group") == "1":
                 try:

@@ -306,7 +306,7 @@ class WiiMClient:
                     continue
                 raise WiiMConnectionError(f"Failed to connect to WiiM device: {err}") from err
             except json.JSONDecodeError as err:
-                _LOGGER.error("Invalid JSON response from %s: %s", url, text)
+                _LOGGER.debug("Invalid JSON response from %s: %s", url, text)
                 raise WiiMResponseError(f"Invalid response from WiiM device: {err}") from err
 
         # If we get here, all attempts failed
@@ -755,7 +755,9 @@ class WiiMClient:
             response = await self._request("/httpapi.asp?command=getMetaInfo")
             return response.get("metaData", {})
         except Exception as e:
-            _LOGGER.error("Failed to get meta info: %s", e)
+            # Devices with older firmware return plain "OK" instead of JSON.
+            # Treat this as an expected condition rather than an error.
+            _LOGGER.debug("get_meta_info not supported on %s: %s", self.host, e)
             return {}
 
     async def play_url(self, url: str) -> None:
