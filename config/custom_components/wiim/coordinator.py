@@ -237,6 +237,34 @@ class WiiMCoordinator(DataUpdateCoordinator):
     def _update_group_registry(self, status: dict, multiroom: dict) -> None:
         """Update the group registry with current group info."""
         _LOGGER.debug("[WiiM] _update_group_registry: status=%s, multiroom=%s", status, multiroom)
+
+        # ------------------------------------------------------------------
+        # 0) House-keeping – drop *stale* groups this coordinator may still
+        #    carry from an earlier poll.  A group is considered stale if
+        #    (a) its master_ip equals *this* speaker and (b) the speaker is
+        #    currently not hosting any slaves and does not report itself as a
+        #    slave.  Without this cleanup the virtual "<Room> (Group)"
+        #    entity lingers after a user calls multiroom:Ungroup().
+        # ------------------------------------------------------------------
+        is_currently_master = multiroom.get("slaves", 0) > 0
+        is_currently_slave = multiroom.get("type") == "1" or status.get("type") == "1"
+
+        if not is_currently_master and not is_currently_slave:
+            # Speaker is in *solo* mode → remove any registry that still lists
+            # it as a master.
+            if self.client.host in self._groups:
+                _LOGGER.debug(
+                    "[WiiM] _update_group_registry: Removing stale group entry for %s (device is solo)",
+                    self.client.host,
+                )
+                self._groups.pop(self.client.host, None)
+
+        # ------------------------------------------------------------------
+        # 1) Determine if the current poll contains *valid* group info (either
+        #    because we're a master or a slave).  If we cannot identify a
+        #    master_ip we bail out – the above cleanup already made sure no
+        #    stale entry with our own host remains.
+        # ------------------------------------------------------------------
         # Try to determine master_ip from own multiroom info
         master_ip = self.client.host if multiroom.get("slaves", 0) > 0 else multiroom.get("master_uuid")
         # If not found and this device is a slave, search all coordinators for a master whose slave_list includes this device

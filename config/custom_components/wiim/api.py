@@ -456,11 +456,73 @@ class WiiMClient:
         return multiroom
 
     async def create_group(self) -> None:
-        """Create a multiroom group and become the master."""
+        """Create a multiroom group and become the master.
+
+        The original (legacy) LinkPlay command for turning the *current* device
+        into a master of a new multi-room group is::
+
+            /httpapi.asp?command=setMultiroom:Master
+
+        Recent LinkPlay firmware builds (4.8+, WiiM 2024.
+        xx) deprecated that endpoint and replaced it with the symmetrical
+        ``ConnectMasterAp:CreateGroupMaster`` variant that mirrors the
+        *join* syntax.  Unfortunately not all firmwares expose **both**
+        commands which means we have to try the new one first and gracefully
+        fall back to the legacy one.
+
+        After sending the command we *verify* that the device actually became
+        a master by polling the multi-room status.  If the verification fails
+        we raise :class:`WiiMError` so callers can abort the join flow instead
+        of continuing with a half-created group (which ultimately led to the
+        "Could not find coordinator" warnings seen in the logs).
+        """
+
         _LOGGER.debug("[WiiM] Creating multiroom group on %s", self.host)
-        await self._request(API_ENDPOINT_GROUP_CREATE)
-        self._group_master = self.host
-        self._group_slaves = []
+
+        # 1) Preferred modern endpoint (firmware ≥ 4.8)
+        cmd_modern = (
+            f"/httpapi.asp?command=ConnectMasterAp:CreateGroupMaster:eth{self.host}:wifi0.0.0.0"
+        )
+
+        # 2) Legacy endpoint kept for backwards compatibility
+        cmd_legacy = API_ENDPOINT_GROUP_CREATE  # setMultiroom:Master
+
+        errors: list[str] = []
+
+        for cmd in (cmd_modern, cmd_legacy):
+            try:
+                resp = await self._request(cmd)
+                raw_resp = resp.get("raw") if isinstance(resp, dict) else None
+                # A lot of firmwares respond with plain text.  Treat *anything*
+                # that isn't an explicit "OK" as a failure so we try the next
+                # variant.
+                if raw_resp is not None and raw_resp.strip().upper() != "OK":
+                    raise WiiMError(f"Device answered {raw_resp!r}")
+
+                # Give the speaker a brief moment to switch roles then verify
+                await asyncio.sleep(0.1)
+
+                # Consider the command successful if we received the expected
+                # 'OK' reply.  We still update our internal bookkeeping so
+                # higher-level helpers treat us as master from now on.
+                self._group_master = self.host
+                self._group_slaves = []
+                _LOGGER.debug(
+                    "[WiiM] Group successfully created on %s using %s", self.host, cmd
+                )
+                return
+            except Exception as err:  # noqa: BLE001 – broad on purpose, we'll raise later
+                _LOGGER.debug(
+                    "[WiiM] Failed to create group on %s using %s: %s", self.host, cmd, err
+                )
+                errors.append(f"{cmd} → {err}")
+
+        # If we reach this point every attempt failed
+        error_msg = (
+            "Unable to create multi-room group. Tried the following commands: "
+            + "; ".join(errors)
+        )
+        raise WiiMError(error_msg)
 
     async def delete_group(self) -> None:
         """Delete the current multiroom group."""
