@@ -90,8 +90,15 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     info = await client.get_player_status()
                 device_name = info.get("device_name") or info.get("DeviceName") or host
                 await client.close()
+                # Ensure no duplicate by checking configured entries **and**
+                # flows that are half-way through (scenario: two discoveries
+                # fire at the same time).
                 known_ids = {entry.unique_id for entry in self._async_current_entries()}
-                in_progress_ids = {flow['context'].get('unique_id') for flow in self.hass.config_entries.flow.async_progress() if flow['handler'] == DOMAIN}
+                in_progress_ids = {
+                    flow["context"].get("unique_id")
+                    for flow in self.hass.config_entries.flow.async_progress()
+                    if flow["handler"] == DOMAIN
+                }
                 if unique_id in (known_ids | in_progress_ids):
                     return self.async_abort(reason="already_configured")
                 await self.async_set_unique_id(unique_id)
@@ -181,6 +188,13 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         all_known = known_ids | in_progress_ids
 
         async def _on_ssdp_device(device):
+            """Callback fired for every SSDP/UPnP response.
+
+            We immediately open a TCP connection to the reported host and run
+            `get_player_status` to obtain the device name and confirm it is in
+            fact a WiiM/LinkPlay speaker.  Early filtering avoids showing
+            random DLNA renderers in the dropdown.
+            """
             host: str | None = getattr(device, "host", None)
             if host is None and (loc := getattr(device, "location", None)):
                 host = urlparse(loc).hostname
@@ -216,6 +230,11 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_zeroconf(self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:
         """Handle Zeroconf discovery, filter duplicates, and use device name from API."""
         host = discovery_info.host
+        # ────────────────────────────────────────────────────────────────────
+        # Zeroconf advertisement – map to (host, name) and re-use same
+        # validation logic.  All the duplicate checks mirror the manual &
+        # UPnP paths so behaviour stays consistent across discovery methods.
+        # Get device host
         # Ignore advertised UUID/MAC; rely on host to enforce uniqueness
         unique_id = host
         # Filter out already-configured or in-progress
@@ -267,6 +286,11 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_ssdp(self, discovery_info: dict[str, Any]) -> FlowResult:
         """Handle SSDP discovery from Home Assistant core, filter duplicates, and use device name from API."""
+        # ------------------------------------------------------------------
+        # HA-native SSDP discovery (same flow object as UPnP search) --------
+        # ------------------------------------------------------------------
+        # The SSDP payload differs slightly, hence a bespoke parser that tries
+        # multiple header names to extract the host/IP.
         # Get device host
         host = discovery_info.ssdp_headers.get("_host")
         if not host:
