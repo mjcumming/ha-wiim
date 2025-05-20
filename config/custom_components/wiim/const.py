@@ -98,6 +98,7 @@ SUPPORT_WIIM = (
 # WiiM API endpoints
 # Player Controls
 API_ENDPOINT_STATUS = "/httpapi.asp?command=getStatusEx"
+API_ENDPOINT_PLAYER_STATUS = "/httpapi.asp?command=getPlayerStatusEx"
 API_ENDPOINT_PLAY = "/httpapi.asp?command=setPlayerCmd:play"
 API_ENDPOINT_PAUSE = "/httpapi.asp?command=setPlayerCmd:pause"
 API_ENDPOINT_STOP = "/httpapi.asp?command=setPlayerCmd:stop"
@@ -105,8 +106,8 @@ API_ENDPOINT_NEXT = "/httpapi.asp?command=setPlayerCmd:next"
 API_ENDPOINT_PREV = "/httpapi.asp?command=setPlayerCmd:prev"
 API_ENDPOINT_VOLUME = "/httpapi.asp?command=setPlayerCmd:vol:"
 API_ENDPOINT_MUTE = "/httpapi.asp?command=setPlayerCmd:mute:"
-API_ENDPOINT_PRESET = "/httpapi.asp?command=MCUKeyShortClick:"
 API_ENDPOINT_POWER = "/httpapi.asp?command=setPlayerCmd:power:"
+API_ENDPOINT_PRESET = "/httpapi.asp?command=MCUKeyShortClick:"
 
 # Playback Control
 API_ENDPOINT_REPEAT = "/httpapi.asp?command=setPlayerCmd:repeat:"
@@ -116,11 +117,12 @@ API_ENDPOINT_PLAYLIST = "/httpapi.asp?command=setPlayerCmd:playlist:"
 API_ENDPOINT_CLEAR_PLAYLIST = "/httpapi.asp?command=setPlayerCmd:clear_playlist"
 API_ENDPOINT_PLAY_URL = "/httpapi.asp?command=setPlayerCmd:play:"
 API_ENDPOINT_PLAY_M3U = "/httpapi.asp?command=setPlayerCmd:playlist:"
+API_ENDPOINT_PLAY_PROMPT_URL = "/httpapi.asp?command=playPromptUrl:"
 
-# Multiroom
+# Multiroom Control
 API_ENDPOINT_GROUP_JOIN = "/httpapi.asp?command=ConnectMasterAp:JoinGroupMaster:eth{ip}:wifi0.0.0.0"
 API_ENDPOINT_GROUP_EXIT = "/httpapi.asp?command=multiroom:Ungroup"
-API_ENDPOINT_GROUP_CREATE = "/httpapi.asp?command=multiroom:Master"
+API_ENDPOINT_GROUP_CREATE = "/httpapi.asp?command=setMultiroom:Master"
 API_ENDPOINT_GROUP_DELETE = "/httpapi.asp?command=multiroom:Ungroup"
 API_ENDPOINT_GROUP_SLAVES = "/httpapi.asp?command=multiroom:getSlaveList"
 API_ENDPOINT_GROUP_KICK = "/httpapi.asp?command=multiroom:SlaveKickout:"
@@ -230,17 +232,3 @@ SOURCE_MAP = {
 # Services – extended diagnostic helpers
 SERVICE_REBOOT = "reboot_device"
 SERVICE_SYNC_TIME = "sync_time"
-
-# New endpoints
-API_ENDPOINT_PLAYER_STATUS = "/httpapi.asp?command=getPlayerStatusEx"
-API_ENDPOINT_MULTIROOM_SLAVES = "/httpapi.asp?command=multiroom:getSlaveList"
-
-# Multiroom commands
-API_CMD_CREATE_GROUP = "/httpapi.asp?command=setMultiroom:Master"
-API_CMD_JOIN_GROUP = "/httpapi.asp?command=setMultiroom:Slave:"
-API_CMD_LEAVE_GROUP = "/httpapi.asp?command=setMultiroom:Exit"
-API_CMD_DISBAND_GROUP = "/httpapi.asp?command=multiroom:Ungroup"
-API_CMD_KICK_GUEST = "/httpapi.asp?command=multiroom:SlaveKickout:"  # future use
-
-# New API endpoint
-API_ENDPOINT_PLAY_PROMPT_URL = "/httpapi.asp?command=playPromptUrl:"
