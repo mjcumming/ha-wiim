@@ -680,32 +680,56 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 
     def _entity_id_to_host(self, entity_id: str) -> str:
         """Map HA entity_id to device IP address (host)."""
-        from homeassistant.helpers import entity_registry as er
-
         _LOGGER.debug("[WiiM] %s: _entity_id_to_host() called with entity_id=%s", self.entity_id, entity_id)
 
-        # First: try quick IP-based mapping (legacy scheme)
+        # First try: Direct IP-based mapping (legacy scheme)
         for coord in self.hass.data[DOMAIN].values():
             if not hasattr(coord, "client"):
                 continue
             expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
             if expected == entity_id:
+                _LOGGER.debug("[WiiM] _entity_id_to_host: Direct match found for host=%s", coord.client.host)
                 return coord.client.host
 
-        # Second: look up entity registry – the unique_id is the host IP for WiiM entities
+        # Second try: Entity registry lookup
         try:
+            from homeassistant.helpers import entity_registry as er
             ent_reg = er.async_get(self.hass)
             ent_entry = ent_reg.async_get(entity_id)
+
             if ent_entry and ent_entry.unique_id:
                 unique = ent_entry.unique_id
-                _LOGGER.debug("[WiiM] _entity_id_to_host: Registry unique_id=%s", unique)
+                _LOGGER.debug("[WiiM] _entity_id_to_host: Registry lookup found unique_id=%s", unique)
+
+                # Try to match by unique_id (which should be the host IP)
                 for coord in self.hass.data[DOMAIN].values():
                     if hasattr(coord, "client") and coord.client.host == unique:
+                        _LOGGER.debug("[WiiM] _entity_id_to_host: Match found via unique_id for host=%s", coord.client.host)
                         return coord.client.host
-        except Exception as reg_err:
-            _LOGGER.debug("[WiiM] _entity_id_to_host: Entity registry lookup failed for %s: %s", entity_id, reg_err)
 
-        _LOGGER.warning("[WiiM] _entity_id_to_host: No match for entity_id=%s", entity_id)
+                # Try to match by device name
+                device_name = ent_entry.name or ent_entry.original_name
+                if device_name:
+                    for coord in self.hass.data[DOMAIN].values():
+                        if not hasattr(coord, "client"):
+                            continue
+                        status = coord.data.get("status", {})
+                        device_name_from_status = status.get("DeviceName") or status.get("device_name")
+                        if device_name_from_status and device_name_from_status.lower() == device_name.lower():
+                            _LOGGER.debug("[WiiM] _entity_id_to_host: Match found via device name for host=%s", coord.client.host)
+                            return coord.client.host
+        except Exception as reg_err:
+            _LOGGER.debug("[WiiM] _entity_id_to_host: Entity registry lookup failed: %s", reg_err)
+
+        # Third try: Look for any coordinator with matching entity_id in its data
+        for coord in self.hass.data[DOMAIN].values():
+            if not hasattr(coord, "client"):
+                continue
+            if hasattr(coord, "entity_id") and coord.entity_id == entity_id:
+                _LOGGER.debug("[WiiM] _entity_id_to_host: Match found via coordinator entity_id for host=%s", coord.client.host)
+                return coord.client.host
+
+        _LOGGER.warning("[WiiM] _entity_id_to_host: No match found for entity_id=%s", entity_id)
         raise ValueError(f"Unknown entity_id: {entity_id}")
 
     async def async_join(self, group_members: list[str]) -> None:
@@ -897,17 +921,53 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:
     """Return coordinator for the given entity ID."""
     _LOGGER.debug("[WiiM] _find_coordinator: Looking up coordinator for entity_id=%s", entity_id)
+
+    # First try: Direct entity ID to host mapping
     for coord in hass.data[DOMAIN].values():
-        # Skip helper dicts like "_group_entities" or anything that does not
-        # expose a ``client`` attribute.
         if not hasattr(coord, "client"):
-            _LOGGER.debug("[WiiM] _find_coordinator: Skipping object without client attribute: %s", type(coord))
             continue
-        # Coordinator stores entities via host; build expected entity_id
         expected = f"media_player.wiim_{coord.client.host.replace('.', '_')}"
-        _LOGGER.debug("[WiiM] _find_coordinator: Comparing expected=%s to provided=%s", expected, entity_id)
         if expected == entity_id:
-            _LOGGER.debug("[WiiM] _find_coordinator: Match found for host=%s", coord.client.host)
+            _LOGGER.debug("[WiiM] _find_coordinator: Direct match found for host=%s", coord.client.host)
             return coord
-    _LOGGER.debug("[WiiM] _find_coordinator: No coordinator found for entity_id=%s", entity_id)
+
+    # Second try: Entity registry lookup
+    try:
+        from homeassistant.helpers import entity_registry as er
+        ent_reg = er.async_get(hass)
+        ent_entry = ent_reg.async_get(entity_id)
+
+        if ent_entry and ent_entry.unique_id:
+            unique = ent_entry.unique_id
+            _LOGGER.debug("[WiiM] _find_coordinator: Registry lookup found unique_id=%s", unique)
+
+            # Try to match by unique_id (which should be the host IP)
+            for coord in hass.data[DOMAIN].values():
+                if hasattr(coord, "client") and coord.client.host == unique:
+                    _LOGGER.debug("[WiiM] _find_coordinator: Match found via unique_id for host=%s", coord.client.host)
+                    return coord
+
+            # Try to match by device name
+            device_name = ent_entry.name or ent_entry.original_name
+            if device_name:
+                for coord in hass.data[DOMAIN].values():
+                    if not hasattr(coord, "client"):
+                        continue
+                    status = coord.data.get("status", {})
+                    device_name_from_status = status.get("DeviceName") or status.get("device_name")
+                    if device_name_from_status and device_name_from_status.lower() == device_name.lower():
+                        _LOGGER.debug("[WiiM] _find_coordinator: Match found via device name for host=%s", coord.client.host)
+                        return coord
+    except Exception as reg_err:
+        _LOGGER.debug("[WiiM] _find_coordinator: Entity registry lookup failed: %s", reg_err)
+
+    # Third try: Look for any coordinator with matching entity_id in its data
+    for coord in hass.data[DOMAIN].values():
+        if not hasattr(coord, "client"):
+            continue
+        if hasattr(coord, "entity_id") and coord.entity_id == entity_id:
+            _LOGGER.debug("[WiiM] _find_coordinator: Match found via coordinator entity_id for host=%s", coord.client.host)
+            return coord
+
+    _LOGGER.warning("[WiiM] _find_coordinator: No coordinator found for entity_id=%s", entity_id)
     return None
