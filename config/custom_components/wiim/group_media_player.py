@@ -119,11 +119,28 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
 
     @property
     def is_volume_muted(self):
-        # Get master's mute state directly from its coordinator
-        master_coord = self._find_coordinator_by_ip(self.master_ip)
-        if not master_coord:
-            return None
-        return master_coord.data.get("status", {}).get("mute")
+        """Return *aggregate* mute state.
+
+        Home-Assistant shows a single toggle for the whole group; we treat the
+        group as muted **only** when *every* member is muted.  If at least one
+        speaker is un-muted the group reports `False` so clicking the icon in
+        the UI will try to mute all.
+        """
+
+        any_unmuted = False
+        any_known = False
+        for ip in self.group_members:
+            coord = self._find_coordinator_by_ip(ip)
+            if not coord or "status" not in coord.data:
+                continue
+            any_known = True
+            if not coord.data["status"].get("mute", False):
+                any_unmuted = True
+                break
+
+        if not any_known:
+            return None  # Unknown
+        return not any_unmuted
 
     @property
     def extra_state_attributes(self):
@@ -225,12 +242,43 @@ class WiiMGroupMediaPlayer(MediaPlayerEntity):
                 await coord.client.set_volume(new_vol / 100)
 
     async def async_mute_volume(self, mute: bool):
-        # Mute/unmute all members
-        group = self.group_info
-        for ip in group.get("members", {}):
+        """Mute or unmute the entire group.
+
+        For a LinkPlay group the master owns audio rendering; slaves ignore
+        direct volume/mute commands.  The correct way to change a slave's
+        mute state is to ask the master via the ``multiroom:SlaveMute``
+        command.  Hence:
+
+        • master → call ``set_mute`` directly; this also propagates to itself
+        • each slave → call ``master.mute_slave(slave_ip, mute)``.
+        """
+
+        # Iterate over all members (master + slaves) and send the standard
+        # setPlayerCmd:mute command.  Slaves accept it just fine and this keeps
+        # behaviour symmetrical.
+
+        for ip in self.group_members:
+            coord = self._find_coordinator_by_ip(ip)
+            if not coord:
+                continue
+            try:
+                await coord.client.set_mute(mute)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("[WiiMGroup] Failed to set mute=%s on %s: %s", mute, ip, err)
+
+        # Trigger an *immediate* refresh for every coordinator so the updated
+        # mute state becomes visible without waiting for the next poll.
+        for ip in self.group_members:
             coord = self._find_coordinator_by_ip(ip)
             if coord:
-                await coord.client.set_mute(mute)
+                try:
+                    await coord.async_request_refresh()  # type: ignore[attr-defined]
+                except Exception:  # noqa: BLE001 – best-effort
+                    pass
+
+        # Finally update our own HA state so the UI reflects the new aggregate
+        # mute status right away.
+        self.async_write_ha_state()
 
     async def async_media_play(self):
         # Play on all members
