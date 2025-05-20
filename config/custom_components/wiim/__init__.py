@@ -52,4 +52,15 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
+        # Clean up any dynamic WiiMGroupMediaPlayer entities whose master IP
+        # belonged to the coordinator we just unloaded.  This avoids orphaned
+        # entities lingering in the entity registry until the next coordinator
+        # refresh.
+        group_entities = hass.data[DOMAIN].get("_group_entities", {})
+        # The host/IP of the device associated with this entry
+        host = entry.data.get("host")
+        if host and host in group_entities:
+            group_entity = group_entities.pop(host)
+            hass.async_create_task(group_entity.async_remove())
+
     return unload_ok
