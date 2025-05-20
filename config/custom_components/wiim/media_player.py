@@ -190,12 +190,6 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         super().__init__(coordinator)
         status = coordinator.data.get("status", {})
         self._attr_unique_id = coordinator.client.host
-        self._attr_name = status.get("DeviceName") or status.get("device_name") or coordinator.client.host
-        # Use a single, stable identifier for the physical device: its IP/host.
-        # Using the UUID for some entities and the host for others resulted in
-        # Home Assistant creating two separate "devices" for the same speaker.
-        # Align everything on the host so every entity (media-player, sensor,
-        # button, etc.) attaches to the same device registry entry.
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.client.host)},
             name=status.get("DeviceName") or status.get("device_name") or coordinator.client.host,
@@ -204,7 +198,6 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             sw_version=status.get("firmware"),
             connections={("mac", status.get("MAC"))} if status.get("MAC") else set(),
         )
-        # Compose the bitmask of capabilities supported by the WiiM device.
         self._attr_supported_features = (
             MediaPlayerEntityFeature.PLAY
             | MediaPlayerEntityFeature.PAUSE
@@ -226,6 +219,12 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             type(self._attr_supported_features),
             MediaPlayerEntityFeature,
         )
+
+    @property
+    def name(self) -> str:
+        """Return the name of the entity, always using the latest device name from status."""
+        status = self.coordinator.data.get("status", {})
+        return status.get("DeviceName") or status.get("device_name") or self.coordinator.client.host
 
     @property
     def state(self) -> MediaPlayerState:

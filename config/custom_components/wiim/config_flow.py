@@ -89,6 +89,8 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         pass
                     info = await client.get_player_status()
                 device_name = info.get("device_name") or info.get("DeviceName") or host
+                model = info.get("device_model") or info.get("hardware") or ""
+                firmware = info.get("firmware") or ""
                 await client.close()
                 # Ensure no duplicate by checking configured entries **and**
                 # flows that are half-way through (scenario: two discoveries
@@ -120,7 +122,16 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if async_search is not None:
             return await self.async_step_upnp()
         schema = vol.Schema({vol.Required(CONF_HOST): str})
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+        # Try to show placeholders if we have info
+        placeholders = {}
+        if 'device_name' in locals():
+            placeholders = {
+                "device_name": device_name,
+                "host": host,
+                "model": model,
+                "firmware": firmware,
+            }
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors, description_placeholders=placeholders)
 
     async def async_step_upnp(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Discover WiiM/LinkPlay devices via UPnP/SSDP."""
@@ -167,11 +178,30 @@ class WiiMConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }
             self._options_map = options_map  # type: ignore[attr-defined]
             schema = vol.Schema({vol.Required(CONF_HOST): vol.In(list(options_map.keys()))})
+            # Try to show placeholders for the first discovered device
+            first_host = next(iter(self._discovered_hosts), None)
+            placeholders = {}
+            if first_host:
+                try:
+                    client = WiiMClient(first_host)
+                    info = await client.get_player_status()
+                    device_name = info.get("device_name") or info.get("DeviceName") or first_host
+                    model = info.get("device_model") or info.get("hardware") or ""
+                    firmware = info.get("firmware") or ""
+                    await client.close()
+                    placeholders = {
+                        "device_name": device_name,
+                        "host": first_host,
+                        "model": model,
+                        "firmware": firmware,
+                    }
+                except Exception:
+                    pass
             return self.async_show_form(
                 step_id="upnp",
                 data_schema=schema,
                 errors=errors,
-                description_placeholders={"count": str(len(self._discovered_hosts))},
+                description_placeholders=placeholders,
             )
         # If no devices found, fall back to manual
         schema = vol.Schema({vol.Required(CONF_HOST): str})
@@ -348,6 +378,14 @@ class WiiMOptionsFlow(config_entries.OptionsFlow):
     ) -> FlowResult:  # noqa: D401
         """Handle options flow."""
         if user_input is not None:
+            # Set logger level based on debug_logging option
+            debug_logging = user_input.get("debug_logging", False)
+            await self.hass.services.async_call(
+                "logger",
+                "set_level",
+                {"custom_components.wiim": "debug" if debug_logging else "info"},
+                blocking=True,
+            )
             return self.async_create_entry(title="Options", data=user_input)
 
         schema = vol.Schema(
@@ -364,6 +402,10 @@ class WiiMOptionsFlow(config_entries.OptionsFlow):
                         CONF_VOLUME_STEP, DEFAULT_VOLUME_STEP
                     ),
                 ): vol.All(vol.Coerce(float), vol.Range(min=0.01, max=0.5)),
+                vol.Optional(
+                    "debug_logging",
+                    default=self.entry.options.get("debug_logging", False),
+                ): bool,
             }
         )
 
