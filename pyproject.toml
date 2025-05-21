@@ -6,10 +6,15 @@ target-version = "py311"
 
 # Optionally skip heavy upstream core tests; keep our own under `config/`.
 exclude = [
-    "tests/test_exceptions.py",
-    # Exclude upstream HA core tests and scaffold templates not relevant to
-    # the WiiM custom component.  They target Python 3.13 and use
-    # BaseExceptionGroup (3.11+) which Ruff flags when target-version < 311.
-    "tests/",
-    "script/",
+    # Entire upstream HA *tests* tree is kept only for reference.  They rely
+    # on Python ≥3.12 features unknown to Ruff when *target-version* = "py311".
+    "tests/**",
+    # Scaffold helpers shipped with the component template – not lint-worthy
+    "script/**",
 ]
+
+# Extra safety net: ignore *undefined-name* inside any file that still slips
+# through the exclude filters (e.g. when a CI task lints a single file).
+per-file-ignores = {
+    "tests/*": ["F821"],
+}
