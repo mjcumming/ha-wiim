@@ -69,6 +69,7 @@ ATTR_MUTE = "mute"
 ATTR_WIFI_RSSI = "wifi_rssi"
 ATTR_WIFI_CHANNEL = "wifi_channel"
 ATTR_GROUP_ROLE = "group_role"
+ATTR_IP_ADDRESS = "ip_address"
 
 # Supported features
 SUPPORT_WIIM = (

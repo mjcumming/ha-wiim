@@ -80,6 +80,12 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self._meta_info_unsupported = False
         self._status_unsupported = False
         self._logged_entity_not_found_for_ha_group = False
+        # Capability flags exposed to UI controls
+        self.eq_supported: bool = True  # cleared when /getEQ answers "unknown command"
+        # Most users do not need to *control* the input from HA; keep it
+        # configurable, default OFF so the dropdown is hidden.  Change to
+        # True if you want the selector back.
+        self.source_supported: bool = False
 
     def _parse_plm_support(self, plm_support: str) -> list[str]:
         """Parse plm_support bitmask into list of available sources."""
@@ -178,6 +184,33 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 status["artist"] = meta_info.get("artist")
                 status["entity_picture"] = meta_info.get("albumArtURI")
 
+            # ------------------------------------------------------------------
+            # 4) EQ information – provides *authoritative* preset value even if
+            #    the main status payload omits / delays it. Some firmwares only
+            #    update ``eq`` after a preset change which leaves HA showing
+            #    stale data. Polling getEQ costs <1 ms and is safe to do each
+            #    cycle.
+            # ------------------------------------------------------------------
+            try:
+                eq_info = await self.client.get_eq()
+                if eq_info:
+                    # Typical payload: {"mode":0,"custom":[0,0,0,0,0,0,0,0,0,0]}
+                    mode_raw = eq_info.get("mode")
+                    if mode_raw is not None:
+                        preset = self.client._EQ_NUMERIC_MAP.get(str(mode_raw), mode_raw)
+                        status["eq_preset"] = preset
+
+                    # Custom curve – list of 10 integers (-12…+12 dB)
+                    if "custom" in eq_info and isinstance(eq_info["custom"], list):
+                        status["eq_custom"] = eq_info["custom"]
+            except Exception as eq_err:  # noqa: BLE001 – non-fatal
+                # Mark EQ as unsupported after the first explicit "unknown command"
+                if isinstance(eq_err, Exception) and "unknown command" in str(eq_err).lower():
+                    if self.eq_supported:
+                        _LOGGER.info("[WiiM] %s: getEQ not supported – hiding EQ selector", self.client.host)
+                    self.eq_supported = False
+                _LOGGER.debug("[WiiM] get_eq failed on %s: %s", self.client.host, eq_err)
+
             # Parse available sources from plm_support
             plm_support = status.get("plm_support", "0")
             sources = self._parse_plm_support(plm_support)
@@ -217,6 +250,17 @@ class WiiMCoordinator(DataUpdateCoordinator):
 
             await self._async_trigger_slave_discovery()
             self._update_ha_group_status()
+
+            # ------------------------------------------------------------------
+            # Post-process *source* to avoid confusing "Follower" on SOLO / MASTER
+            # speakers.  Some firmwares keep reporting ``mode = 99`` (follower)
+            # even after the device left a group which leaves the UI showing an
+            # incorrect source.  When our *role* detection says we are NOT a
+            # slave we translate the source back to "wifi" (internal streamer).
+            # ------------------------------------------------------------------
+            if role != "slave" and status.get("source") == "follower":
+                _LOGGER.debug("[WiiM] %s: Overriding stray 'follower' source with 'wifi' (role=%s)", self.client.host, role)
+                status["source"] = "wifi"
 
             return {
                 "status": status,

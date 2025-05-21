@@ -689,12 +689,41 @@ class WiiMClient:
 
     # Mapping of ``mode`` codes → canonical source names.
     _MODE_MAP: dict[str, str] = {
+        "0": "idle",        # idle/unknown
         "1": "airplay",
         "2": "dlna",
-        "3": "wifi",        # network / built-in streamer
+        "3": "wifi",        # network / built-in streamer / vTuner etc.
         "4": "line_in",
         "5": "bluetooth",
         "6": "optical",
+        "10": "wifi",       # many firmwares report 10 for NET/Streamer
+        "11": "usb",        # local U-Disk playback
+        "20": "wifi",       # HTTPAPI initiated play
+        "31": "spotify",    # Spotify Connect session active
+        "40": "line_in",
+        "41": "bluetooth",
+        "43": "optical",
+        "47": "line_in_2",
+        "51": "usb",        # USB-DAC on WiiM Pro Plus
+        "99": "follower",   # guest/relay in multiroom
+    }
+
+    # Map numeric EQ codes → canonical preset strings understood by the
+    # rest of the integration.
+    _EQ_NUMERIC_MAP: dict[str, str] = {
+        "0": "flat",
+        "1": "pop",
+        "2": "rock",
+        "3": "jazz",
+        "4": "classical",
+        "5": "bass",
+        "6": "treble",
+        "7": "vocal",
+        "8": "loudness",
+        "9": "dance",
+        "10": "acoustic",
+        "11": "electronic",
+        "12": "deep",
     }
 
     def _parse_player_status(self, raw: dict[str, Any]) -> dict[str, Any]:
@@ -794,6 +823,15 @@ class WiiMClient:
         mode_val = raw.get("mode")
         if mode_val is not None and "source" not in data:
             data["source"] = self._MODE_MAP.get(str(mode_val), "unknown")
+
+        # ---------------------------------------------------------------
+        # EQ preset – convert **numeric** codes to their textual alias so
+        # the frontend can display a meaningful name and the service
+        # calls keep working with the usual strings.
+        # ---------------------------------------------------------------
+        eq_raw = data.get("eq_preset")
+        if isinstance(eq_raw, (int, str)) and str(eq_raw).isdigit():
+            data["eq_preset"] = self._EQ_NUMERIC_MAP.get(str(eq_raw), eq_raw)
 
         _LOGGER.debug("Parsed player status: %s", data)
         return data

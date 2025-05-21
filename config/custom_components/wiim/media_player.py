@@ -48,6 +48,7 @@ from .const import (
     EQ_PRESET_CUSTOM,
     EQ_PRESET_MAP,
     SOURCE_MAP,
+    ATTR_IP_ADDRESS,
 )
 from .coordinator import WiiMCoordinator
 from .group_media_player import WiiMGroupMediaPlayer
@@ -198,7 +199,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             sw_version=status.get("firmware"),
             connections={("mac", status.get("MAC"))} if status.get("MAC") else set(),
         )
-        self._attr_supported_features = (
+        base_features = (
             MediaPlayerEntityFeature.PLAY
             | MediaPlayerEntityFeature.PAUSE
             | MediaPlayerEntityFeature.STOP
@@ -206,12 +207,18 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             | MediaPlayerEntityFeature.PREVIOUS_TRACK
             | MediaPlayerEntityFeature.VOLUME_SET
             | MediaPlayerEntityFeature.VOLUME_MUTE
-            | MediaPlayerEntityFeature.SELECT_SOURCE
-            | MediaPlayerEntityFeature.SELECT_SOUND_MODE
             | MediaPlayerEntityFeature.PLAY_MEDIA
             | MediaPlayerEntityFeature.BROWSE_MEDIA
             | MediaPlayerEntityFeature.GROUPING
         )
+
+        # Add optional selectors only if the coordinator reports support
+        if coordinator.source_supported:
+            base_features |= MediaPlayerEntityFeature.SELECT_SOURCE
+        if coordinator.eq_supported:
+            base_features |= MediaPlayerEntityFeature.SELECT_SOUND_MODE
+
+        self._attr_supported_features = base_features
         _LOGGER.debug(
             "WiiM %s: supported_features bitmask = %s (type: %s, enum: %s)",
             coordinator.client.host,
@@ -464,14 +471,17 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             ATTR_DEVICE_MODEL: status.get("device_model"),
             ATTR_DEVICE_NAME: status.get("device_name"),
             ATTR_DEVICE_ID: status.get("device_id"),
+            ATTR_IP_ADDRESS: self.coordinator.client.host,
             ATTR_FIRMWARE: status.get("firmware"),
             ATTR_PRESET: status.get("preset"),
             ATTR_PLAY_MODE: status.get("play_mode"),
             ATTR_REPEAT_MODE: status.get("repeat_mode"),
             ATTR_SHUFFLE_MODE: status.get("shuffle_mode"),
-            ATTR_SOURCE: status.get("source"),
+            # Human-friendly source label (AirPlay, Bluetooth…).  Fall back to
+            # the raw string if we do not know the mapping yet.
+            ATTR_SOURCE: SOURCE_MAP.get(status.get("source"), status.get("source")),
             ATTR_MUTE: status.get("mute"),
-            ATTR_EQ_PRESET: status.get("eq_preset"),
+            ATTR_EQ_PRESET: EQ_PRESET_MAP.get(status.get("eq_preset"), status.get("eq_preset")),
             ATTR_EQ_CUSTOM: status.get("eq_custom"),
             # Use HA-core constant names so the frontend recognises the
             # grouping capability and displays the chain-link button.
