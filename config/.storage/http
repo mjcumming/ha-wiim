@@ -4,16 +4,16 @@
   "key": "http",
   "data": {
     "use_x_frame_options": true,
-    "server_port": 8123,
-    "cors_allowed_origins": [
-      "https://cast.home-assistant.io"
-    ],
-    "login_attempts_threshold": -1,
-    "ssl_profile": "modern",
     "server_host": [
       "0.0.0.0",
       "::"
     ],
-    "ip_ban_enabled": true
+    "login_attempts_threshold": -1,
+    "ip_ban_enabled": true,
+    "server_port": 8123,
+    "ssl_profile": "modern",
+    "cors_allowed_origins": [
+      "https://cast.home-assistant.io"
+    ]
   }
 }
