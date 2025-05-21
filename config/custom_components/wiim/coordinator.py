@@ -273,7 +273,11 @@ class WiiMCoordinator(DataUpdateCoordinator):
             # -----------------------------------------------------------
             vendor_raw = str(status.get("vendor", "")).strip()
             if vendor_raw and vendor_raw.lower() not in ("", "unknown", "unknow"):
-                status["streaming_service"] = vendor_raw.title()
+                # Many firmwares include **extra context** after a colon
+                # (e.g. "Spotify:Station:Playlist:…").  Keep only the
+                # provider name so the HA card shows a clean label.
+                vendor_clean = vendor_raw.split(":", 1)[0]
+                status["streaming_service"] = vendor_clean.title()
 
             # Determine role
             role = "solo"
