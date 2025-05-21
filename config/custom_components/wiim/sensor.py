@@ -26,6 +26,11 @@ SENSORS: Final = {
         "unit": None,
         "device_class": None,
     },
+    "ip_address": {
+        "name": "IP Address",
+        "unit": None,
+        "device_class": None,
+    },
 }
 
 
@@ -71,4 +76,6 @@ class _WiiMDiagnosticSensor(CoordinatorEntity[WiiMCoordinator], SensorEntity):
     def native_value(self) -> Any | None:  # type: ignore[override]
         if self._attribute == ATTR_GROUP_ROLE:
             return self.coordinator.data.get("role")
+        if self._attribute == "ip_address":
+            return self.coordinator.client.host
         return None

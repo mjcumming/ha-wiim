@@ -85,10 +85,10 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self.eq_supported: bool = True  # cleared when /getEQ answers "unknown command"
         self.eq_enabled: bool = False  # track EQ enabled state
         self.eq_presets: list[str] = []  # available EQ presets
-        # Most users do not need to *control* the input from HA; keep it
-        # configurable, default OFF so the dropdown is hidden.  Change to
-        # True if you want the selector back.
-        self.source_supported: bool = False
+        # Enable input source selection for all devices.  The media-player
+        # entity will expose the selector unconditionally so users can swap
+        # between Wi-Fi, Bluetooth, Line-In, etc. directly from Home-Assistant.
+        self.source_supported: bool = True
         # Adaptive polling state
         self._last_play_state = None
         self._last_play_time = None
