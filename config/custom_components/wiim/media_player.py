@@ -460,7 +460,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         status = self._effective_status() or {}
         attrs = {
             # Artwork path consumed by frontend via entity_picture
-            "entity_picture": status.get("cover"),
+            "entity_picture": status.get("entity_picture") or status.get("cover"),
             ATTR_DEVICE_MODEL: status.get("device_model"),
             ATTR_DEVICE_NAME: status.get("device_name"),
             ATTR_DEVICE_ID: status.get("device_id"),
@@ -485,7 +485,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     def entity_picture(self) -> str | None:
         """Return URL to current artwork."""
         status = self._effective_status() or {}
-        pic = status.get("cover")
+        pic = status.get("entity_picture") or status.get("cover")
         _LOGGER.debug("[WiiM] %s: entity_picture=%s", self.coordinator.client.host, pic)
         return pic
 
@@ -958,6 +958,70 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_play_notification(self, url: str) -> None:
         await self.coordinator.client.play_notification(url)
         await self.coordinator.async_refresh()
+
+    # ------------------------------------------------------------------
+    # Media-image helper properties – these let Home Assistant *proxy* the
+    # artwork so browsers do not block mixed-content (HTTPS ↔ HTTP) or cert
+    # errors from the speaker's self-signed TLS certificate.  When we expose
+    # :py:meth:`async_get_media_image` HA automatically generates a
+    # `/api/media_player_proxy/<entity_id>` URL which it injects into the
+    # Lovelace frontend.
+    # ------------------------------------------------------------------
+
+    @property
+    def media_image_url(self) -> str | None:  # noqa: D401 – HA property name
+        """Return the original (remote) artwork URL if available."""
+        return self.entity_picture
+
+    @property
+    def media_image_remotely_accessible(self) -> bool:  # noqa: D401 – HA field
+        """Tell HA whether *media_image_url* can be fetched directly.
+
+        WiiM speakers expose artwork over the device's own HTTPS endpoint
+        secured by a per-device, *self-signed* certificate.  Most browsers
+        reject those which would leave the cover art blank.  We therefore
+        return **False** so Home Assistant proxies the image through its
+        `/api/media_player_proxy/…` endpoint.
+        """
+        return False
+
+    async def async_get_media_image(self):  # type: ignore[override]
+        """Fetch the current artwork and hand bytes to Home Assistant.
+
+        When this coroutine returns ``(bytes, mime_type)`` HA stores the
+        payload in its cache and serves it via `/api/media_player_proxy/…`.
+        If fetching fails we return ``(None, None)`` so the frontend leaves
+        the previous image in place.
+        """
+
+        url = self.entity_picture
+        if not url:
+            _LOGGER.debug("[WiiM] %s: async_get_media_image – no URL", self.entity_id)
+            return None, None
+
+        # Some firmwares hand out *relative* paths (e.g. `/albumart/0.jpg`).
+        # Prefix with the speaker's base URL so the request resolves.
+        if url.startswith("/"):
+            url = f"https://{self.coordinator.client.host}{url}"
+
+        import aiohttp
+        import async_timeout
+
+        try:
+            async with async_timeout.timeout(10):
+                session = aiohttp.ClientSession()
+                async with session.get(url, ssl=False) as resp:  # WiiM certs are self-signed
+                    if resp.status != 200:
+                        _LOGGER.debug("[WiiM] %s: Artwork fetch failed – HTTP %s", self.entity_id, resp.status)
+                        await session.close()
+                        return None, None
+                    data = await resp.read()
+                    mime = resp.headers.get("Content-Type", "image/jpeg")
+                    await session.close()
+                    return data, mime
+        except Exception as err:  # noqa: BLE001 – we simply log & fall back
+            _LOGGER.debug("[WiiM] %s: async_get_media_image error: %s", self.entity_id, err)
+            return None, None
 
 
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:

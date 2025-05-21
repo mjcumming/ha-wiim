@@ -2,7 +2,7 @@
   "domain": "wiim",
   "name": "WiiM Audio (LinkPlay)",
   "author": "Michael Cumming (@mjcumming)",
-  "documentation": "https://www.wiimhome.com/pdf/HTTP%20API%20for%20WiiM%20Products.pdf",
+  "documentation": "https://github.com/yourusername/ha-wiim/blob/main/config/custom_components/wiim/README.md",
   "dependencies": [],
   "codeowners": ["@mjcumming"],
   "requirements": [],

@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import MagicMock
 import aiohttp
-import json
 from unittest.mock import patch
 
 from custom_components.wiim.api import WiiMClient, WiiMError

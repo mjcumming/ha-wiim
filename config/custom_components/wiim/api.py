@@ -31,7 +31,7 @@ from urllib.parse import quote
 
 import aiohttp
 import async_timeout
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientError
 import ssl
 
@@ -665,12 +665,16 @@ class WiiMClient:
 
         return self._parse_player_status(raw)
 
-    # Mapping table {raw_key: canonical_key}
+    # Normalisation table for the *player-status* endpoint.  Keys on the left
+    # are raw HTTP-API field names, values are our canonical attribute names
+    # used throughout the integration.
     _STATUS_MAP: dict[str, str] = {
         "status": "play_status",
         "vol": "volume",
         "mute": "mute",
         "eq": "eq_preset",
+        "EQ": "eq_preset",        # Some firmwares use upper-case EQ
+        "eq_mode": "eq_preset",   # Seen on recent builds (e.g. W281)
         "loop": "loop_mode",
         "curpos": "position_ms",
         "totlen": "duration_ms",
@@ -681,6 +685,16 @@ class WiiMClient:
         # Wi-Fi (only present in fallback)
         "WifiChannel": "wifi_channel",
         "RSSI": "wifi_rssi",
+    }
+
+    # Mapping of ``mode`` codes → canonical source names.
+    _MODE_MAP: dict[str, str] = {
+        "1": "airplay",
+        "2": "dlna",
+        "3": "wifi",        # network / built-in streamer
+        "4": "line_in",
+        "5": "bluetooth",
+        "6": "optical",
     }
 
     def _parse_player_status(self, raw: dict[str, Any]) -> dict[str, Any]:
@@ -756,15 +770,30 @@ class WiiMClient:
             else:
                 data["play_mode"] = PLAY_MODE_NORMAL
 
-        # Artwork URL
+        # Artwork URL – vendors use a **lot** of different keys.  Try the
+        # known variants in priority order so the first *non-empty* match wins.
         cover = (
             raw.get("cover")
             or raw.get("cover_url")
             or raw.get("albumart")
+            or raw.get("albumArtURI")
+            or raw.get("albumArtUri")
+            or raw.get("albumarturi")
+            or raw.get("art_url")
+            or raw.get("artwork_url")
             or raw.get("pic_url")
         )
         if cover:
             data["entity_picture"] = cover
+
+        # ---------------------------------------------------------------
+        # Current *input* source – derived from ``mode`` field.  Not all
+        # firmwares expose ``source`` directly; adding it here enables the
+        # media-player UI to show e.g. "AirPlay" when streaming from iOS.
+        # ---------------------------------------------------------------
+        mode_val = raw.get("mode")
+        if mode_val is not None and "source" not in data:
+            data["source"] = self._MODE_MAP.get(str(mode_val), "unknown")
 
         _LOGGER.debug("Parsed player status: %s", data)
         return data

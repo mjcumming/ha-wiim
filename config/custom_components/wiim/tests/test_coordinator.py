@@ -2,12 +2,10 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
 
-from custom_components.wiim.coordinator import WiiMCoordinator
 from custom_components.wiim.api import WiiMError
 
 MOCK_HOST = "192.168.1.100"
@@ -67,6 +65,7 @@ async def test_coordinator_poll_interval_management(hass: HomeAssistant, mock_co
     mock_coordinator.async_refresh = AsyncMock()
     await mock_coordinator.async_stop()
     await mock_coordinator.async_start()
+    await mock_coordinator.async_stop()
 
 @pytest.mark.asyncio
 async def test_coordinator_error_handling(hass: HomeAssistant, mock_coordinator, mock_client):

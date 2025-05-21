@@ -2,31 +2,14 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 from homeassistant.components.media_player import (
     MediaPlayerEntityFeature,
-    MediaPlayerState,
-)
-from homeassistant.const import (
-    ATTR_ENTITY_ID,
-    SERVICE_MEDIA_NEXT_TRACK,
-    SERVICE_MEDIA_PAUSE,
-    SERVICE_MEDIA_PLAY,
-    SERVICE_MEDIA_PREVIOUS_TRACK,
-    SERVICE_MEDIA_STOP,
-    SERVICE_TURN_OFF,
-    SERVICE_TURN_ON,
-    SERVICE_VOLUME_DOWN,
-    SERVICE_VOLUME_MUTE,
-    SERVICE_VOLUME_SET,
-    SERVICE_VOLUME_UP,
 )
 from homeassistant.core import HomeAssistant
 
-from custom_components.wiim.const import DOMAIN
 from custom_components.wiim.media_player import WiiMMediaPlayer
-from .conftest import MOCK_HOST  # reuse same constant
 
 # ------------------------------------------------------------------
 # Helper

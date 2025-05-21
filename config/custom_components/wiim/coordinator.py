@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 from typing import Any
-import asyncio
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -145,6 +144,15 @@ class WiiMCoordinator(DataUpdateCoordinator):
             except WiiMError as err:
                 _LOGGER.debug("[WiiM] get_multiroom_info failed on %s: %s", self.client.host, err)
                 multiroom = {}
+
+            # ------------------------------------------------------------------
+            # Bail out early if *all* three primary endpoints failed.  Returning
+            # an empty payload would incorrectly mark ``last_update_success`` as
+            # True even though we have **zero** data.  Instead raise a
+            # ``WiiMError`` which the outer handler converts into UpdateFailed.
+            # ------------------------------------------------------------------
+            if not player_status and not basic_status and not multiroom:
+                raise WiiMError("All status endpoints failed")
 
             status = {**basic_status, **player_status}
             current_title = status.get("title")

@@ -1,0 +1,15 @@
+[tool.ruff]
+# Target Python 3.11 so built-ins like `BaseExceptionGroup` are recognised.
+# This eliminates F821 undefined-name errors in upstream HA core tests.
+
+target-version = "py311"
+
+# Optionally skip heavy upstream core tests; keep our own under `config/`.
+exclude = [
+    "tests/test_exceptions.py",
+    # Exclude upstream HA core tests and scaffold templates not relevant to
+    # the WiiM custom component.  They target Python 3.13 and use
+    # BaseExceptionGroup (3.11+) which Ruff flags when target-version < 311.
+    "tests/",
+    "script/",
+]
