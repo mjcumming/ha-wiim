@@ -567,8 +567,11 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             master_coord = self._find_master_coordinator()
             if master_coord:
                 await master_coord.client.play()
+                await master_coord.async_refresh()
+                await self.coordinator.async_refresh()
                 return
         await self.coordinator.client.play()
+        await self.coordinator.async_refresh()
 
     async def async_media_pause(self) -> None:
         """Send pause command."""
@@ -577,8 +580,11 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             master_coord = self._find_master_coordinator()
             if master_coord:
                 await master_coord.client.pause()
+                await master_coord.async_refresh()
+                await self.coordinator.async_refresh()
                 return
         await self.coordinator.client.pause()
+        await self.coordinator.async_refresh()
 
     async def async_media_stop(self) -> None:
         """Send stop command."""
@@ -596,8 +602,11 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             master_coord = self._find_master_coordinator()
             if master_coord:
                 await master_coord.client.next_track()
+                await master_coord.async_refresh()
+                await self.coordinator.async_refresh()
                 return
         await self.coordinator.client.next_track()
+        await self.coordinator.async_refresh()
 
     async def async_media_previous_track(self) -> None:
         """Send previous track command."""
@@ -606,8 +615,11 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             master_coord = self._find_master_coordinator()
             if master_coord:
                 await master_coord.client.previous_track()
+                await master_coord.async_refresh()
+                await self.coordinator.async_refresh()
                 return
         await self.coordinator.client.previous_track()
+        await self.coordinator.async_refresh()
 
     def _volume_step(self) -> float:
         entry_id = getattr(self.coordinator, 'entry_id', None)
@@ -922,10 +934,12 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_play_url(self, url: str) -> None:
         """Play a URL."""
         await self.coordinator.client.play_url(url)
+        await self.coordinator.async_refresh()
 
     async def async_play_playlist(self, playlist_url: str) -> None:
         """Play an M3U playlist."""
         await self.coordinator.client.play_playlist(playlist_url)
+        await self.coordinator.async_refresh()
 
     async def async_set_eq(self, preset: str, custom_values: list[int] | None = None) -> None:
         """Set EQ preset or custom values."""
@@ -935,6 +949,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             await self.coordinator.client.set_eq_custom(custom_values)
         else:
             await self.coordinator.client.set_eq_preset(preset)
+        await self.coordinator.async_refresh()
 
     async def async_select_sound_mode(self, sound_mode: str) -> None:
         preset = next((k for k, v in EQ_PRESET_MAP.items() if v == sound_mode), None)
