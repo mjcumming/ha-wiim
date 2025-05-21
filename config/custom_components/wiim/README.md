@@ -1,18 +1,16 @@
-# WiiM Audio (LinkPlay) – Home Assistant Integration
+# WiiM / LinkPlay Integration for Home Assistant
 
-> **The most complete, dependency-free integration for WiiM & LinkPlay speakers – now with first-class multi-room!**
-
-`custom_components/wiim` exposes every WiiM (and most LinkPlay-based) streamer on your LAN as native `media_player` entities in Home Assistant – plus a **virtual group entity** that keeps your multi-room setups perfectly in sync.
+`custom_components/wiim` turns WiiM (and many LinkPlay-based) streamers into `media_player` entities in Home Assistant. A virtual **group player** keeps multi-room setups in sync and offers one-stop volume and transport control.
 
 ---
 
-## Why choose this integration?
+## Highlights
 
-• **WiiM-first, LinkPlay-friendly** – 100 % coverage of the HTTP API (playback, presets, grouping, diagnostics) while remaining compatible with other LinkPlay brands.
-• **Zero external dependencies** – built entirely on `aiohttp`, already bundled with Home Assistant.
-• **Blazing-fast state refresh** – async I/O + `DataUpdateCoordinator` means sub-second UI updates.
-• **Multi-room done right** – master/guest roles, per-member volume & mute, group volume levelling.
-• **Native HA look & feel** – Config Flow, Options Flow, services, sensors, numbers, buttons – all the good stuff.
+• _Broad feature coverage_ – playback control, presets, equaliser, grouping, diagnostics.
+• _No extra libraries_ – uses `aiohttp`, which ships with Home Assistant.
+• _Responsive UI_ – async polling adapts between 1–10 s depending on activity.
+• _Multi-room support_ – master / guest roles, per-speaker volume & mute, virtual group player.
+• _Standard HA patterns_ – Config Flow, Options Flow, helpers (`number`, `button`, …) and services.
 
 ---
 
@@ -21,9 +19,10 @@
 | Category        | Details                                                                                                                                        |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Transport**   | Play / Pause / Stop / Next / Previous · seek/position slider · standby toggle                                                                  |
-| **Volume**      | Absolute 0-100 % · configurable volume step (per-device) · mute toggle · group-wide volume levelling                                           |
+| **Volume**      | Absolute 0–100 % · configurable volume step (per-device) · mute toggle · group-wide volume levelling                                           |
+| **Equaliser**   | Enable / disable EQ · select preset · 10-band custom curve (-12 dB … +12 dB)                                                                   |
 | **Presets**     | Front-panel preset keys 1-6 via `play_preset` service                                                                                          |
-| **Metadata**    | Title · Artist · Album · Cover art · Position · Shuffle / Repeat modes                                                                         |
+| **Metadata**    | Title · Artist · Album · Cover art · Position · Shuffle / Repeat · Streaming service (Spotify, Tidal, …)                                       |
 | **Discovery**   | SSDP/UPnP (`MediaRenderer:1`) · Zeroconf `_linkplay._tcp` · automatic re-import of existing LinkPlay groups                                    |
 | **Multi-room**  | Create new group · Join / Leave any LinkPlay master · Virtual **Group Player** entity · Attributes: `group_members`, `group_role`, `master_ip` |
 | **Entities**    | `media_player` (device) · `media_player` (group) · `sensor.group_role` · `number` (poll interval, volume step) · `button` (reboot, sync-time)  |

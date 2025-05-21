@@ -376,7 +376,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         status = self._effective_status() or {}
         title = status.get("title")
         _LOGGER.debug("[WiiM] %s: media_title=%s", self.coordinator.client.host, title)
-        return title
+        return None if title in ("unknow", "unknown", None) else title
 
     @property
     def media_artist(self) -> str | None:
@@ -384,7 +384,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         status = self._effective_status() or {}
         artist = status.get("artist")
         _LOGGER.debug("[WiiM] %s: media_artist=%s", self.coordinator.client.host, artist)
-        return artist
+        return None if artist in ("unknow", "unknown", None) else artist
 
     @property
     def media_album_name(self) -> str | None:
@@ -392,7 +392,7 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         status = self._effective_status() or {}
         album = status.get("album")
         _LOGGER.debug("[WiiM] %s: media_album_name=%s", self.coordinator.client.host, album)
-        return album
+        return None if album in ("unknow", "unknown", None) else album
 
     @property
     def media_position(self) -> int | None:
@@ -483,10 +483,13 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             ATTR_MUTE: status.get("mute"),
             ATTR_EQ_PRESET: EQ_PRESET_MAP.get(status.get("eq_preset"), status.get("eq_preset")),
             ATTR_EQ_CUSTOM: status.get("eq_custom"),
+            "eq_enabled": status.get("eq_enabled", False),
+            "eq_presets": status.get("eq_presets", []),
             # Use HA-core constant names so the frontend recognises the
             # grouping capability and displays the chain-link button.
             HA_ATTR_GROUP_MEMBERS: list(self.coordinator.ha_group_members or []),
             HA_ATTR_GROUP_LEADER: self.group_leader,
+            "streaming_service": status.get("streaming_service"),
         }
         _LOGGER.debug("[WiiM] %s extra_state_attributes: %s", self.entity_id, attrs)
         return attrs
@@ -945,13 +948,30 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         """Set EQ preset or custom values."""
         if preset == EQ_PRESET_CUSTOM and custom_values is None:
             raise ValueError("Custom values required for custom EQ preset")
+
+        # Enable EQ if it's not already enabled
+        if not self.coordinator.eq_enabled:
+            await self.coordinator.client.set_eq_enabled(True)
+            await asyncio.sleep(0.1)  # Small delay to ensure EQ is enabled
+
         if preset == EQ_PRESET_CUSTOM:
             await self.coordinator.client.set_eq_custom(custom_values)
         else:
             await self.coordinator.client.set_eq_preset(preset)
         await self.coordinator.async_refresh()
 
+    async def async_set_eq_enabled(self, enabled: bool) -> None:
+        """Enable or disable EQ."""
+        await self.coordinator.client.set_eq_enabled(enabled)
+        await self.coordinator.async_refresh()
+
     async def async_select_sound_mode(self, sound_mode: str) -> None:
+        """Select sound mode (EQ preset)."""
+        # Enable EQ if it's not already enabled
+        if not self.coordinator.eq_enabled:
+            await self.coordinator.client.set_eq_enabled(True)
+            await asyncio.sleep(0.1)  # Small delay to ensure EQ is enabled
+
         preset = next((k for k, v in EQ_PRESET_MAP.items() if v == sound_mode), None)
         if preset:
             await self.coordinator.client.set_eq_preset(preset)
@@ -1047,6 +1067,14 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         except Exception as err:  # noqa: BLE001 – we simply log & fall back
             _LOGGER.debug("[WiiM] %s: async_get_media_image error: %s", self.entity_id, err)
             return None, None
+
+    # --------------------- App / Service name ---------------------------
+
+    @property
+    def app_name(self) -> str | None:  # noqa: D401 – HA property name
+        """Return the name of the current streaming service (Spotify, Tidal…)."""
+        service = self.coordinator.data.get("status", {}).get("streaming_service")
+        return service
 
 
 def _find_coordinator(hass: HomeAssistant, entity_id: str) -> WiiMCoordinator | None:

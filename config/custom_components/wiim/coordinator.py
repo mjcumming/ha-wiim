@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 from typing import Any
+import asyncio
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -82,10 +83,17 @@ class WiiMCoordinator(DataUpdateCoordinator):
         self._logged_entity_not_found_for_ha_group = False
         # Capability flags exposed to UI controls
         self.eq_supported: bool = True  # cleared when /getEQ answers "unknown command"
+        self.eq_enabled: bool = False  # track EQ enabled state
+        self.eq_presets: list[str] = []  # available EQ presets
         # Most users do not need to *control* the input from HA; keep it
         # configurable, default OFF so the dropdown is hidden.  Change to
         # True if you want the selector back.
         self.source_supported: bool = False
+        # Adaptive polling state
+        self._last_play_state = None
+        self._last_play_time = None
+        self._eq_poll_counter = 0
+        self._idle_timeout = 600  # 10 minutes in seconds
 
     def _parse_plm_support(self, plm_support: str) -> list[str]:
         """Parse plm_support bitmask into list of available sources."""
@@ -126,7 +134,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
             basic_status: dict[str, Any]
             multiroom: dict[str, Any]
 
-            # 1) Player status (getPlayerStatusEx / getStatusEx fallback inside)
+            # 1) Player status (getPlayerStatus) - primary source of playback state
             try:
                 player_status = await self.client.get_player_status()
             except WiiMError as err:
@@ -134,6 +142,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 player_status = {}
 
             # 2) Basic status (getStatusEx) – skip if we previously marked unsupported
+            # This provides additional device info like firmware version, device name, etc.
             if self._status_unsupported:
                 basic_status = {}
             else:
@@ -144,7 +153,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
                     basic_status = {}
                     self._status_unsupported = True
 
-            # 3) Multiroom info (always attempted)
+            # 3) Multiroom info (always attempted) - required for group management
             try:
                 multiroom = await self.client.get_multiroom_info()
             except WiiMError as err:
@@ -160,8 +169,27 @@ class WiiMCoordinator(DataUpdateCoordinator):
             if not player_status and not basic_status and not multiroom:
                 raise WiiMError("All status endpoints failed")
 
+            # Merge status data, preferring player_status for playback state
             status = {**basic_status, **player_status}
             current_title = status.get("title")
+            current_play_state = status.get("play_status")
+
+            # Update adaptive polling state
+            now = asyncio.get_running_loop().time()
+            if current_play_state != self._last_play_state:
+                self._last_play_state = current_play_state
+                self._last_play_time = now
+
+            # Determine polling interval based on state
+            if current_play_state == "play":
+                # Active playback - poll every second
+                self.update_interval = timedelta(seconds=1)
+            elif self._last_play_time and (now - self._last_play_time) < self._idle_timeout:
+                # Recently played - poll every 5 seconds
+                self.update_interval = timedelta(seconds=5)
+            else:
+                # Idle - poll every 10 seconds
+                self.update_interval = timedelta(seconds=10)
 
             # Only fetch meta info if supported & title changed
             if not self._meta_info_unsupported and (
@@ -185,31 +213,51 @@ class WiiMCoordinator(DataUpdateCoordinator):
                 status["entity_picture"] = meta_info.get("albumArtURI")
 
             # ------------------------------------------------------------------
-            # 4) EQ information – provides *authoritative* preset value even if
-            #    the main status payload omits / delays it. Some firmwares only
-            #    update ``eq`` after a preset change which leaves HA showing
-            #    stale data. Polling getEQ costs <1 ms and is safe to do each
-            #    cycle.
+            # 4) EQ information – poll at 1/3 rate and only if supported
             # ------------------------------------------------------------------
-            try:
-                eq_info = await self.client.get_eq()
-                if eq_info:
-                    # Typical payload: {"mode":0,"custom":[0,0,0,0,0,0,0,0,0,0]}
-                    mode_raw = eq_info.get("mode")
-                    if mode_raw is not None:
-                        preset = self.client._EQ_NUMERIC_MAP.get(str(mode_raw), mode_raw)
-                        status["eq_preset"] = preset
+            self._eq_poll_counter += 1
+            if self.eq_supported and self._eq_poll_counter >= 3:
+                self._eq_poll_counter = 0
+                try:
+                    # ----------------------------------------------
+                    # 1) Determine whether EQ is enabled.  On some
+                    #    builds EQGetStat is absent; our helper tries a
+                    #    heuristic and may leave the state unchanged.
+                    # ----------------------------------------------
+                    eq_enabled = await self.client.get_eq_status()
+                    self.eq_enabled = eq_enabled
+                    status["eq_enabled"] = eq_enabled
 
-                    # Custom curve – list of 10 integers (-12…+12 dB)
-                    if "custom" in eq_info and isinstance(eq_info["custom"], list):
-                        status["eq_custom"] = eq_info["custom"]
-            except Exception as eq_err:  # noqa: BLE001 – non-fatal
-                # Mark EQ as unsupported after the first explicit "unknown command"
-                if isinstance(eq_err, Exception) and "unknown command" in str(eq_err).lower():
-                    if self.eq_supported:
-                        _LOGGER.info("[WiiM] %s: getEQ not supported – hiding EQ selector", self.client.host)
-                    self.eq_supported = False
-                _LOGGER.debug("[WiiM] get_eq failed on %s: %s", self.client.host, eq_err)
+                    # ----------------------------------------------
+                    # 2) Always fetch the current EQ settings – even
+                    #    when *disabled*.  This guarantees that changes
+                    #    made in the WiiM mobile app are reflected in
+                    #    Home-Assistant without having to toggle the
+                    #    enable switch first.
+                    # ----------------------------------------------
+                    eq_info = await self.client.get_eq()
+                    if eq_info:
+                        mode_raw = eq_info.get("mode")
+                        if mode_raw is not None:
+                            preset = self.client._EQ_NUMERIC_MAP.get(str(mode_raw), mode_raw)
+                            status["eq_preset"] = preset
+
+                        # Custom curve – list of 10 integers (-12…+12 dB)
+                        if "custom" in eq_info and isinstance(eq_info["custom"], list):
+                            status["eq_custom"] = eq_info["custom"]
+
+                    # Get available presets if we haven't yet
+                    if not self.eq_presets:
+                        self.eq_presets = await self.client.get_eq_presets()
+                        status["eq_presets"] = self.eq_presets
+
+                except Exception as eq_err:  # noqa: BLE001 – non-fatal
+                    # Mark EQ as unsupported after the first explicit "unknown command"
+                    if isinstance(eq_err, Exception) and "unknown command" in str(eq_err).lower():
+                        if self.eq_supported:
+                            _LOGGER.info("[WiiM] %s: getEQ not supported – hiding EQ selector", self.client.host)
+                        self.eq_supported = False
+                    _LOGGER.debug("[WiiM] get_eq failed on %s: %s", self.client.host, eq_err)
 
             # Parse available sources from plm_support
             plm_support = status.get("plm_support", "0")
@@ -217,19 +265,22 @@ class WiiMCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("[WiiM] %s: Parsed sources from plm_support: %s", self.client.host, sources)
             status["sources"] = sources
 
-            # --- Updated role detection logic ---
-            slave_list = multiroom.get("slave_list", [])
-            _LOGGER.debug("[WiiM] %s: Role detection - multiroom=%s, slave_list=%s", self.client.host, multiroom, slave_list)
+            # -----------------------------------------------------------
+            # Streaming-service provider (Spotify / Tidal / Amazon …)
+            # The *vendor* field set by LinkPlay is our best hint.  Expose
+            # it under a stable key so the media_player entity can surface
+            # it via app_name/extra attributes.
+            # -----------------------------------------------------------
+            vendor_raw = str(status.get("vendor", "")).strip()
+            if vendor_raw and vendor_raw.lower() not in ("", "unknown", "unknow"):
+                status["streaming_service"] = vendor_raw.title()
 
-            if multiroom.get("type") == "1" or status.get("type") == "1":
+            # Determine role
+            role = "solo"
+            if multiroom.get("type") == "1":
                 role = "slave"
-                _LOGGER.debug("[WiiM] %s: Detected as SLAVE (type=1)", self.client.host)
-            elif slave_list:
+            elif multiroom.get("slave_list"):
                 role = "master"
-                _LOGGER.debug("[WiiM] %s: Detected as MASTER (has %d slaves)", self.client.host, len(slave_list))
-            else:
-                role = "solo"
-                _LOGGER.debug("[WiiM] %s: Detected as SOLO (no slaves, type!=1)", self.client.host)
 
             # Update group registry
             self._update_group_registry(status, multiroom)

@@ -99,7 +99,7 @@ SUPPORT_WIIM = (
 # WiiM API endpoints
 # Player Controls
 API_ENDPOINT_STATUS = "/httpapi.asp?command=getStatusEx"
-API_ENDPOINT_PLAYER_STATUS = "/httpapi.asp?command=getPlayerStatusEx"
+API_ENDPOINT_PLAYER_STATUS = "/httpapi.asp?command=getPlayerStatus"
 API_ENDPOINT_PLAY = "/httpapi.asp?command=setPlayerCmd:play"
 API_ENDPOINT_PAUSE = "/httpapi.asp?command=setPlayerCmd:pause"
 API_ENDPOINT_STOP = "/httpapi.asp?command=setPlayerCmd:stop"
@@ -131,9 +131,13 @@ API_ENDPOINT_GROUP_SLAVE_MUTE = "/httpapi.asp?command=multiroom:SlaveMute:"
 API_ENDPOINT_GROUP_SLAVE_VOLUME = "/httpapi.asp?command=multiroom:SlaveVolume:"
 
 # EQ Controls
-API_ENDPOINT_EQ_PRESET = "/httpapi.asp?command=setEQ:preset:"
+API_ENDPOINT_EQ_PRESET = "/httpapi.asp?command=EQLoad:"
 API_ENDPOINT_EQ_CUSTOM = "/httpapi.asp?command=setEQ:custom:"
 API_ENDPOINT_EQ_GET = "/httpapi.asp?command=getEQ"
+API_ENDPOINT_EQ_ON = "/httpapi.asp?command=EQOn"
+API_ENDPOINT_EQ_OFF = "/httpapi.asp?command=EQOff"
+API_ENDPOINT_EQ_STATUS = "/httpapi.asp?command=EQGetStat"
+API_ENDPOINT_EQ_LIST = "/httpapi.asp?command=EQGetList"
 
 # Source Selection
 API_ENDPOINT_SOURCE = "/httpapi.asp?command=setPlayerCmd:switchmode:"

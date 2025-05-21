@@ -77,6 +77,10 @@ from .const import (
     API_ENDPOINT_GROUP_KICK,
     API_ENDPOINT_GROUP_SLAVE_MUTE,
     EQ_PRESET_MAP,
+    API_ENDPOINT_EQ_ON,
+    API_ENDPOINT_EQ_OFF,
+    API_ENDPOINT_EQ_STATUS,
+    API_ENDPOINT_EQ_LIST,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -578,10 +582,22 @@ class WiiMClient:
 
     # EQ Controls
     async def set_eq_preset(self, preset: str) -> None:
-        """Set EQ preset."""
-        if preset not in EQ_PRESET_MAP.keys():
+        """Set EQ preset.
+
+        The LinkPlay firmware expects the **human-readable** preset label
+        (e.g. ``EQLoad:Flat``) while our Home-Assistant code traditionally
+        works with the lower-case *key* (``flat``).  Convert the key to the
+        label before sending the request so the command succeeds on all
+        firmware builds.
+        """
+
+        if preset not in EQ_PRESET_MAP:
             raise ValueError(f"Invalid EQ preset: {preset}")
-        await self._request(f"{API_ENDPOINT_EQ_PRESET}{preset}")
+
+        # Convert internal key → device label ("flat" → "Flat")
+        api_value = EQ_PRESET_MAP[preset]
+
+        await self._request(f"{API_ENDPOINT_EQ_PRESET}{api_value}")
 
     async def set_eq_custom(self, eq_values: list[int]) -> None:
         """Set custom EQ values (10 bands)."""
@@ -593,6 +609,52 @@ class WiiMClient:
     async def get_eq(self) -> dict[str, Any]:
         """Get current EQ settings."""
         return await self._request(API_ENDPOINT_EQ_GET)
+
+    async def set_eq_enabled(self, enabled: bool) -> None:
+        """Enable or disable EQ."""
+        endpoint = API_ENDPOINT_EQ_ON if enabled else API_ENDPOINT_EQ_OFF
+        await self._request(endpoint)
+
+    async def get_eq_status(self) -> bool:
+        """Return *True* if the device reports that EQ is enabled.
+
+        Not all firmware builds implement ``EQGetStat`` – many return the
+        generic ``{"status":"Failed"}`` payload instead.  In that case we
+        fall back to calling ``getEQ``: if the speaker answers *anything*
+        other than *unknown command* we assume that EQ support is present
+        and therefore enabled.
+        """
+
+        try:
+            response = await self._request(API_ENDPOINT_EQ_STATUS)
+
+            # Normal, spec-compliant reply → {"EQStat":"On"|"Off"}
+            if "EQStat" in response:
+                return str(response["EQStat"]).lower() == "on"
+
+            # Some firmwares return {"status":"Failed"} for unsupported
+            # commands – treat this as *unknown* and use a heuristic.
+            if str(response.get("status", "")).lower() == "failed":
+                # If /getEQ succeeds we take that as evidence that the EQ
+                # subsystem is operational which implies it is *enabled*.
+                try:
+                    await self._request(API_ENDPOINT_EQ_GET)
+                    return True
+                except WiiMError:
+                    return False
+
+            # Fallback – any other structure counts as EQ disabled.
+            return False
+
+        except WiiMError:
+            # On explicit request errors assume EQ disabled so callers can
+            # still proceed without raising.
+            return False
+
+    async def get_eq_presets(self) -> list[str]:
+        """Get list of available EQ presets."""
+        response = await self._request(API_ENDPOINT_EQ_LIST)
+        return response if isinstance(response, list) else []
 
     # Source Selection
     async def set_source(self, source: str) -> None:
@@ -652,15 +714,29 @@ class WiiMClient:
     async def get_player_status(self) -> dict[str, Any]:
         """Return a **normalised** status dict.
 
-        Order of preference: getPlayerStatusEx → getStatusEx.
-        Raw payload is converted to a stable schema so the rest of the
+        This method fetches the current player status using the getPlayerStatus endpoint.
+        The raw payload is converted to a stable schema so the rest of the
         integration can rely on consistent keys.
+
+        Returns:
+            A dictionary containing normalized player status including:
+            - play_status: Current playback state (play/pause/stop)
+            - volume: Current volume level (0-100)
+            - mute: Current mute state
+            - position: Current playback position in seconds
+            - duration: Total duration of current track in seconds
+            - title: Current track title
+            - artist: Current track artist
+            - album: Current track album
+            - source: Current audio source
+            - play_mode: Current play mode (normal/repeat/shuffle)
         """
         from .const import API_ENDPOINT_PLAYER_STATUS
 
         try:
             raw: dict[str, Any] = await self._request(API_ENDPOINT_PLAYER_STATUS)
         except WiiMError:
+            # Fallback to basic status if player status fails
             raw = await self._request(API_ENDPOINT_STATUS)
 
         return self._parse_player_status(raw)
