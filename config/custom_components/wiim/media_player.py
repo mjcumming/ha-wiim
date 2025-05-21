@@ -243,13 +243,55 @@ class WiiMMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def volume_level(self) -> float | None:
         """Return the volume level of the media player (0..1)."""
-        if volume := self.coordinator.data.get("status", {}).get("volume"):
-            return float(volume) / 100
-        return None
+        # Prefer *live* data from the device itself.  Unfortunately, LinkPlay
+        # slaves often report incorrect or stale volume information while they
+        # are part of a group (frequently returning ``0``).  When we detect
+        # that this speaker currently acts as a **slave** we therefore fall
+        # back to the volume that the *master* advertises for us in its
+        # ``multiroom:slave_list`` payload.
+
+        status_volume: int | None = self.coordinator.data.get("status", {}).get("volume")
+
+        # Early-exit for normal (solo or master) speakers – their own status
+        # is considered authoritative.
+        if self.coordinator.data.get("role") != "slave":
+            return float(status_volume) / 100 if status_volume is not None else None
+
+        # --- Slave path ----------------------------------------------------
+        # Try to obtain the *current* volume the master keeps for this slave.
+        master_coord = self._find_master_coordinator()
+        if master_coord and master_coord.data is not None:
+            slave_list = master_coord.data.get("multiroom", {}).get("slave_list", [])
+            my_ip = self.coordinator.client.host
+            for entry in slave_list:
+                if isinstance(entry, dict) and entry.get("ip") == my_ip:
+                    master_vol = entry.get("volume")
+                    if master_vol is not None:
+                        return float(master_vol) / 100
+
+        # Fallback to whatever the slave reported itself (may be 0 which is
+        # better than showing *unknown* in the UI).
+        return float(status_volume) / 100 if status_volume is not None else None
 
     @property
     def is_volume_muted(self) -> bool | None:
         """Return boolean if volume is currently muted."""
+        role = self.coordinator.data.get("role")
+        # For *solo* and *master* devices the local status is authoritative.
+        if role != "slave":
+            return self.coordinator.data.get("status", {}).get("mute")
+
+        # --- Slave path ----------------------------------------------------
+        master_coord = self._find_master_coordinator()
+        if master_coord and master_coord.data is not None:
+            slave_list = master_coord.data.get("multiroom", {}).get("slave_list", [])
+            my_ip = self.coordinator.client.host
+            for entry in slave_list:
+                if isinstance(entry, dict) and entry.get("ip") == my_ip:
+                    return bool(entry.get("mute", False))
+
+        # Fallback – may be *None* if the key is missing which Home-Assistant
+        # will interpret as *unknown*.
         return self.coordinator.data.get("status", {}).get("mute")
 
     def _effective_status(self):
