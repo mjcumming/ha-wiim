@@ -541,7 +541,7 @@ class WiiMClient:
         """Join a multiroom group as a slave."""
         # Check actual device state before raising error
         multiroom = await self.get_multiroom_info()
-        if multiroom.get("type") == "1" or self._group_master:
+        if str(multiroom.get("type")) == "1" or self._group_master:
             # Try to leave group first
             try:
                 await self.leave_group()

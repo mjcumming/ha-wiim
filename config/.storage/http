@@ -6,14 +6,14 @@
     "cors_allowed_origins": [
       "https://cast.home-assistant.io"
     ],
+    "use_x_frame_options": true,
+    "ip_ban_enabled": true,
+    "ssl_profile": "modern",
     "server_host": [
       "0.0.0.0",
       "::"
     ],
-    "ssl_profile": "modern",
-    "use_x_frame_options": true,
-    "login_attempts_threshold": -1,
-    "ip_ban_enabled": true,
-    "server_port": 8123
+    "server_port": 8123,
+    "login_attempts_threshold": -1
   }
 }

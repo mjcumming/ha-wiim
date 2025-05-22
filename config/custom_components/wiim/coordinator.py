@@ -281,7 +281,9 @@ class WiiMCoordinator(DataUpdateCoordinator):
 
             # Determine role
             role = "solo"
-            if multiroom.get("type") == "1":
+            # LinkPlay firmwares sometimes return the numeric value **1** instead of the string "1".
+            # Cast to *str* so we detect both representations transparently.
+            if str(multiroom.get("type")) == "1":
                 role = "slave"
             elif multiroom.get("slave_list"):
                 role = "master"
@@ -354,7 +356,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
         #    entity lingers after a user calls multiroom:Ungroup().
         # ------------------------------------------------------------------
         is_currently_master = multiroom.get("slaves", 0) > 0
-        is_currently_slave = multiroom.get("type") == "1" or status.get("type") == "1"
+        is_currently_slave = str(multiroom.get("type")) == "1" or str(status.get("type")) == "1"
 
         if not is_currently_master and not is_currently_slave:
             # Speaker is in *solo* mode → remove any registry that still lists
@@ -375,7 +377,7 @@ class WiiMCoordinator(DataUpdateCoordinator):
         # Try to determine master_ip from own multiroom info
         master_ip = self.client.host if multiroom.get("slaves", 0) > 0 else multiroom.get("master_uuid")
         # If not found and this device is a slave, search all coordinators for a master whose slave_list includes this device
-        if not master_ip and (multiroom.get("type") == "1" or status.get("type") == "1"):
+        if not master_ip and (str(multiroom.get("type")) == "1" or str(status.get("type")) == "1"):
             my_ip = self.client.host
             my_uuid = status.get("device_id")
             for coord in self.hass.data[DOMAIN].values():
